@@ -1,0 +1,39 @@
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Data files
+*.xlsx
+*.csv
+data/raw/*
+!data/raw/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Exclude nested git repos
+wine_producer_scaper/
+wine_region_scraper/wine_vintage_scrape_repo/

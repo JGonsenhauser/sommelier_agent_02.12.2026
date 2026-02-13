@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python test_frontend_setup.py:*)",
+      "Bash(ping:*)",
+      "Bash(python:*)",
+      "Bash(uvicorn api.mobile_api:app --reload --port 8000:*)",
+      "Bash(streamlit run:*)",
+      "Bash(curl:*)",
+      "Bash(findstr:*)",
+      "Bash(netstat:*)",
+      "Bash(tasklist:*)"
+    ]
+  }
+}

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Jarvis Wine Sommelier</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #FFFFFF;
+            color: #000000;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: #000000;
+            color: #FFFFFF;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #CCCCCC;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            background: #F0F0F0;
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin-left: 40px;
+            font-size: 16px;
+        }
+
+        .assistant-message {
+            background: #000000;
+            color: #FFFFFF;
+            padding: 16px;
+            border-radius: 12px;
+            margin-right: 20px;
+        }
+
+        .wine-card {
+            background: #FFFFFF;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .wine-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .wine-section {
+            margin-bottom: 12px;
+        }
+
+        .wine-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666666;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .wine-section-content {
+            font-size: 15px;
+            color: #1F1F1F;
+            line-height: 1.5;
+        }
+
+        .input-container {
+            padding: 16px;
+            background: #FFFFFF;
+            border-top: 1px solid #E0E0E0;
+            display: flex;
+            gap: 12px;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #E0E0E0;
+            border-radius: 24px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        #userInput:focus {
+            border-color: #000000;
+        }
+
+        #sendButton {
+            background: #000000;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 24px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        #sendButton:active {
+            background: #333333;
+        }
+
+        #sendButton:disabled {
+            background: #CCCCCC;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            color: #666666;
+            font-size: 14px;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .loading-dot {
+            width: 6px;
+            height: 6px;
+            background: #666666;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .loading-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        .welcome-text {
+            background: #F8F9FA;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            color: #333333;
+        }
+
+        .welcome-text strong {
+            color: #000000;
+        }
+
+        .processing-time {
+            font-size: 12px;
+            color: #999999;
+            margin-top: 8px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MAASS Beverage List</h1>
+            <p>Jarvis • Wine Sommelier</p>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="welcome-text">
+                Welcome to your personal sommelier! My name is <strong>Jarvis</strong>.
+                <br><br>
+                Tell me about the wine you're looking for. Share your preferred price point,
+                grape varietal, region, and body preference. Or, if you'd like a food pairing,
+                simply tell me what you're eating.
+            </div>
+        </div>
+
+        <div class="input-container">
+            <input
+                type="text"
+                id="userInput"
+                placeholder="Describe the wine you're looking for..."
+                autocomplete="off"
+            >
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        const chatContainer = document.getElementById('chatContainer');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+
+        function addUserMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = `<div class="user-message">${escapeHtml(text)}</div>`;
+            chatContainer.appendChild(messageDiv);
+            scrollToMessage(messageDiv);
+        }
+
+        function addAssistantMessage(wines, processingTime) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+
+            let wineCards = '';
+            wines.forEach((wine, index) => {
+                const title = [
+                    wine.vintage,
+                    wine.producer,
+                    wine.wine_name || wine.region,
+                    wine.price ? `$${wine.price}` : ''
+                ].filter(Boolean).join(' ');
+
+                wineCards += `
+                    <div class="wine-card">
+                        <div class="wine-title">${escapeHtml(title)}</div>
+
+                        ${wine.tasting_note ? `
+                            <div class="wine-section">
+                                <div class="wine-section-title">Tasting Note</div>
+                                <div class="wine-section-content">${escapeHtml(wine.tasting_note)}</div>
+                            </div>
+                        ` : ''}
+
+                        ${wine.food_pairing ? `
+                            <div class="wine-section">
+                                <div class="wine-section-title">Food Pairing</div>
+                                <div class="wine-section-content">${escapeHtml(wine.food_pairing)}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            messageDiv.innerHTML = `
+                <div class="assistant-message">
+                    ${wineCards}
+                    <div class="processing-time">⚡ ${processingTime.toFixed(2)}s</div>
+                </div>
+            `;
+            chatContainer.appendChild(messageDiv);
+            scrollToMessage(messageDiv);
+        }
+
+        function addLoadingMessage() {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message loading';
+            messageDiv.id = 'loadingMessage';
+            messageDiv.innerHTML = `
+                Searching our collection
+                <div class="loading-dots">
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                </div>
+            `;
+            chatContainer.appendChild(messageDiv);
+            scrollToMessage(messageDiv);
+        }
+
+        function removeLoadingMessage() {
+            const loadingMsg = document.getElementById('loadingMessage');
+            if (loadingMsg) {
+                loadingMsg.remove();
+            }
+        }
+
+        function addErrorMessage(error) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = `
+                <div class="assistant-message">
+                    <div class="wine-card">
+                        ⚠️ Sorry, I encountered an error. Please try again.
+                        <br><br>
+                        <small style="color: #999999;">${escapeHtml(error)}</small>
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(messageDiv);
+            scrollToMessage(messageDiv);
+        }
+
+        async function sendQuery() {
+            const query = userInput.value.trim();
+            if (!query) return;
+
+            // Add user message
+            addUserMessage(query);
+            userInput.value = '';
+
+            // Disable input
+            sendButton.disabled = true;
+            userInput.disabled = true;
+            addLoadingMessage();
+
+            try {
+                const response = await fetch(`${API_URL}/api/recommend`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        restaurant_id: 'maass'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Failed to get recommendations');
+                }
+
+                removeLoadingMessage();
+
+                if (data.wines.length === 0) {
+                    addErrorMessage('No wines found matching your criteria. Please try different search terms.');
+                } else {
+                    addAssistantMessage(data.wines, data.processing_time);
+                }
+
+            } catch (error) {
+                removeLoadingMessage();
+                addErrorMessage(error.message);
+                console.error('Error:', error);
+            } finally {
+                // Re-enable input
+                sendButton.disabled = false;
+                userInput.disabled = false;
+                userInput.focus();
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function scrollToMessage(element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Event listeners
+        sendButton.addEventListener('click', sendQuery);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendQuery();
+            }
+        });
+
+        // Focus input on load
+        userInput.focus();
+
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .catch(err => console.log('Service worker registration failed:', err));
+        }
+    </script>
+</body>
+</html>
