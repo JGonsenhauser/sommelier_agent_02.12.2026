@@ -5,7 +5,7 @@
 Your Redis Cloud database is now fully integrated with the Sommelier Agent!
 
 **Redis Cloud Instance:**
-- **Host**: redis-11062.c261.us-east-1-4.ec2.cloud.redislabs.com
+- **Host**: 
 - **Port**: 11062
 - **Status**: ✅ Connected and working
 - **Performance**: 10-50x faster cached responses
@@ -20,11 +20,11 @@ Added Redis Cloud connection details:
 
 ```bash
 # Redis Configuration (Redis Cloud)
-REDIS_URL=redis://default:Duqa2aXKiqluDfcleqB6UttMYQjZun30@redis-11062.c261.us-east-1-4.ec2.cloud.redislabs.com:11062
-REDIS_HOST=redis-11062.c261.us-east-1-4.ec2.cloud.redislabs.com
+REDIS_URL=
+REDIS_HOST=
 REDIS_PORT=11062
 REDIS_DB=0
-REDIS_PASSWORD=Duqa2aXKiqluDfcleqB6UttMYQjZun30
+REDIS_PASSWORD=
 ```
 
 ### 2. Updated `config.py`
