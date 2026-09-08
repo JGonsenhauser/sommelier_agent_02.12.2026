@@ -72,6 +72,11 @@ TYPED = [
     "pinot old world",
     "cabernet old world",
     "old world red",
+    "left bank",
+    "right bank",
+    "Barbaresco",
+    "pinot",
+    "GSM",
 ]
 
 

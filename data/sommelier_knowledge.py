@@ -112,11 +112,28 @@ FOOD_CUES = [
 def named_country_or_region(q: str) -> Optional[str]:
     """Lock typed country/region so 'Italian white' cannot become Chablis."""
     q = (q or "").lower()
+    if "to drink with" in q:
+        return None
     pairs = (
         ("new zealand", "new_zealand"),
-        ("california", "california"),
+        ("mclaren", "mclaren"),
+        ("barossa", "barossa"),
         ("willamette", "oregon"),
+        ("napa", "napa"),
+        ("sonoma", "sonoma"),
+        ("california", "california"),
         ("oregon", "oregon"),
+        ("pauillac", "pauillac"),
+        ("margaux", "margaux"),
+        ("pomerol", "pomerol"),
+        ("saint-émilion", "st_emilion"),
+        ("saint-emilion", "st_emilion"),
+        ("st-emilion", "st_emilion"),
+        ("meursault", "meursault"),
+        ("puligny", "puligny"),
+        ("gevrey", "gevrey"),
+        ("chambolle", "chambolle"),
+        ("ribera", "ribera"),
         ("piedmont", "piedmont"),
         ("piemonte", "piedmont"),
         ("tuscany", "tuscany"),
@@ -199,6 +216,7 @@ class GuestIntent:
     lock_profile: bool = False
     food: Optional[str] = None
     named: Optional[str] = None  # grape or appellation the guest named
+    place: Optional[str] = None  # extra AND lock (e.g. Chardonnay from France)
     world: Optional[str] = None  # old | new
     raw: str = ""
 
@@ -249,8 +267,23 @@ def parse_intent(query: str) -> GuestIntent:
         if intent.color is None:
             intent.color = "red" if ("rouge" in q or re.search(r"\bred\b", q)) else "white"
             intent.lock_color = True
+    elif "barbaresco" in q:
+        intent.named = "barbaresco"
+        if intent.color is None:
+            intent.color = "red"
+            intent.lock_color = True
     elif "barolo" in q:
         intent.named = "barolo"
+        if intent.color is None:
+            intent.color = "red"
+            intent.lock_color = True
+    elif "left bank" in q or "left-bank" in q:
+        intent.named = "left_bank"
+        if intent.color is None:
+            intent.color = "red"
+            intent.lock_color = True
+    elif "right bank" in q or "right-bank" in q:
+        intent.named = "right_bank"
         if intent.color is None:
             intent.color = "red"
             intent.lock_color = True
@@ -269,7 +302,9 @@ def parse_intent(query: str) -> GuestIntent:
         if intent.color is None:
             intent.color = "white"
             intent.lock_color = True
-    elif re.search(r"\bpinot noir\b", q):
+    elif re.search(r"\bpinot noir\b", q) or (
+        re.search(r"\bpinot\b", q) and "gris" not in q and "grigio" not in q
+    ):
         intent.named = intent.named or "pinot noir"
         if intent.color is None:
             intent.color = "red"
@@ -289,7 +324,7 @@ def parse_intent(query: str) -> GuestIntent:
         if intent.color is None:
             intent.color = "red"
             intent.lock_color = True
-    elif "rhône" in q or "rhone" in q or "côte-rôtie" in q or "cote rotie" in q or "hermitage" in q or "cornas" in q:
+    elif "rhône" in q or "rhone" in q or "côte-rôtie" in q or "cote rotie" in q or "cote-rotie" in q or "hermitage" in q or "cornas" in q:
         intent.named = "rhone"
         intent.world = intent.world or "old"
         if intent.color is None:
@@ -302,6 +337,11 @@ def parse_intent(query: str) -> GuestIntent:
             intent.lock_color = True
     elif "malbec" in q:
         intent.named = intent.named or "malbec"
+        if intent.color is None:
+            intent.color = "red"
+            intent.lock_color = True
+    elif "grenache" in q or "garnacha" in q or re.search(r"\bgsm\b", q):
+        intent.named = intent.named or "grenache"
         if intent.color is None:
             intent.color = "red"
             intent.lock_color = True
@@ -319,6 +359,10 @@ def parse_intent(query: str) -> GuestIntent:
         intent.named = intent.named or "burgundy"
     elif not intent.named:
         intent.named = named_country_or_region(q)
+    if intent.named:
+        place = named_country_or_region(q)
+        if place and place != intent.named:
+            intent.place = place
 
     if any(w in q for w in LIGHT_BODY_WORDS):
         intent.body = "light"
@@ -338,6 +382,9 @@ def parse_intent(query: str) -> GuestIntent:
             intent.lock_color = True
     if "fruity profile" in q or re.search(r"\bfruity\b", q):
         intent.profile.append("fruity")
+        intent.lock_profile = True
+    if any(w in q for w in ("quiet", "elegant", "savory", "low oak", "subtle")):
+        intent.profile.append("quiet")
         intent.lock_profile = True
     if "earthy profile" in q or re.search(r"\bearthy\b", q):
         intent.profile.append("earthy")
@@ -494,10 +541,16 @@ def grape_family(wine: Dict) -> str:
         return "chard_lean"
     if "chardonnay" in hay:
         return "chard_rich"
-    if "sauvignon" in hay or "sancerre" in hay:
-        return "sauvignon"
     if "pinot gris" in hay or "pinot grigio" in hay:
         return "gris"
+    if "cabernet" in hay:
+        return "cabernet"
+    if "sancerre" in hay and ("rouge" in hay or "pinot" in hay or wine_color(wine) == "red"):
+        return "pinot"
+    if "sauvignon blanc" in hay or ("sauvignon" in hay and "cabernet" not in hay) or (
+        "sancerre" in hay and wine_color(wine) != "red"
+    ):
+        return "sauvignon"
     if "riesling" in hay:
         return "riesling"
     if "albari" in hay:
@@ -508,10 +561,8 @@ def grape_family(wine: Dict) -> str:
         return "pinot"
     if "sangiovese" in hay or "chianti" in hay:
         return "sangiovese"
-    if "nebbiolo" in hay or "barolo" in hay:
+    if "nebbiolo" in hay or "barolo" in hay or "barbaresco" in hay:
         return "nebbiolo"
-    if "cabernet" in hay:
-        return "cabernet"
     return (grapes or hay)[:24]
 
 
@@ -886,6 +937,43 @@ def matches_named(query_or_intent, wine: Dict) -> bool:
         return "sancerre" in blob
     if named == "barolo":
         return "barolo" in blob
+    if named == "barbaresco":
+        return "barbaresco" in blob
+    if named == "left_bank":
+        return any(
+            m in blob
+            for m in ("pauillac", "saint-julien", "saint-estèphe", "saint-estephe", "margaux", "haut-médoc", "haut-medoc", "pessac")
+        ) and wine_color(wine) == "red"
+    if named == "right_bank":
+        return any(m in blob for m in ("pomerol", "saint-émilion", "saint-emilion", "st-emilion", "canon", "figeac"))
+    if named == "grenache":
+        return any(m in blob for m in ("grenache", "garnacha", "gsm", "nine popes"))
+    if named == "napa":
+        return "napa" in blob
+    if named == "sonoma":
+        return "sonoma" in blob or "alexander" in blob
+    if named == "barossa":
+        return "barossa" in blob or "eden" in blob
+    if named == "mclaren":
+        return "mclaren" in blob
+    if named == "pauillac":
+        return "pauillac" in blob
+    if named == "margaux":
+        return "margaux" in blob
+    if named == "pomerol":
+        return "pomerol" in blob
+    if named == "st_emilion":
+        return "émilion" in blob or "emilion" in blob
+    if named == "meursault":
+        return "meursault" in blob
+    if named == "puligny":
+        return "puligny" in blob
+    if named == "gevrey":
+        return "gevrey" in blob
+    if named == "chambolle":
+        return "chambolle" in blob
+    if named == "ribera":
+        return "ribera" in blob
     if named == "champagne":
         return "champagne" in blob
     if named == "chablis":
@@ -1056,6 +1144,10 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
         return -10.0
     if not matches_named(intent, wine):
         return -10.0
+    if intent.place:
+        holder = type("Place", (), {"named": intent.place, "raw": intent.raw or ""})()
+        if not matches_named(holder, wine):
+            return -10.0
     if intent.world == "old" and not is_old_world(wine):
         return -10.0
     if intent.world == "new" and not is_new_world(wine):
@@ -1101,13 +1193,20 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
             score -= 8.0
     if intent.named == "sangiovese":
         if "chianti" in blob:
-            score += 1.6
-        if "brunello" in blob or "nobile" in blob:
+            score += 2.6
+        if "nobile" in blob:
             score += 1.8
+        if "brunello" in blob:
+            score += 1.0 if intent.body != "full" and "cellar" not in q else 2.2
         if any(m in blob for m in ("tignanello", "solaia", "flaccianello")):
             score += 1.4
         if "pinot" in blob:
             score -= 8.0
+    if "quiet" in intent.profile:
+        if any(m in blob for m in ("caymus", "zinfandel", "geyserville", "opus", "shiraz", "rombauer")):
+            score -= 5.0
+        if is_light_red(wine) or is_lean_white(wine) or "chianti" in blob:
+            score += 2.4
     if intent.named == "champagne" or ("champagne" in q and intent.color == "sparkling"):
         if "champagne" in blob:
             score += 4.5
@@ -1455,6 +1554,10 @@ def passes_profile(query: str, wine: Dict) -> bool:
     blob = _blob(wine)
     if not matches_named(intent, wine):
         return False
+    if intent.place:
+        holder = type("Place", (), {"named": intent.place, "raw": intent.raw or ""})()
+        if not matches_named(holder, wine):
+            return False
     if intent.world == "old" and not is_old_world(wine):
         return False
     if intent.world == "new" and not is_new_world(wine):
