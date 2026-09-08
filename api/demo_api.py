@@ -140,6 +140,7 @@ def _enrich_with_grok(query: str, wines: list, menu: list, restaurant_name: str)
                         "Write like a kind person at the table. Everyday words. "
                         "Never call a Premier Cru a Grand Cru. Never call Napa Cab or Zinfandel "
                         "a Super Tuscan or Burgundy. Never call a French wine Italian. "
+                        "Never call Pinot Noir Sangiovese. "
                         "Use the country on each line. Only describe the bottles given. "
                         "No jargon, scores, or 'notes of'. JSON only."
                     ),

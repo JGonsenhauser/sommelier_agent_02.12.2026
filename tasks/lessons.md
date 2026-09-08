@@ -12,3 +12,4 @@
 - If the guest names a class that is not on the list (Grand Cru Burgundy), return empty. Never pad with 1er Cru, village Burgundy, or New World. Super Tuscan must stay on Sassicaia/Tignanello/Ornellaia — never Caymus or Zin.
 - Do not keep a second Vercel project named `jarvis` next to `jarvis_sommelier`. Live domain is jarvis_sommelier.
 - Guest Grok does not pick bottles — it only writes notes after the ranker. Typed country/region (Italian, French, Piedmont) must lock in `parse_intent` or default lean whites dump Chablis. Grok will happily invent "goes with Italian food" for a Burgundy if you let a French bottle through.
+- Named grape must lock both bottles. "Sangiovese" is Chianti / Brunello / Vino Nobile / Flaccianello / Tignanello — never Pinot as the "also" pour. Complementary different-grape is wrong once they named a grape.

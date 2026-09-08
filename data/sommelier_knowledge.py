@@ -233,6 +233,36 @@ def parse_intent(query: str) -> GuestIntent:
         if intent.color is None:
             intent.color = "red"
             intent.lock_color = True
+    elif "sangiovese" in q or "chianti" in q or "brunello" in q or "nobile" in q or "morellino" in q:
+        if "brunello" in q:
+            intent.named = "brunello"
+        elif "chianti" in q:
+            intent.named = "chianti"
+        else:
+            intent.named = "sangiovese"
+        if intent.color is None:
+            intent.color = "red"
+            intent.lock_color = True
+    elif re.search(r"\bnebbiolo\b", q):
+        intent.named = intent.named or "nebbiolo"
+        if intent.color is None:
+            intent.color = "red"
+            intent.lock_color = True
+    elif "syrah" in q or "shiraz" in q:
+        intent.named = intent.named or "syrah"
+        if intent.color is None:
+            intent.color = "red"
+            intent.lock_color = True
+    elif "malbec" in q:
+        intent.named = intent.named or "malbec"
+        if intent.color is None:
+            intent.color = "red"
+            intent.lock_color = True
+    elif "zinfandel" in q or re.search(r"\bzin\b", q):
+        intent.named = intent.named or "zinfandel"
+        if intent.color is None:
+            intent.color = "red"
+            intent.lock_color = True
     elif "cabernet" in q:
         intent.named = intent.named or "cabernet"
         if intent.color is None:
@@ -488,6 +518,21 @@ def complementary_picks(
         if same_named:
             first_prod = (first.get("producer") or "").lower()
             other_prod = [w for w in same_named if (w.get("producer") or "").lower() != first_prod]
+            if intent.named == "sangiovese":
+                def sangio_lane(w):
+                    b = _blob(w)
+                    if "brunello" in b:
+                        return "brunello"
+                    if "nobile" in b:
+                        return "nobile"
+                    if "chianti" in b:
+                        return "chianti"
+                    if any(m in b for m in ("tignanello", "solaia", "flaccianello")):
+                        return "igt"
+                    return "other"
+                first_lane = sangio_lane(first)
+                other_lane = [w for w in same_named if sangio_lane(w) != first_lane]
+                return [first, (other_lane or other_prod or same_named)[0]]
             country_named = intent.named in {
                 "italy", "france", "spain", "germany", "australia", "argentina",
                 "chile", "portugal", "usa", "california", "oregon", "new_zealand",
@@ -769,10 +814,16 @@ def matches_named(query_or_intent, wine: Dict) -> bool:
         elif ("grand cru" in q or "grand-cru" in q) and any(w in q for w in ("burgundy", "bourgogne")):
             named = "burgundy_gc"
         else:
-            for key in ("sancerre", "barolo", "champagne", "chablis", "riesling", "chardonnay", "pinot noir", "cabernet"):
+            for key in (
+                "sancerre", "barolo", "champagne", "chablis", "riesling",
+                "chardonnay", "pinot noir", "sangiovese", "brunello", "chianti",
+                "nebbiolo", "syrah", "malbec", "zinfandel", "cabernet",
+            ):
                 if key in q:
                     named = key
                     break
+            if not named:
+                named = named_country_or_region(q)
     if not named:
         return True
     blob = _blob(wine)
@@ -798,6 +849,20 @@ def matches_named(query_or_intent, wine: Dict) -> bool:
         return any(m in blob for m in ("chardonnay", "chablis", "puligny", "meursault", "montrachet", "mâcon", "macon"))
     if named == "pinot noir":
         return "pinot noir" in blob or ("pinot" in blob and "gris" not in blob and "grigio" not in blob)
+    if named == "sangiovese":
+        return is_sangiovese(wine)
+    if named == "chianti":
+        return "chianti" in blob
+    if named == "brunello":
+        return "brunello" in blob
+    if named == "nebbiolo":
+        return any(m in blob for m in ("nebbiolo", "barolo", "barbaresco"))
+    if named == "syrah":
+        return "syrah" in blob or "shiraz" in blob
+    if named == "malbec":
+        return "malbec" in blob
+    if named == "zinfandel":
+        return "zinfandel" in blob or "geyserville" in blob or "lytton" in blob
     if named == "cabernet":
         return "cabernet" in blob
     if named == "prosecco":
@@ -903,9 +968,23 @@ def is_tannic(wine: Dict) -> bool:
 
 
 def is_sangiovese(wine: Dict) -> bool:
+    """Chianti, Brunello, Vino Nobile, Morellino, Flaccianello, Tignanello/Solaia.
+
+    Cab-based Bolgheri (Sassicaia, Ornellaia) is not Sangiovese even if ingest
+    tagged the Tuscany heading as a Cab/Sangiovese blend.
+    """
     blob = _blob(wine)
     grapes = str(wine.get("grapes") or "").lower()
-    return any(m in blob or m in grapes for m in ("sangiovese", "chianti", "brunello", "nobile", "morellino"))
+    hay = blob + " " + grapes
+    if any(m in hay for m in ("sassicaia", "ornellaia", "masseto", "paleo", "guidalberto")):
+        return False
+    return any(
+        m in hay
+        for m in (
+            "sangiovese", "chianti", "brunello", "nobile", "morellino",
+            "flaccianello", "tignanello", "solaia",
+        )
+    )
 
 
 def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
@@ -952,6 +1031,15 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
             score -= 4.0
         if any(m in blob for m in ("arneis", "verdicchio", "gavi", "soave", "fiano", "cervaro", "batàr", "batar")):
             score += 1.8
+    if intent.named == "sangiovese":
+        if "chianti" in blob:
+            score += 1.6
+        if "brunello" in blob or "nobile" in blob:
+            score += 1.8
+        if any(m in blob for m in ("tignanello", "solaia", "flaccianello")):
+            score += 1.4
+        if "pinot" in blob:
+            score -= 8.0
     if intent.named == "champagne" or ("champagne" in q and intent.color == "sparkling"):
         if "champagne" in blob:
             score += 4.5
@@ -1333,7 +1421,13 @@ def passes_profile(query: str, wine: Dict) -> bool:
         if "moscato" in blob and "offdry" not in intent.profile:
             return False
     if intent.lock_body and intent.body == "medium":
-        if is_full_red(wine):
+        # Named grape beats the medium chip: Sangiovese can be Chianti or Brunello.
+        if not intent.named and is_full_red(wine):
+            return False
+        if intent.named and intent.named not in {
+            "sangiovese", "chianti", "brunello", "nebbiolo", "barolo",
+            "cabernet", "syrah", "malbec", "zinfandel", "super_tuscan",
+        } and is_full_red(wine):
             return False
     food = intent.food
     if food in {"oysters", "branzino"}:
@@ -1525,6 +1619,7 @@ def grok_system_prompt(restaurant_name: str) -> str:
         "- Chicken: Pinot Noir or moderate white.\n"
         "- Only choose from the numbered list. Never invent a bottle, vintage, or price.\n"
         "- Never call a Premier Cru a Grand Cru. Never call Napa Cab or Zinfandel a Super Tuscan.\n"
+        "- If they named a grape (Sangiovese), both bottles are that grape. Never pair it with Pinot.\n"
         "- If they named a place or class that is not on the list, say so. Do not substitute.\n\n"
         "Voice: two short everyday sentences. No jargon, scores, or 'notes of'. "
         "The why must echo their buttons or words.\n"
