@@ -100,11 +100,19 @@ except Exception:
     pass
 
 
+GUEST_GROK_MODEL = "grok-4.20-0309-non-reasoning"
+
+
 def _guest_grok_model() -> str:
-    raw = (os.getenv("XAI_GUEST_MODEL") or os.getenv("XAI_CHAT_MODEL") or "grok-4-fast").strip()
-    if "reasoning" in raw.lower():
-        return "grok-4-fast"
-    return raw or "grok-4-fast"
+    raw = (os.getenv("XAI_GUEST_MODEL") or "").strip()
+    if raw:
+        return raw
+    chat = (os.getenv("XAI_CHAT_MODEL") or "").strip()
+    if chat and "non-reasoning" in chat.lower():
+        return chat
+    if chat and "reasoning" in chat.lower():
+        return GUEST_GROK_MODEL
+    return chat or GUEST_GROK_MODEL
 
 
 def _enrich_with_grok(query: str, wines: list, menu: list, restaurant_name: str):
