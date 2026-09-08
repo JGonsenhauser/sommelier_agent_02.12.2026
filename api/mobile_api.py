@@ -251,6 +251,8 @@ async def pwa_index():
     return FileResponse(MOBILE_DIR / "index.html")
 
 
+@app.get("/demo", include_in_schema=False)
+@app.get("/qr", include_in_schema=False)
 @app.get("/showcase", include_in_schema=False)
 @app.get("/showcase.html", include_in_schema=False)
 async def showcase_page():

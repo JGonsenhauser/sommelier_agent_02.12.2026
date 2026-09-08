@@ -5,8 +5,9 @@ echo Starting Jarvis Wine Sommelier API (Fresh Instance)
 echo ============================================================
 echo.
 echo Guest PWA + API on port 8000
-echo Live:      https://jarvis.agenthaus.io/?r=demo
-echo Phone:     http://THIS-PC-LAN-IP:8000/?r=demo
+echo QR poster: https://jarvis.agenthaus.io/demo
+echo Guest app: https://jarvis.agenthaus.io/?r=demo
+echo Phone:     http://THIS-PC-LAN-IP:8000/demo
 echo QR table:  http://THIS-PC-LAN-IP:8000/showcase
 echo Admin:     http://localhost:8000/admin  (dev password: maass-admin)
 echo.

@@ -270,6 +270,8 @@ async def index():
     return FileResponse(MOBILE / "index.html")
 
 
+@app.get("/demo", include_in_schema=False)
+@app.get("/qr", include_in_schema=False)
 @app.get("/showcase", include_in_schema=False)
 @app.get("/showcase.html", include_in_schema=False)
 async def showcase():
