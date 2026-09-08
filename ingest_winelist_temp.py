@@ -64,6 +64,21 @@ def price_range(price: int) -> str:
     return "$200+"
 
 
+def _skip_list_row(vintage: str, label: str) -> bool:
+    """Drop grouping notes that are not a single bottle."""
+    v = (vintage or "").lower()
+    lab = (label or "").lower()
+    if "range" in v:
+        return True
+    if "etc" in lab or "series" in lab:
+        return True
+    reds = ("malbec", "cabernet", "pinot noir", "syrah", "merlot")
+    whites = ("chardonnay", "sauvignon blanc", "riesling", "chenin")
+    if any(r in lab for r in reds) and any(w in lab for w in whites):
+        return True
+    return False
+
+
 def infer_style(section: str, major: str, hint: str | None, label: str) -> str:
     if hint:
         return hint.lower()
@@ -190,6 +205,8 @@ def parse_list(text: str) -> list[dict]:
             vintage = "NV"
         producer = data["producer"].strip()
         label = data["label"].strip()
+        if _skip_list_row(vintage, label):
+            continue
         region = data["region"].strip()
         country = data["country"].strip()
         price = int(data["price"].replace(",", ""))

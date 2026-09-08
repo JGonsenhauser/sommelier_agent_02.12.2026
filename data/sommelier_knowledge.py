@@ -337,10 +337,12 @@ def complementary_picks(ranked: List[Dict], seen_ids: Optional[List[str]] = None
     pool = unseen(banded) or banded
     first = pool[0]
     fam = grape_family(first)
+    first_color = wine_color(first)
     rest = [w for w in pool if wine_key(w) != wine_key(first)]
-    second = next((w for w in rest if grape_family(w) != fam), None)
-    if second is None and rest:
-        second = rest[0]
+    same_color = [w for w in rest if wine_color(w) == first_color and wine_color(w) != "mixed"]
+    second = next((w for w in same_color if grape_family(w) != fam), None)
+    if second is None and same_color:
+        second = same_color[0]
     return [first] + ([second] if second else [])
 
 
@@ -373,20 +375,29 @@ def _blob(wine: Dict) -> str:
     ).lower()
 
 
+_RED_GRAPES = (
+    "cabernet sauvignon", "pinot noir", "nebbiolo", "sangiovese", "malbec",
+    "syrah", "shiraz", "zinfandel", "merlot", "tempranillo",
+)
+_WHITE_GRAPES = (
+    "chardonnay", "sauvignon blanc", "pinot gris", "pinot grigio", "arneis",
+    "riesling", "viognier", "verdicchio", "garganega", "soave", "vermentino",
+    "gavi", "cortese", "fiano", "albari", "chenin", "moscato", "semillon",
+)
+
+
 def wine_color(wine: Dict) -> str:
     grapes = str(wine.get("grapes") or "").lower()
     label = str(wine.get("wine_name") or wine.get("label") or "").lower()
     blob = grapes + " " + label
-    if any(g in blob for g in ("cabernet sauvignon", "pinot noir", "nebbiolo", "sangiovese", "malbec", "syrah", "shiraz", "zinfandel", "merlot", "tempranillo")):
-        if "blanc" not in blob and "chardonnay" not in blob and "pinot gris" not in blob:
-            return "red"
-    if any(g in blob for g in (
-        "chardonnay", "sauvignon blanc", "pinot gris", "pinot grigio", "arneis",
-        "riesling", "viognier", "verdicchio", "garganega", "soave", "vermentino",
-        "gavi", "cortese", "fiano", "albari",
-    )):
-        if "pinot noir" not in blob:
-            return "white"
+    has_red = any(g in blob for g in _RED_GRAPES)
+    has_white = any(g in blob for g in _WHITE_GRAPES)
+    if has_red and has_white:
+        return "mixed"
+    if has_red and "blanc" not in blob:
+        return "red"
+    if has_white and "pinot noir" not in blob:
+        return "white"
     return str(
         wine.get("wine_style") or wine.get("wine_type") or
         (wine.get("metadata") or {}).get("wine_style") or
@@ -484,6 +495,9 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
     color = wine_color(wine)
     blob = _blob(wine)
 
+    if color == "mixed":
+        return -10.0
+
     if intent.color:
         wanted = {intent.color}
         if intent.color == "white" and "crisp" not in intent.profile:
@@ -524,8 +538,17 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
             score -= 1.5
         if "barolo" in blob or "brunello" in blob:
             score -= 1.2
-        if any(m in blob for m in ("zinfandel", "malbec", "moscato", "caymus", "geyserville")):
-            score += 1.2
+        white_ask = intent.color == "white" or color in {"white", "sparkling"}
+        if white_ask:
+            if is_off_dry(wine) and "offdry" not in intent.profile:
+                score -= 3.5
+            if is_oaky_chardonnay(wine):
+                score -= 3.0
+            if any(m in blob for m in ("sauvignon", "viognier", "torrontes", "pinot gris", "chenin", "albari", "fiano")):
+                score += 1.8
+        else:
+            if any(m in blob for m in ("zinfandel", "malbec", "caymus", "geyserville")):
+                score += 1.2
 
     if "earthy" in intent.profile:
         if is_earthy(wine):
