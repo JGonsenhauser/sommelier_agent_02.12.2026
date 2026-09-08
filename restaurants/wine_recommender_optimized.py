@@ -369,7 +369,7 @@ class OptimizedWineRecommender:
         menu = self.config.load_menu() if self.config.enable_menu_pairing else []
         selected, intro = self._select_and_note(user_query, diverse or enriched, menu)
         if len(selected) >= 2 and grape_family(selected[0]) == grape_family(selected[1]):
-            selected = complementary_picks(diverse or enriched) or selected
+            selected = complementary_picks(diverse or enriched, query=user_query) or selected
         menu_names = [d.get("name", "").lower() for d in menu if d.get("name")]
 
         for wine in selected:

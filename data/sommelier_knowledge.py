@@ -127,7 +127,7 @@ def parse_intent(query: str) -> GuestIntent:
     elif "rosé" in q or re.search(r"\brose\b", q):
         intent.color = "rose"
         intent.lock_color = True
-    elif re.search(r"\bwhite\b", q):
+    elif re.search(r"\bwhite\b", q) or "chardonnay" in q or "chablis" in q:
         intent.color = "white"
         intent.lock_color = True
     elif re.search(r"\bred\b", q):
@@ -176,6 +176,7 @@ def parse_intent(query: str) -> GuestIntent:
         intent.oak = "new"
         if intent.color is None:
             intent.color = "white"
+        intent.lock_color = True
 
     if any(w in q for w in ("oyster", "oysters")):
         intent.food = "oysters"
@@ -313,11 +314,16 @@ def wine_key(wine: Dict) -> str:
     ).lower()
 
 
-def complementary_picks(ranked: List[Dict], seen_ids: Optional[List[str]] = None, band: float = 2.0) -> List[Dict]:
-    """Textbook first bottle, then a different grape in the same principle band.
+def complementary_picks(
+    ranked: List[Dict],
+    seen_ids: Optional[List[str]] = None,
+    band: float = 2.0,
+    query: str = "",
+) -> List[Dict]:
+    """Textbook first bottle, then a partner that stays on the same ask.
 
-    If the guest just saw these bottles, rotate within the band so it is not
-    always Chablis + Pinot Gris.
+    If they named a grape (Chardonnay), stay on that grape with a different
+    producer. Otherwise pick a different grape in the same color.
     """
     if not ranked:
         return []
@@ -340,6 +346,26 @@ def complementary_picks(ranked: List[Dict], seen_ids: Optional[List[str]] = None
     first_color = wine_color(first)
     rest = [w for w in pool if wine_key(w) != wine_key(first)]
     same_color = [w for w in rest if wine_color(w) == first_color and wine_color(w) != "mixed"]
+    q = (query or "").lower()
+    named = None
+    for needle, family in (
+        ("chardonnay", "chard"),
+        ("pinot noir", "pinot"),
+        ("sauvignon", "sauvignon"),
+        ("riesling", "riesling"),
+        ("pinot gris", "gris"),
+        ("malbec", "malbec"),
+        ("cabernet", "cabernet"),
+    ):
+        if needle in q:
+            named = family
+            break
+    if named:
+        same_grape = [w for w in same_color if named in grape_family(w) or named in _blob(w)]
+        if not same_grape:
+            same_grape = [w for w in unseen(ranked) if wine_key(w) != wine_key(first) and wine_color(w) == first_color and (named in grape_family(w) or named in _blob(w))]
+        if same_grape:
+            return [first, same_grape[0]]
     second = next((w for w in same_color if grape_family(w) != fam), None)
     if second is None and same_color:
         second = same_color[0]
@@ -497,6 +523,27 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
 
     if color == "mixed":
         return -10.0
+
+    q = (intent.raw or "").lower()
+    if "france" in q or "french" in q:
+        if any(m in blob for m in ("france", "burgundy", "bordeaux", "loire", "rhone", "rhône", "alsace", "champagne", "chablis", "pauillac", "puligny", "meursault")):
+            score += 2.2
+        else:
+            score -= 2.5
+    if "chardonnay" in q:
+        chard = "chardonnay" in blob or "chablis" in blob or "puligny" in blob or "meursault" in blob or "montrachet" in blob
+        if chard:
+            score += 3.0
+        else:
+            score -= 8.0
+
+    if "rich_white" in intent.profile:
+        if color != "white":
+            score -= 8.0
+        if is_oaky_chardonnay(wine) or any(m in blob for m in ("meursault", "puligny", "montrachet", "corton")):
+            score += 3.2
+        if "chablis" in blob:
+            score -= 2.5
 
     if intent.color:
         wanted = {intent.color}

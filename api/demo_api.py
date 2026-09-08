@@ -378,7 +378,7 @@ async def recommend(body: RecommendationRequest):
     pool.sort(key=lambda w: w["_score"], reverse=True)
     ranked = [w for w in pool if w["_score"] > -1]
     seen = crm_store.recent_wine_keys(body.restaurant_id)
-    picked = complementary_picks(ranked, seen_ids=seen)
+    picked = complementary_picks(ranked, seen_ids=seen, query=body.query)
     menu = config.load_menu()
     wines = [_guest_wine(w, body.query, menu, i) for i, w in enumerate(picked)]
     wines, grok_intro = _enrich_with_grok(body.query, wines, menu, config.name)
