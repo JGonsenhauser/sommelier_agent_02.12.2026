@@ -100,44 +100,52 @@ except Exception:
     pass
 
 
+def _guest_grok_model() -> str:
+    raw = (os.getenv("XAI_GUEST_MODEL") or os.getenv("XAI_CHAT_MODEL") or "grok-4-fast").strip()
+    if "reasoning" in raw.lower():
+        return "grok-4-fast"
+    return raw or "grok-4-fast"
+
+
 def _enrich_with_grok(query: str, wines: list, menu: list, restaurant_name: str):
     key = _xai_key()
     if not key or not wines:
         return wines, None
     try:
         from openai import OpenAI
-        from data.sommelier_knowledge import grok_system_prompt
-        client = OpenAI(api_key=key, base_url="https://api.x.ai/v1", timeout=20.0, max_retries=0)
+        client = OpenAI(api_key=key, base_url="https://api.x.ai/v1", timeout=6.0, max_retries=0)
         numbered = "\n".join(
             f"{i+1}. {w.get('vintage','')} {w.get('producer','')} {w.get('wine_name','')} "
-            f"| {w.get('grapes','')} | {w.get('wine_type','')} | {w.get('region','')} | ${w.get('price','')}"
+            f"| {w.get('grapes','')} | {w.get('wine_type','')} | {w.get('region','')}"
             for i, w in enumerate(wines)
         )
-        menu_text = "\n".join(
-            f"- {d.get('name')}: {d.get('description','')} ({d.get('category','')})"
-            for d in (menu or [])[:24]
-        ) or "(menu not loaded — omit pairing)"
-        model = os.getenv("XAI_CHAT_MODEL") or "grok-4-fast-reasoning"
+        model = _guest_grok_model()
         kwargs = dict(
             model=model,
             messages=[
-                {"role": "system", "content": grok_system_prompt(restaurant_name)},
+                {
+                    "role": "system",
+                    "content": (
+                        f"You are the house sommelier at {restaurant_name}. "
+                        "Bottles are already chosen. Do not change them. "
+                        "Write like a kind person at the table. Everyday words. "
+                        "No jargon, scores, or 'notes of'. JSON only."
+                    ),
+                },
                 {
                     "role": "user",
                     "content": (
-                        f'The guest said: "{query}"\n\n'
-                        "These two bottles are already chosen from the list. Do not change them. "
-                        "Write the intro, why, and tasting note.\n"
-                        f"{numbered}\n\nTonight's menu:\n{menu_text}\n\n"
+                        f'The guest said: "{query}"\n'
+                        f"{numbered}\n"
                         "JSON only:\n"
                         '{"intro":"one sentence","picks":['
-                        '{"n":1,"why":"one sentence","note":"two short everyday sentences","dish":"","pair":""},'
-                        '{"n":2,"why":"...","note":"...","dish":"","pair":""}]}'
+                        '{"n":1,"why":"one sentence","note":"two short everyday sentences"},'
+                        '{"n":2,"why":"...","note":"..."}]}'
                     ),
                 },
             ],
-            temperature=0.4,
-            max_tokens=420,
+            temperature=0.3,
+            max_tokens=220,
         )
         if model.startswith(("grok-4.5", "grok-4.6")):
             kwargs["extra_body"] = {"reasoning_effort": "low"}
@@ -153,10 +161,6 @@ def _enrich_with_grok(query: str, wines: list, menu: list, restaurant_name: str)
                     wines[idx]["why"] = str(item["why"]).strip()
                 if item.get("note"):
                     wines[idx]["tasting_note"] = str(item["note"]).strip()
-                dish = str(item.get("dish") or "").strip()
-                pair = str(item.get("pair") or "").strip()
-                if dish:
-                    wines[idx]["food_pairing"] = f"{dish} — {pair}".strip(" —") if pair else dish
         return wines, intro
     except Exception as exc:
         logger.warning("Grok notes skipped: %s", exc)
