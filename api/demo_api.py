@@ -63,15 +63,22 @@ def guest_url(restaurant_id: str = "maass") -> str:
 
 def _xai_key() -> str:
     raw = (os.getenv("XAI_API_KEY") or "").strip()
-    if not raw:
+    if raw:
+        if raw.startswith("xai-"):
+            return raw
+        try:
+            from crypto_utils import SecureKeyManager
+            return SecureKeyManager(encryption_key=os.getenv("ENCRYPTION_KEY")).decrypt_key(raw)
+        except Exception:
+            return raw
+    connector = (os.getenv("CONNECT_XAI") or "").strip()
+    if not connector:
         return ""
-    if raw.startswith("xai-"):
-        return raw
     try:
-        from crypto_utils import SecureKeyManager
-        return SecureKeyManager(encryption_key=os.getenv("ENCRYPTION_KEY")).decrypt_key(raw)
+        from data.vercel_connect import get_token
+        return get_token(connector, subject={"type": "app"}) or ""
     except Exception:
-        return raw
+        return ""
 
 
 def _qr_png_bytes(url: str) -> bytes:
@@ -449,10 +456,13 @@ async def admin_report(request: Request, restaurant_id: str | None = None):
 
 @app.get("/api/health")
 async def health():
+    from data.vercel_connect import oidc_token
+
     return {
         "status": "live",
         "wines": len(CATALOG),
         "grok": bool(_xai_key()),
+        "connect": bool(oidc_token()),
         "public_base_url": PUBLIC_BASE,
     }
 

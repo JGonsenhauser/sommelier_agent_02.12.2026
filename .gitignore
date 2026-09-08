@@ -7,6 +7,8 @@ env/
 .env
 .env.*
 !.env.example
+.vercel/*
+!.vercel/project.json
 
 # Python
 __pycache__/

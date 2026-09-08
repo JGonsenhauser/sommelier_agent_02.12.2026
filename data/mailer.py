@@ -1,10 +1,14 @@
 """Send a branded wine note to a guest."""
 from __future__ import annotations
 
+import base64
 import html
+import json
 import logging
 import os
 import smtplib
+import urllib.error
+import urllib.request
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -118,6 +122,40 @@ def _smtp_value(name: str, default: str = "") -> str:
         return default
 
 
+def _send_via_gmail_connect(msg: EmailMessage) -> bool:
+    connector = (os.getenv("CONNECT_GOOGLE") or "").strip()
+    if not connector:
+        return False
+    from data.vercel_connect import get_token
+
+    user = _smtp_value("SMTP_USER") or "jonathan@agenthaus.io"
+    token = get_token(connector, subject={"type": "user", "id": user})
+    if not token:
+        token = get_token(connector, subject={"type": "app"})
+    if not token:
+        return False
+    raw = base64.urlsafe_b64encode(bytes(msg)).decode("ascii").rstrip("=")
+    req = urllib.request.Request(
+        "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
+        data=json.dumps({"raw": raw}).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            if 200 <= resp.status < 300:
+                logger.info("Sent wine email via Vercel Connect Gmail")
+                return True
+    except urllib.error.HTTPError as exc:
+        logger.warning("Gmail Connect send failed (%s): %s", exc.code, exc.read()[:300])
+    except Exception as exc:
+        logger.warning("Gmail Connect send error: %s", exc)
+    return False
+
+
 def send_wine_email(
     to_email: str,
     restaurant_name: str,
@@ -127,8 +165,18 @@ def send_wine_email(
     text = build_body(restaurant_name, wines)
     html_body = build_html(restaurant_name, wines)
 
+    from_addr = _smtp_value("SMTP_FROM") or "Jarvis <jonathan@agenthaus.io>"
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = from_addr
+    msg["To"] = to_email
+    msg.set_content(text)
+    msg.add_alternative(html_body, subtype="html")
+
+    if _send_via_gmail_connect(msg):
+        return True, "sent"
+
     host = _smtp_value("SMTP_HOST")
-    from_addr = _smtp_value("SMTP_FROM")
     if not host or not from_addr:
         try:
             OUTBOX.mkdir(parents=True, exist_ok=True)
@@ -139,13 +187,6 @@ def send_wine_email(
         except OSError as exc:
             logger.warning("SMTP not configured and outbox is read-only: %s", exc)
         return False, "saved"
-
-    msg = EmailMessage()
-    msg["Subject"] = subject
-    msg["From"] = from_addr
-    msg["To"] = to_email
-    msg.set_content(text)
-    msg.add_alternative(html_body, subtype="html")
 
     port = int(_smtp_value("SMTP_PORT", "587") or 587)
     user = _smtp_value("SMTP_USER")
