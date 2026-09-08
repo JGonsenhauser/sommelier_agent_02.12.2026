@@ -109,6 +109,50 @@ FOOD_CUES = [
 ]
 
 
+def named_country_or_region(q: str) -> Optional[str]:
+    """Lock typed country/region so 'Italian white' cannot become Chablis."""
+    q = (q or "").lower()
+    pairs = (
+        ("new zealand", "new_zealand"),
+        ("california", "california"),
+        ("willamette", "oregon"),
+        ("oregon", "oregon"),
+        ("piedmont", "piedmont"),
+        ("piemonte", "piedmont"),
+        ("tuscany", "tuscany"),
+        ("toscana", "tuscany"),
+        ("alsace", "alsace"),
+        ("bordeaux", "bordeaux"),
+        ("rioja", "rioja"),
+        ("italian", "italy"),
+        ("italy", "italy"),
+        ("french", "france"),
+        ("france", "france"),
+        ("spanish", "spain"),
+        ("spain", "spain"),
+        ("german", "germany"),
+        ("germany", "germany"),
+        ("australian", "australia"),
+        ("australia", "australia"),
+        ("argentine", "argentina"),
+        ("argentina", "argentina"),
+        ("chilean", "chile"),
+        ("chile", "chile"),
+        ("portuguese", "portugal"),
+        ("portugal", "portugal"),
+        ("american", "usa"),
+        ("united states", "usa"),
+    )
+    for needle, key in pairs:
+        if needle in q:
+            return key
+    return None
+
+
+def wine_country(wine: Dict) -> str:
+    return str(wine.get("country") or "").lower()
+
+
 @dataclass
 class GuestIntent:
     color: Optional[str] = None
@@ -196,6 +240,8 @@ def parse_intent(query: str) -> GuestIntent:
             intent.lock_color = True
     elif "burgundy" in q or "bourgogne" in q:
         intent.named = intent.named or "burgundy"
+    elif not intent.named:
+        intent.named = named_country_or_region(q)
 
     if any(w in q for w in LIGHT_BODY_WORDS):
         intent.body = "light"
@@ -442,6 +488,15 @@ def complementary_picks(
         if same_named:
             first_prod = (first.get("producer") or "").lower()
             other_prod = [w for w in same_named if (w.get("producer") or "").lower() != first_prod]
+            country_named = intent.named in {
+                "italy", "france", "spain", "germany", "australia", "argentina",
+                "chile", "portugal", "usa", "california", "oregon", "new_zealand",
+                "piedmont", "tuscany", "alsace", "bordeaux", "rioja", "burgundy",
+            }
+            if country_named:
+                first_fam = grape_family(first)
+                other_grape = [w for w in same_named if grape_family(w) != first_fam]
+                return [first, (other_grape or other_prod or same_named)[0]]
             return [first, (other_prod or same_named)[0]]
         return [first]
     if intent and intent.color == "rose":
@@ -747,6 +802,43 @@ def matches_named(query_or_intent, wine: Dict) -> bool:
         return "cabernet" in blob
     if named == "prosecco":
         return "prosecco" in blob or "glera" in blob or "valdobbiadene" in blob
+    country = wine_country(wine)
+    if named == "italy":
+        return "italy" in country
+    if named == "france":
+        return "france" in country
+    if named == "spain":
+        return "spain" in country
+    if named == "germany":
+        return "germany" in country
+    if named == "australia":
+        return "australia" in country
+    if named == "argentina":
+        return "argentina" in country
+    if named == "chile":
+        return "chile" in country
+    if named == "portugal":
+        return "portugal" in country
+    if named == "new_zealand":
+        return "zealand" in country or "new zealand" in blob
+    if named == "usa":
+        return any(m in country for m in ("usa", "united states", "america"))
+    if named == "california":
+        return any(m in blob for m in ("california", "napa", "sonoma", "russian river", "carneros"))
+    if named == "oregon":
+        return "oregon" in blob or "willamette" in blob
+    if named == "piedmont":
+        return any(m in blob for m in ("piedmont", "piemonte", "barolo", "barbaresco", "roero"))
+    if named == "tuscany":
+        return any(m in blob for m in ("tuscany", "toscana", "chianti", "brunello", "bolgheri", "montalcino"))
+    if named == "alsace":
+        return "alsace" in blob
+    if named == "bordeaux":
+        return "bordeaux" in blob or any(
+            m in blob for m in ("pauillac", "pomerol", "margaux", "saint-julien", "saint-émilion", "pessac")
+        )
+    if named == "rioja":
+        return "rioja" in blob
     return True
 
 
@@ -765,7 +857,22 @@ def named_miss_intro(query: str) -> Optional[str]:
     if intent.named == "champagne":
         return "There isn't a Champagne on this list tonight."
     if intent.named:
-        label = intent.named.replace("_", " ")
+        labels = {
+            "italy": "an Italian wine",
+            "france": "a French wine",
+            "spain": "a Spanish wine",
+            "germany": "a German wine",
+            "australia": "an Australian wine",
+            "california": "a California wine",
+            "oregon": "an Oregon wine",
+            "usa": "an American wine",
+            "piedmont": "a Piedmont wine",
+            "tuscany": "a Tuscan wine",
+            "alsace": "an Alsace wine",
+            "bordeaux": "a Bordeaux",
+            "rioja": "a Rioja",
+        }
+        label = labels.get(intent.named, intent.named.replace("_", " "))
         return f"Nothing on this list is {label}. I won't substitute a different wine."
     return None
 
@@ -840,6 +947,11 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
             score += 2.4
         elif "guidalberto" in blob:
             score += 0.4
+    if intent.named == "italy" and color == "white":
+        if is_off_dry(wine) and "offdry" not in intent.profile:
+            score -= 4.0
+        if any(m in blob for m in ("arneis", "verdicchio", "gavi", "soave", "fiano", "cervaro", "batàr", "batar")):
+            score += 1.8
     if intent.named == "champagne" or ("champagne" in q and intent.color == "sparkling"):
         if "champagne" in blob:
             score += 4.5

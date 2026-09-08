@@ -125,7 +125,7 @@ def _enrich_with_grok(query: str, wines: list, menu: list, restaurant_name: str)
         client = OpenAI(api_key=key, base_url="https://api.x.ai/v1", timeout=6.0, max_retries=0)
         numbered = "\n".join(
             f"{i+1}. {w.get('vintage','')} {w.get('producer','')} {w.get('wine_name','')} "
-            f"| {w.get('grapes','')} | {w.get('wine_type','')} | {w.get('region','')}"
+            f"| {w.get('grapes','')} | {w.get('wine_type','')} | {w.get('region','')} | {w.get('country','')}"
             for i, w in enumerate(wines)
         )
         model = _guest_grok_model()
@@ -139,7 +139,8 @@ def _enrich_with_grok(query: str, wines: list, menu: list, restaurant_name: str)
                         "Bottles are already chosen. Do not change them. "
                         "Write like a kind person at the table. Everyday words. "
                         "Never call a Premier Cru a Grand Cru. Never call Napa Cab or Zinfandel "
-                        "a Super Tuscan or Burgundy. Only describe the bottles given. "
+                        "a Super Tuscan or Burgundy. Never call a French wine Italian. "
+                        "Use the country on each line. Only describe the bottles given. "
                         "No jargon, scores, or 'notes of'. JSON only."
                     ),
                 },

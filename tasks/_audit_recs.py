@@ -60,6 +60,8 @@ TYPED = [
     "grand cru burgundy",
     "supertuscan red",
     "Super Tuscan",
+    "italian white wine",
+    "french red wine",
 ]
 
 
@@ -189,6 +191,12 @@ def violations(query: str, wines: list) -> list[str]:
             flags.append("super_tuscan_empty")
         elif any(not is_super_tuscan(w) for w in wines):
             flags.append("named_super_tuscan_miss")
+    if "italian" in q:
+        if any("italy" not in str(w.get("country") or "").lower() for w in wines):
+            flags.append("italian_left_italy")
+    if "french" in q and "chardonnay" not in q:
+        if wines and any("france" not in str(w.get("country") or "").lower() for w in wines):
+            flags.append("french_left_france")
     if "champagne" in q:
         if any("champagne" not in f"{w.get('region','')} {w.get('major_region','')} {w.get('label','')}".lower() for w in wines):
             flags.append("named_champagne_miss")
