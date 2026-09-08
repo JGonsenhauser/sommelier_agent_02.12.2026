@@ -1,22 +1,26 @@
-"""Local demo of the guest PWA without Pinecone or API keys.
-
-Uses the MAASS markdown list + dinner menu. Same HTML as production.
-"""
+"""Guest PWA: local wine list + optional Grok notes (Vercel / no Pinecone)."""
 from __future__ import annotations
 
 import json
+import logging
+import os
 import re
 import sys
 import time
+from io import BytesIO
 from pathlib import Path
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
+load_dotenv(ROOT / ".env")
+logger = logging.getLogger(__name__)
 
 from ingest_winelist_temp import parse_list
 from restaurants.restaurant_config import (
@@ -39,20 +43,116 @@ from data.sommelier_knowledge import (
 
 MOBILE = ROOT / "mobile"
 LIST_PATH = ROOT / "data" / "winelist_temp.md"
+PUBLIC_BASE = (os.getenv("PUBLIC_BASE_URL") or "https://jarvis.agenthaus.io").strip().rstrip("/")
 
 app = FastAPI(title="Jarvis Sommelier", docs_url=None, redoc_url=None)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[PUBLIC_BASE, "http://127.0.0.1:8000", "http://localhost:8000"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 crm_store.init_db()
 CATALOG = parse_list(LIST_PATH.read_text(encoding="utf-8"))
 
-try:
+
+def guest_url(restaurant_id: str = "maass") -> str:
+    return f"{PUBLIC_BASE}/?r={restaurant_id}"
+
+
+def _xai_key() -> str:
+    raw = (os.getenv("XAI_API_KEY") or "").strip()
+    if not raw:
+        return ""
+    if raw.startswith("xai-"):
+        return raw
+    try:
+        from crypto_utils import SecureKeyManager
+        return SecureKeyManager(encryption_key=os.getenv("ENCRYPTION_KEY")).decrypt_key(raw)
+    except Exception:
+        return raw
+
+
+def _qr_png_bytes(url: str) -> bytes:
     import qrcode
-    qr_url = "http://127.0.0.1:8000/?r=maass"
     qr = qrcode.QRCode(box_size=10, border=4)
-    qr.add_data(qr_url)
+    qr.add_data(url)
     qr.make(fit=True)
-    qr.make_image(fill_color="#1C1A16", back_color="#F3EEE6").save(str(MOBILE / "qr.png"))
+    img = qr.make_image(fill_color="#1C1A16", back_color="#F3EEE6")
+    buf = BytesIO()
+    img.save(buf, format="PNG")
+    return buf.getvalue()
+
+
+try:
+    png = _qr_png_bytes(guest_url("maass"))
+    (MOBILE / "qr.png").write_bytes(png)
 except Exception:
     pass
+
+
+def _enrich_with_grok(query: str, wines: list, menu: list, restaurant_name: str):
+    key = _xai_key()
+    if not key or not wines:
+        return wines, None
+    try:
+        from openai import OpenAI
+        from data.sommelier_knowledge import grok_system_prompt
+        client = OpenAI(api_key=key, base_url="https://api.x.ai/v1", timeout=20.0, max_retries=0)
+        numbered = "\n".join(
+            f"{i+1}. {w.get('vintage','')} {w.get('producer','')} {w.get('wine_name','')} "
+            f"| {w.get('grapes','')} | {w.get('wine_type','')} | {w.get('region','')} | ${w.get('price','')}"
+            for i, w in enumerate(wines)
+        )
+        menu_text = "\n".join(
+            f"- {d.get('name')}: {d.get('description','')} ({d.get('category','')})"
+            for d in (menu or [])[:24]
+        ) or "(menu not loaded — omit pairing)"
+        model = os.getenv("XAI_CHAT_MODEL") or "grok-4-fast-reasoning"
+        kwargs = dict(
+            model=model,
+            messages=[
+                {"role": "system", "content": grok_system_prompt(restaurant_name)},
+                {
+                    "role": "user",
+                    "content": (
+                        f'The guest said: "{query}"\n\n'
+                        "These two bottles are already chosen from the list. Do not change them. "
+                        "Write the intro, why, and tasting note.\n"
+                        f"{numbered}\n\nTonight's menu:\n{menu_text}\n\n"
+                        "JSON only:\n"
+                        '{"intro":"one sentence","picks":['
+                        '{"n":1,"why":"one sentence","note":"two short everyday sentences","dish":"","pair":""},'
+                        '{"n":2,"why":"...","note":"...","dish":"","pair":""}]}'
+                    ),
+                },
+            ],
+            temperature=0.4,
+            max_tokens=420,
+        )
+        if model.startswith(("grok-4.5", "grok-4.6")):
+            kwargs["extra_body"] = {"reasoning_effort": "low"}
+        response = client.chat.completions.create(**kwargs)
+        raw = (response.choices[0].message.content or "").strip()
+        match = re.search(r"\{.*\}", raw, re.DOTALL)
+        payload = json.loads(match.group(0) if match else raw)
+        intro = str(payload.get("intro") or "").strip() or None
+        for item in payload.get("picks") or []:
+            idx = int(item.get("n", 0)) - 1
+            if 0 <= idx < len(wines):
+                if item.get("why"):
+                    wines[idx]["why"] = str(item["why"]).strip()
+                if item.get("note"):
+                    wines[idx]["tasting_note"] = str(item["note"]).strip()
+                dish = str(item.get("dish") or "").strip()
+                pair = str(item.get("pair") or "").strip()
+                if dish:
+                    wines[idx]["food_pairing"] = f"{dish} — {pair}".strip(" —") if pair else dish
+        return wines, intro
+    except Exception as exc:
+        logger.warning("Grok notes skipped: %s", exc)
+        return wines, None
 
 
 class RecommendationRequest(BaseModel):
@@ -259,7 +359,8 @@ async def recommend(body: RecommendationRequest):
     picked = complementary_picks(ranked, seen_ids=seen)
     menu = config.load_menu()
     wines = [_guest_wine(w, body.query, menu, i) for i, w in enumerate(picked)]
-    intro = guest_intro(body.query)
+    wines, grok_intro = _enrich_with_grok(body.query, wines, menu, config.name)
+    intro = grok_intro or guest_intro(body.query)
     rec_id = None
     if wines:
         rec_id = crm_store.log_recommendation(
@@ -348,7 +449,17 @@ async def admin_report(request: Request, restaurant_id: str | None = None):
 
 @app.get("/api/health")
 async def health():
-    return {"status": "demo", "wines": len(CATALOG)}
+    return {
+        "status": "live",
+        "wines": len(CATALOG),
+        "grok": bool(_xai_key()),
+        "public_base_url": PUBLIC_BASE,
+    }
+
+
+@app.get("/qr.png", include_in_schema=False)
+async def qr_png():
+    return Response(content=_qr_png_bytes(guest_url("maass")), media_type="image/png")
 
 
 app.mount("/", StaticFiles(directory=str(MOBILE), html=True), name="pwa")

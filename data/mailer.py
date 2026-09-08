@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import html
 import logging
+import os
 import smtplib
 from email.message import EmailMessage
 from pathlib import Path
@@ -106,6 +107,17 @@ def build_html(restaurant_name: str, wines: List[Dict]) -> str:
 </body></html>"""
 
 
+def _smtp_value(name: str, default: str = "") -> str:
+    env = (os.getenv(name) or "").strip()
+    if env:
+        return env
+    try:
+        from config import settings
+        return str(getattr(settings, name.lower(), default) or default).strip()
+    except Exception:
+        return default
+
+
 def send_wine_email(
     to_email: str,
     restaurant_name: str,
@@ -114,16 +126,18 @@ def send_wine_email(
     subject = "Your wines from Jarvis"
     text = build_body(restaurant_name, wines)
     html_body = build_html(restaurant_name, wines)
-    from config import settings
 
-    host = (getattr(settings, "smtp_host", None) or "").strip()
-    from_addr = (getattr(settings, "smtp_from", None) or "").strip()
+    host = _smtp_value("SMTP_HOST")
+    from_addr = _smtp_value("SMTP_FROM")
     if not host or not from_addr:
-        OUTBOX.mkdir(parents=True, exist_ok=True)
-        safe = to_email.replace("@", "_at_").replace("/", "_")
-        path = OUTBOX / f"{safe}.txt"
-        path.write_text(f"To: {to_email}\nSubject: {subject}\n\n{text}", encoding="utf-8")
-        logger.info("SMTP not configured; wrote outbox %s", path)
+        try:
+            OUTBOX.mkdir(parents=True, exist_ok=True)
+            safe = to_email.replace("@", "_at_").replace("/", "_")
+            path = OUTBOX / f"{safe}.txt"
+            path.write_text(f"To: {to_email}\nSubject: {subject}\n\n{text}", encoding="utf-8")
+            logger.info("SMTP not configured; wrote outbox %s", path)
+        except OSError as exc:
+            logger.warning("SMTP not configured and outbox is read-only: %s", exc)
         return False, "saved"
 
     msg = EmailMessage()
@@ -133,9 +147,9 @@ def send_wine_email(
     msg.set_content(text)
     msg.add_alternative(html_body, subtype="html")
 
-    port = int(getattr(settings, "smtp_port", 587) or 587)
-    user = (getattr(settings, "smtp_user", None) or "").strip()
-    password = getattr(settings, "smtp_password", None) or ""
+    port = int(_smtp_value("SMTP_PORT", "587") or 587)
+    user = _smtp_value("SMTP_USER")
+    password = _smtp_value("SMTP_PASSWORD")
     try:
         with smtplib.SMTP(host, port, timeout=20) as smtp:
             smtp.starttls()
@@ -145,10 +159,13 @@ def send_wine_email(
         return True, "sent"
     except Exception as exc:
         logger.error("SMTP send failed: %s", exc)
-        OUTBOX.mkdir(parents=True, exist_ok=True)
-        safe = to_email.replace("@", "_at_").replace("/", "_")
-        (OUTBOX / f"{safe}.txt").write_text(
-            f"To: {to_email}\nSubject: {subject}\nError: {exc}\n\n{text}",
-            encoding="utf-8",
-        )
+        try:
+            OUTBOX.mkdir(parents=True, exist_ok=True)
+            safe = to_email.replace("@", "_at_").replace("/", "_")
+            (OUTBOX / f"{safe}.txt").write_text(
+                f"To: {to_email}\nSubject: {subject}\nError: {exc}\n\n{text}",
+                encoding="utf-8",
+            )
+        except OSError:
+            pass
         return False, str(exc)

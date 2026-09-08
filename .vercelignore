@@ -1,0 +1,16 @@
+.venv
+venv
+.env
+.env.*
+!.env.example
+__pycache__
+*.pyc
+tasks
+docs
+*.xlsx
+*.csv
+test_*.py
+image_of_wine_ratings.jpg
+data/crm.sqlite
+data/outbox
+.git
