@@ -180,6 +180,79 @@ def _enrich_with_grok(query: str, wines: list, menu: list, restaurant_name: str)
         return wines, None
 
 
+def _grok_pick_and_note(query: str, ranked: list, restaurant_name: str):
+    """Master-sommelier pick from wines that already passed hard filters.
+
+    Returns (picked_catalog_rows, intro) or (None, None) to fall back to the ranker.
+    """
+    key = _xai_key()
+    pool = [w for w in ranked if float(w.get("_score") or 0) > -1][:12]
+    if not key or len(pool) < 1:
+        return None, None
+    try:
+        from openai import OpenAI
+        client = OpenAI(api_key=key, base_url="https://api.x.ai/v1", timeout=6.0, max_retries=0)
+        numbered = "\n".join(
+            f"{i+1}. {w.get('vintage','')} {w.get('producer','')} {w.get('label') or w.get('wine_name','')} "
+            f"| {w.get('grapes','')} | {w.get('region','')} | {w.get('country','')} | ${w.get('price','')}"
+            for i, w in enumerate(pool)
+        )
+        model = _guest_grok_model()
+        kwargs = dict(
+            model=model,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        f"You are a Master Sommelier at {restaurant_name}. "
+                        "Choose only from the numbered list. Never invent a bottle. "
+                        "Old World = Europe (France, Italy, Spain, Germany, Portugal). "
+                        "New World = USA, Australia, Chile, Argentina, New Zealand, South Africa. "
+                        "Syrah Old World = Northern Rhône, not Australian Shiraz. "
+                        "If no bottle on the list truly matches, return {\"intro\":\"...\",\"picks\":[]}. "
+                        "Everyday words. JSON only."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": (
+                        f'The guest said: "{query}"\n'
+                        f"{numbered}\n"
+                        "JSON only:\n"
+                        '{"intro":"one sentence","picks":['
+                        '{"n":1,"why":"one sentence","note":"two short everyday sentences"},'
+                        '{"n":2,"why":"...","note":"..."}]}'
+                    ),
+                },
+            ],
+            temperature=0.2,
+            max_tokens=280,
+        )
+        if model.startswith(("grok-4.5", "grok-4.6")):
+            kwargs["extra_body"] = {"reasoning_effort": "low"}
+        response = client.chat.completions.create(**kwargs)
+        raw = (response.choices[0].message.content or "").strip()
+        match = re.search(r"\{.*\}", raw, re.DOTALL)
+        payload = json.loads(match.group(0) if match else raw)
+        intro = str(payload.get("intro") or "").strip() or None
+        picked = []
+        seen = set()
+        for item in payload.get("picks") or []:
+            idx = int(item.get("n", 0)) - 1
+            if 0 <= idx < len(pool) and idx not in seen:
+                seen.add(idx)
+                wine = dict(pool[idx])
+                if item.get("why"):
+                    wine["_grok_why"] = str(item["why"]).strip()
+                if item.get("note"):
+                    wine["_grok_note"] = str(item["note"]).strip()
+                picked.append(wine)
+        return picked, intro
+    except Exception as exc:
+        logger.warning("Grok pick skipped: %s", exc)
+        return None, None
+
+
 class RecommendationRequest(BaseModel):
     query: str = Field(..., min_length=1, max_length=500)
     restaurant_id: str = GUEST_ID
@@ -385,9 +458,20 @@ async def recommend(body: RecommendationRequest):
     ranked = [w for w in pool if w["_score"] > -1]
     seen = crm_store.recent_wine_keys(body.restaurant_id)
     picked = complementary_picks(ranked, seen_ids=seen, query=body.query)
+    grok_intro = None
+    if ranked and (intent.named or intent.world):
+        grok_picked, grok_intro = _grok_pick_and_note(body.query, ranked, config.name)
+        if grok_picked is not None:
+            picked = grok_picked
     menu = config.load_menu()
     wines = [_guest_wine(w, body.query, menu, i) for i, w in enumerate(picked)]
-    wines, grok_intro = _enrich_with_grok(body.query, wines, menu, config.name)
+    for src, dst in zip(picked, wines):
+        if src.get("_grok_why"):
+            dst["why"] = src["_grok_why"]
+        if src.get("_grok_note"):
+            dst["tasting_note"] = src["_grok_note"]
+    if not grok_intro:
+        wines, grok_intro = _enrich_with_grok(body.query, wines, menu, config.name)
     intro = grok_intro or guest_intro(body.query)
     if not wines:
         intro = named_miss_intro(body.query) or (

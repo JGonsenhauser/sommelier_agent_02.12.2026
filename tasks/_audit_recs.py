@@ -30,6 +30,8 @@ from data.sommelier_knowledge import (
     grape_family,
     is_burgundy_grand_cru,
     is_super_tuscan,
+    is_old_world,
+    is_new_world,
 )
 from restaurants.restaurant_config import MAASS_CONFIG
 
@@ -64,6 +66,12 @@ TYPED = [
     "french red wine",
     "sangiovese",
     "medium-bodied, sangiovese",
+    "syrah old world",
+    "old world syrah",
+    "shiraz",
+    "pinot old world",
+    "cabernet old world",
+    "old world red",
 ]
 
 
@@ -136,7 +144,10 @@ def violations(query: str, wines: list) -> list[str]:
     if len(wines) < 2:
         if "offdry" in intent.profile:
             flags.append("catalog_thin_offdry")
-        elif intent.named == "burgundy_gc" and not wines:
+        elif not wines and (
+            intent.named in {"burgundy_gc", "rhone"}
+            or (intent.world == "old" and intent.named == "syrah")
+        ):
             flags.append("catalog_thin_named")
         elif intent.named and not wines:
             flags.append("named_empty")
@@ -204,6 +215,11 @@ def violations(query: str, wines: list) -> list[str]:
             flags.append("named_sangiovese_miss")
         if any("pinot" in f"{w.get('label','')} {w.get('grapes','')}".lower() and "sangiovese" not in str(w.get("grapes") or "").lower() for w in wines):
             flags.append("sangiovese_got_pinot")
+    if "old world" in q or "old-world" in q:
+        if wines and any(is_new_world(w) and not is_old_world(w) for w in wines):
+            flags.append("old_world_got_new_world")
+        if ("syrah" in q or "shiraz" in q) and wines:
+            flags.append("old_world_syrah_should_be_empty")
     if "champagne" in q:
         if any("champagne" not in f"{w.get('region','')} {w.get('major_region','')} {w.get('label','')}".lower() for w in wines):
             flags.append("named_champagne_miss")

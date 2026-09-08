@@ -36,6 +36,15 @@ Reviewed 2026-09-04. Implemented P0 + P1 in this session.
 - [x] SMTP from `jonathan@agenthaus.io` (password still empty — needs Google App Password)
 - [ ] Vercel: import the GitHub repo as project `jarvis`, attach domain `jarvis.agenthaus.io`, paste env vars. MCP can create the empty project name but this Grok Vercel login cannot deploy (403) and GitHub is not linked.
 
+## Sommelier reasoning (2026-09-08)
+
+Typed language a Master Sommelier would never violate:
+
+- [ ] Old World / New World is a hard geographic lock (Syrah old world ≠ Barossa Shiraz)
+- [ ] If the classic home is not on the list, say so — do not substitute the other hemisphere
+- [ ] Grok picks from the filtered shortlist (cannot invent or relocate a bottle)
+- [ ] Re-audit typed sommelier phrases; agents review; deploy
+
 ## Rec quality audit (2026-09-08)
 
 Four sommelier agents reviewed 207 chip/query combos. Ranker + ingest now lock named grapes/appellations, color Sancerre/Xarel·lo correctly, keep Champagne on Champagne AOC, and never pad Cellar with cheap bottles.

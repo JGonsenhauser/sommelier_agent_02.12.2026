@@ -153,6 +153,41 @@ def wine_country(wine: Dict) -> str:
     return str(wine.get("country") or "").lower()
 
 
+OLD_WORLD_COUNTRIES = (
+    "france", "italy", "spain", "germany", "portugal", "austria",
+    "hungary", "greece", "switzerland", "slovenia", "croatia",
+)
+NEW_WORLD_COUNTRIES = (
+    "usa", "united states", "america", "australia", "new zealand",
+    "chile", "argentina", "south africa", "canada",
+)
+
+
+def is_old_world(wine: Dict) -> bool:
+    c = wine_country(wine)
+    return any(m in c for m in OLD_WORLD_COUNTRIES)
+
+
+def is_new_world(wine: Dict) -> bool:
+    c = wine_country(wine)
+    blob = _blob(wine)
+    if any(m in c for m in NEW_WORLD_COUNTRIES):
+        return True
+    return any(m in blob for m in ("napa", "sonoma", "barossa", "mclaren", "mendoza", "willamette"))
+
+
+def is_rhone(wine: Dict) -> bool:
+    blob = _blob(wine)
+    return any(
+        m in blob
+        for m in (
+            "rhône", "rhone", "côte-rôtie", "cote-rotie", "cote rotie",
+            "hermitage", "cornas", "crozes", "saint-joseph", "st-joseph",
+            "châteauneuf", "chateauneuf", "gigondas", "vacqueyras", "côte-rôtie",
+        )
+    )
+
+
 @dataclass
 class GuestIntent:
     color: Optional[str] = None
@@ -164,6 +199,7 @@ class GuestIntent:
     lock_profile: bool = False
     food: Optional[str] = None
     named: Optional[str] = None  # grape or appellation the guest named
+    world: Optional[str] = None  # old | new
     raw: str = ""
 
 
@@ -187,6 +223,11 @@ def parse_intent(query: str) -> GuestIntent:
     elif re.search(r"\bred\b", q):
         intent.color = "red"
         intent.lock_color = True
+
+    if "old world" in q or "old-world" in q:
+        intent.world = "old"
+    elif "new world" in q or "new-world" in q:
+        intent.world = "new"
 
     # Named grape / appellation / class — never fall through to catalog-order Napa Cab.
     if re.search(r"super[\s-]?tuscan", q) or "supertuscan" in q:
@@ -245,6 +286,12 @@ def parse_intent(query: str) -> GuestIntent:
             intent.lock_color = True
     elif re.search(r"\bnebbiolo\b", q):
         intent.named = intent.named or "nebbiolo"
+        if intent.color is None:
+            intent.color = "red"
+            intent.lock_color = True
+    elif "rhône" in q or "rhone" in q or "côte-rôtie" in q or "cote rotie" in q or "hermitage" in q or "cornas" in q:
+        intent.named = "rhone"
+        intent.world = intent.world or "old"
         if intent.color is None:
             intent.color = "red"
             intent.lock_color = True
@@ -859,6 +906,8 @@ def matches_named(query_or_intent, wine: Dict) -> bool:
         return any(m in blob for m in ("nebbiolo", "barolo", "barbaresco"))
     if named == "syrah":
         return "syrah" in blob or "shiraz" in blob
+    if named == "rhone":
+        return is_rhone(wine)
     if named == "malbec":
         return "malbec" in blob
     if named == "zinfandel":
@@ -909,6 +958,16 @@ def matches_named(query_or_intent, wine: Dict) -> bool:
 
 def named_miss_intro(query: str) -> Optional[str]:
     intent = parse_intent(query)
+    if intent.world == "old" and intent.named == "syrah":
+        return "There isn't an Old World Syrah on this list (no Northern Rhône). I won't pour Australian Shiraz instead."
+    if intent.named == "rhone":
+        return "There isn't a Rhône wine on this list tonight."
+    if intent.world == "old" and intent.named:
+        label = intent.named.replace("_", " ")
+        return f"There isn't an Old World {label} on this list. I won't substitute New World."
+    if intent.world == "new" and intent.named:
+        label = intent.named.replace("_", " ")
+        return f"There isn't a New World {label} on this list. I won't substitute Old World."
     if intent.named == "burgundy_gc":
         return "There isn't a Grand Cru Burgundy on this list. I won't pour a Premier Cru or a wine from somewhere else."
     if intent.named == "burgundy_1er":
@@ -997,6 +1056,10 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
         return -10.0
     if not matches_named(intent, wine):
         return -10.0
+    if intent.world == "old" and not is_old_world(wine):
+        return -10.0
+    if intent.world == "new" and not is_new_world(wine):
+        return -10.0
 
     q = (intent.raw or "").lower()
     try:
@@ -1031,6 +1094,11 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
             score -= 4.0
         if any(m in blob for m in ("arneis", "verdicchio", "gavi", "soave", "fiano", "cervaro", "batàr", "batar")):
             score += 1.8
+    if intent.named == "syrah":
+        if is_rhone(wine):
+            score += 3.5
+        if intent.world == "old" and is_new_world(wine):
+            score -= 8.0
     if intent.named == "sangiovese":
         if "chianti" in blob:
             score += 1.6
@@ -1387,6 +1455,10 @@ def passes_profile(query: str, wine: Dict) -> bool:
     blob = _blob(wine)
     if not matches_named(intent, wine):
         return False
+    if intent.world == "old" and not is_old_world(wine):
+        return False
+    if intent.world == "new" and not is_new_world(wine):
+        return False
     if "crisp" in intent.profile:
         if intent.color == "red":
             if is_oaky_chardonnay(wine) or color == "white":
@@ -1620,6 +1692,8 @@ def grok_system_prompt(restaurant_name: str) -> str:
         "- Only choose from the numbered list. Never invent a bottle, vintage, or price.\n"
         "- Never call a Premier Cru a Grand Cru. Never call Napa Cab or Zinfandel a Super Tuscan.\n"
         "- If they named a grape (Sangiovese), both bottles are that grape. Never pair it with Pinot.\n"
+        "- Old World = Europe. New World = USA/Australia/Chile/Argentina/NZ. "
+        "Syrah Old World is Northern Rhône, never Barossa Shiraz.\n"
         "- If they named a place or class that is not on the list, say so. Do not substitute.\n\n"
         "Voice: two short everyday sentences. No jargon, scores, or 'notes of'. "
         "The why must echo their buttons or words.\n"
