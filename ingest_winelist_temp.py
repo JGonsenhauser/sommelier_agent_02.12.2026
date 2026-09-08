@@ -26,7 +26,7 @@ LINE_RE = re.compile(
     r"(?P<label>.+?)\s*\|\s*"
     r"(?P<region>.+?)\s*\|\s*"
     r"(?P<country>.+?)\s*\|\s*"
-    r"\$(?P<price>[0-9,]+)(?:\s*[–-]\s*\$?(?P<price2>[0-9,]+))?"
+    r"\$(?P<price>[0-9,]+)\+?(?:\s*[–-]\s*\$?(?P<price2>[0-9,]+))?"
     r"(?:\s*\((?P<stylehint>red|white)\))?\s*$",
     re.IGNORECASE,
 )
@@ -35,7 +35,7 @@ NOVINTAGE_RE = re.compile(
     r"(?P<label>.+?)\s*\|\s*"
     r"(?P<region>.+?)\s*\|\s*"
     r"(?P<country>.+?)\s*\|\s*"
-    r"\$(?P<price>[0-9,]+)(?:\s*[–-]\s*\$?(?P<price2>[0-9,]+))?\s*$"
+    r"\$(?P<price>[0-9,]+)\+?(?:\s*[–-]\s*\$?(?P<price2>[0-9,]+))?\s*$"
 )
 STYLE_RE = re.compile(
     r"^(Reds|Whites|Sparkling|Still)\b",
@@ -64,13 +64,19 @@ def price_range(price: int) -> str:
     return "$200+"
 
 
-def _skip_list_row(vintage: str, label: str) -> bool:
+def _skip_list_row(vintage: str, label: str, producer: str = "") -> bool:
     """Drop grouping notes that are not a single bottle."""
     v = (vintage or "").lower()
     lab = (label or "").lower()
-    if "range" in v:
+    prod = (producer or "").lower()
+    if "range" in v or "range" in prod:
         return True
-    if "etc" in lab or "series" in lab:
+    if "etc" in lab or "selections" in lab:
+        return True
+    if "|" in (producer or "") or "|" in (label or ""):
+        return True
+    # Dual SKUs ("Malbec / Bramare") but keep Champagne "Collection / Brut".
+    if " / " in lab and not any(ok in lab for ok in ("brut", "collection", "rosé", "rose", "blanc")):
         return True
     reds = ("malbec", "cabernet", "pinot noir", "syrah", "merlot")
     whites = ("chardonnay", "sauvignon blanc", "riesling", "chenin")
@@ -83,7 +89,8 @@ def infer_style(section: str, major: str, hint: str | None, label: str) -> str:
     if hint:
         return hint.lower()
     lab = (label or "").lower()
-    if any(g in lab for g in ("cabernet sauvignon", "pinot noir", "barolo", "barbaresco", "brunello", "malbec", "syrah", "zinfandel")) and "blanc" not in lab:
+    maj = (major or "").lower()
+    if any(g in lab for g in ("cabernet sauvignon", "pinot noir", "barolo", "barbaresco", "brunello", "malbec", "syrah", "zinfandel")) and "blanc" not in lab and "blanc de" not in lab:
         return "red"
     blob = f"{section} {major} {label}".lower()
     if any(w in blob for w in ("sparkling", "champagne", "prosecco", "cava", "corpinnat", "brut")):
@@ -92,13 +99,20 @@ def infer_style(section: str, major: str, hint: str | None, label: str) -> str:
         return "white"
     if re.search(r"\breds?\b", blob):
         return "red"
-    if any(w in blob for w in ("chardonnay", "riesling", "sauvignon", "chenin", "fiano", "arneis", "pinot gris", "blanc")):
+    if "sancerre" in blob and "rouge" not in lab:
+        return "white"
+    if any(w in blob for w in (
+        "chardonnay", "riesling", "sauvignon", "chenin", "fiano", "arneis",
+        "pinot gris", "blanc", "xarel", "viura", "white wine", "gravonia",
+    )):
         return "white"
     red_regions = (
         "napa", "sonoma", "barolo", "barbaresco", "brunello", "chianti", "bolgheri",
         "pauillac", "saint-julien", "saint-estèphe", "margaux", "pomerol", "saint-émilion",
         "rioja", "ribera", "mclaren", "barossa", "willamette", "burgundy",
     )
+    if "sancerre" in maj:
+        return "white"
     if any(r in blob for r in red_regions):
         return "red"
     return "red"
@@ -107,6 +121,8 @@ def infer_style(section: str, major: str, hint: str | None, label: str) -> str:
 def infer_grapes(label: str, region: str, major: str, style: str) -> str:
     blob = f"{label} {region} {major}".lower()
     pairs = [
+        ("geyserville", "Zinfandel"),
+        ("blanc de blancs", "Chardonnay"),
         ("pinot noir", "Pinot Noir"),
         ("pinot gris", "Pinot Gris"),
         ("chardonnay", "Chardonnay"),
@@ -143,17 +159,21 @@ def infer_grapes(label: str, region: str, major: str, style: str) -> str:
             return "Macabeo, Xarel-lo, Parellada"
         return "Chardonnay, Pinot Noir, Pinot Meunier"
     if style == "white":
+        if "sancerre" in major_l or "sancerre" in blob:
+            return "Sauvignon Blanc"
+        if "xarel" in blob:
+            return "Xarel-lo"
         if "burgundy" in major_l or "chablis" in blob or "meursault" in blob:
             return "Chardonnay"
-        if "sancerre" in major_l:
-            return "Sauvignon Blanc"
         if "alsace" in major_l:
             return "Riesling"
         if "bordeaux" in major_l:
             return "Sauvignon Blanc, Semillon"
         if "rioja" in major_l:
             return "Viura"
-        return "Chardonnay"
+        return "White blend"
+    if "sancerre" in blob:
+        return "Pinot Noir" if style == "red" else "Sauvignon Blanc"
     if "willamette" in blob or "dundee" in blob or "eola" in blob or "ribbon" in blob:
         return "Pinot Noir"
     if "burgundy" in major_l:
@@ -205,7 +225,7 @@ def parse_list(text: str) -> list[dict]:
             vintage = "NV"
         producer = data["producer"].strip()
         label = data["label"].strip()
-        if _skip_list_row(vintage, label):
+        if _skip_list_row(vintage, label, producer):
             continue
         region = data["region"].strip()
         country = data["country"].strip()

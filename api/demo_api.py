@@ -372,7 +372,8 @@ async def recommend(body: RecommendationRequest):
 
     pool = [w for w in (consider(wine) for wine in CATALOG) if w]
     relaxed = None
-    if len(pool) < 2 and (lo or hi):
+    # Cellar is a floor: never pad with a $20 bottle. One honest bottle is enough.
+    if len(pool) < 2 and hi and not lo:
         relaxed = "Nothing sat in that exact price band; these are the closest that still match the style."
         pool = [w for w in (consider(wine, ignore_price=True) for wine in CATALOG) if w]
     pool.sort(key=lambda w: w["_score"], reverse=True)

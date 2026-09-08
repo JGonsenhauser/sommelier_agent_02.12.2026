@@ -35,10 +35,14 @@ LEAN_WHITE_REGIONS = (
 LEAN_WHITE_GRAPES = (
     "sauvignon", "pinot gris", "pinot grigio", "arneis", "riesling",
     "albariño", "albarino", "muscadet", "melon", "assyrtiko", "gruner",
-    "grüner", "vermentino", "aligote", "aligoté", "glera",
+    "grüner", "vermentino", "aligote", "aligoté",
     "garganega", "soave", "verdicchio", "pecorino", "cortese", "gavi",
     "fiano", "falanghina", "greco", "carricante", "trebbiano", "kerner",
-    "silvaner", "grüner veltliner",
+    "silvaner", "grüner veltliner", "xarel",
+)
+BARREL_WHITE_MARKERS = (
+    "pessac", "léognan", "leognan", "graves", "sauternes", "smith haut",
+    "haut-brion", "chevalier", "carbonnieux",
 )
 MED_LEAN_WHITES = (
     "soave", "garganega", "verdicchio", "vermentino", "pecorino", "gavi",
@@ -61,7 +65,8 @@ FULL_RED_MARKERS = (
     "cabernet", "syrah", "shiraz", "malbec", "nebbiolo", "barolo",
     "barbaresco", "brunello", "sangiovese grosso", "zinfandel", "amarone",
     "pauillac", "saint-julien", "saint-estèphe", "margaux", "napa",
-    "opus", "dominus",
+    "opus", "dominus", "monte bello", "insignia", "harlan", "screaming eagle",
+    "cask 23", "hillside select",
 )
 EARTHY_MARKERS = (
     "burgundy", "chablis", "barolo", "barbaresco", "nebbiolo", "rioja",
@@ -75,9 +80,9 @@ FRUITY_MARKERS = (
     "new zealand", "napa", "sonoma", "mendoza",
 )
 OFFDRY_MARKERS = (
-    "moscato", "muscat", "d'asti", "brachetto", "late harvest", "spätlese",
+    "moscato", "muscat", "d'asti", "d’asti", "brachetto", "late harvest", "spätlese",
     "spatlese", "kabinett", "demi-sec", "off-dry", "auslese", "gewurz",
-    "gewürz",
+    "gewürz", "extra dry", "cartizze", "rustico",
 )
 
 # Chip copy a guest sees → the phrase the engine parses
@@ -114,6 +119,7 @@ class GuestIntent:
     profile: List[str] = field(default_factory=list)
     lock_profile: bool = False
     food: Optional[str] = None
+    named: Optional[str] = None  # grape or appellation the guest named
     raw: str = ""
 
 
@@ -124,6 +130,10 @@ def parse_intent(query: str) -> GuestIntent:
     if any(w in q for w in ("champagne", "sparkling", "bubbly", "prosecco", "cava", "crémant", "cremant")):
         intent.color = "sparkling"
         intent.lock_color = True
+        if "champagne" in q:
+            intent.named = "champagne"
+        elif "prosecco" in q:
+            intent.named = "prosecco"
     elif "rosé" in q or re.search(r"\brose\b", q):
         intent.color = "rose"
         intent.lock_color = True
@@ -133,6 +143,43 @@ def parse_intent(query: str) -> GuestIntent:
     elif re.search(r"\bred\b", q):
         intent.color = "red"
         intent.lock_color = True
+
+    # Named grape / appellation — never fall through to catalog-order Napa Cab.
+    if "sancerre" in q:
+        intent.named = "sancerre"
+        if intent.color is None:
+            intent.color = "red" if ("rouge" in q or re.search(r"\bred\b", q)) else "white"
+            intent.lock_color = True
+    elif "barolo" in q:
+        intent.named = "barolo"
+        if intent.color is None:
+            intent.color = "red"
+            intent.lock_color = True
+    elif "chablis" in q:
+        intent.named = intent.named or "chablis"
+        if intent.color is None:
+            intent.color = "white"
+            intent.lock_color = True
+    elif re.search(r"\briesling\b", q):
+        intent.named = intent.named or "riesling"
+        if intent.color is None:
+            intent.color = "white"
+            intent.lock_color = True
+    elif "chardonnay" in q:
+        intent.named = intent.named or "chardonnay"
+        if intent.color is None:
+            intent.color = "white"
+            intent.lock_color = True
+    elif re.search(r"\bpinot noir\b", q):
+        intent.named = intent.named or "pinot noir"
+        if intent.color is None:
+            intent.color = "red"
+            intent.lock_color = True
+    elif "cabernet" in q:
+        intent.named = intent.named or "cabernet"
+        if intent.color is None:
+            intent.color = "red"
+            intent.lock_color = True
 
     if any(w in q for w in LIGHT_BODY_WORDS):
         intent.body = "light"
@@ -178,7 +225,7 @@ def parse_intent(query: str) -> GuestIntent:
             intent.color = "white"
         intent.lock_color = True
 
-    if any(w in q for w in ("oyster", "oysters")):
+    if any(w in q for w in ("oyster", "oysters", "caviar")):
         intent.food = "oysters"
         if intent.color is None:
             intent.color = "white"
@@ -189,6 +236,13 @@ def parse_intent(query: str) -> GuestIntent:
         intent.food = "branzino"
         if intent.color is None:
             intent.color = "white"
+            intent.lock_color = True
+        if intent.body is None:
+            intent.body = "light"
+    elif "tartare" in q:
+        intent.food = "tartare"
+        if intent.color is None:
+            intent.color = "red"
             intent.lock_color = True
         if intent.body is None:
             intent.body = "light"
@@ -240,6 +294,20 @@ def parse_intent(query: str) -> GuestIntent:
         if intent.body is None:
             intent.body = "light"
 
+    # Food wins over implied crisp-white when they did not tap a color chip.
+    color_tapped = any(
+        w in q
+        for w in ("white", "chardonnay", "champagne", "sparkling", "bubbly", "rosé")
+    ) or re.search(r"\brose\b", q) or re.search(r"\bred\b", q)
+    if intent.food == "steak" and not color_tapped:
+        intent.color = "red"
+        intent.lock_color = True
+        if intent.body is None:
+            intent.body = "full"
+    if intent.food == "tomato" and not color_tapped:
+        intent.color = "red"
+        intent.lock_color = True
+
     # Deduplicate profile tags, keep order
     seen = set()
     intent.profile = [p for p in intent.profile if not (p in seen or seen.add(p))]
@@ -249,13 +317,15 @@ def parse_intent(query: str) -> GuestIntent:
 def cook_profile_from_text(text: str) -> Optional[str]:
     """Map a menu dish (name + description) onto a pairing family."""
     t = (text or "").lower()
-    if any(w in t for w in ("oyster", "oysters")):
+    if any(w in t for w in ("oyster", "oysters", "caviar")):
         return "oysters"
+    if "tartare" in t:
+        return "tartare"
     if any(w in t for w in ("chowder", "cream sauce", "cream", "bacon", "brioche")) and any(
         w in t for w in ("cod", "fish", "sauce", "chowder", "pasta", "tagliatelle")
     ):
         return "cream"
-    if any(w in t for w in ("bordelaise", "strip", "steak", "beef tartare", "lamb")):
+    if any(w in t for w in ("bordelaise", "strip", "steak", "lamb")):
         return "steak"
     if any(w in t for w in ("tomato", "marinara", "pomodoro")):
         return "tomato"
@@ -349,7 +419,11 @@ def complementary_picks(
     q = (query or "").lower()
     named = None
     for needle, family in (
+        ("sancerre", "sancerre"),
+        ("barolo", "nebbiolo"),
+        ("champagne", "sparkling"),
         ("chardonnay", "chard"),
+        ("chablis", "chard_lean"),
         ("pinot noir", "pinot"),
         ("sauvignon", "sauvignon"),
         ("riesling", "riesling"),
@@ -365,8 +439,51 @@ def complementary_picks(
         if not same_grape:
             same_grape = [w for w in unseen(ranked) if wine_key(w) != wine_key(first) and wine_color(w) == first_color and (named in grape_family(w) or named in _blob(w))]
         if same_grape:
-            return [first, same_grape[0]]
-    second = next((w for w in same_color if grape_family(w) != fam), None)
+            first_prod = (first.get("producer") or "").lower()
+            other_prod = [w for w in same_grape if (w.get("producer") or "").lower() != first_prod]
+            return [first, (other_prod or same_grape)[0]]
+    intent = parse_intent(query) if query else None
+    if intent and intent.color == "rose":
+        roses = [w for w in unseen(ranked) if wine_color(w) in {"rose", "rosé"}]
+        if roses:
+            first_r = roses[0]
+            rest_r = [w for w in roses if wine_key(w) != wine_key(first_r)]
+            return [first_r] + rest_r[:1]
+    if intent and "offdry" in intent.profile:
+        rest_od = [w for w in unseen(ranked) if wine_key(w) != wine_key(first)]
+        if rest_od:
+            return [first, rest_od[0]]
+    qlow = (query or "").lower()
+    if intent and intent.color == "white" and ("cellar" in qlow or "splurge" in qlow):
+        rest_c = [
+            w for w in unseen(ranked)
+            if wine_key(w) != wine_key(first)
+            and wine_color(w) in {"white", "sparkling", "champagne"}
+        ]
+        if rest_c:
+            return [first, rest_c[0]]
+    if intent and "crisp" in intent.profile and first_color == "red" and fam == "pinot":
+        pinots = [w for w in same_color if grape_family(w) == "pinot"]
+        if pinots:
+            return [first, pinots[0]]
+    if intent and "crisp" in intent.profile and first_color == "white" and fam in {"sauvignon", "chard_lean", "riesling"}:
+        other_lean = [w for w in same_color if grape_family(w) != fam and grape_family(w) in {"sauvignon", "chard_lean", "riesling", "arneis", "italian_lean"}]
+        if other_lean:
+            return [first, other_lean[0]]
+    first_prod = (first.get("producer") or "").lower()
+    second = next(
+        (
+            w
+            for w in same_color
+            if grape_family(w) != fam and (w.get("producer") or "").lower() != first_prod
+        ),
+        None,
+    )
+    if second is None:
+        second = next(
+            (w for w in same_color if (w.get("producer") or "").lower() != first_prod),
+            None,
+        )
     if second is None and same_color:
         second = same_color[0]
     return [first] + ([second] if second else [])
@@ -409,13 +526,32 @@ _WHITE_GRAPES = (
     "chardonnay", "sauvignon blanc", "pinot gris", "pinot grigio", "arneis",
     "riesling", "viognier", "verdicchio", "garganega", "soave", "vermentino",
     "gavi", "cortese", "fiano", "albari", "chenin", "moscato", "semillon",
+    "xarel", "viura", "roussanne",
 )
 
 
 def wine_color(wine: Dict) -> str:
     grapes = str(wine.get("grapes") or "").lower()
     label = str(wine.get("wine_name") or wine.get("label") or "").lower()
-    blob = grapes + " " + label
+    style = str(
+        wine.get("wine_style") or wine.get("wine_type") or
+        (wine.get("metadata") or {}).get("wine_style") or ""
+    ).lower()
+    region = str(
+        wine.get("region") or wine.get("major_region") or
+        (wine.get("metadata") or {}).get("region") or ""
+    ).lower()
+    blob = grapes + " " + label + " " + style + " " + region
+    if "rosé" in blob or re.search(r"\brose\b", blob):
+        return "rose"
+    if any(w in blob for w in ("sparkling", "champagne", "prosecco", "cava", "brut", "corpinnat")):
+        return "sparkling"
+    if "sancerre" in blob:
+        if "rouge" in blob or style == "red":
+            return "red"
+        return "white"
+    if "xarel" in blob and "brut" not in blob:
+        return "white"
     has_red = any(g in blob for g in _RED_GRAPES)
     has_white = any(g in blob for g in _WHITE_GRAPES)
     if has_red and has_white:
@@ -454,6 +590,10 @@ def is_lean_white(wine: Dict) -> bool:
     grapes = str(wine.get("grapes") or "").lower()
     if wine_color(wine) not in {"white", "sparkling", "champagne"}:
         return False
+    if any(m in blob for m in BARREL_WHITE_MARKERS):
+        return False
+    if "meursault" in blob or "puligny" in blob or "montrachet" in blob:
+        return False
     if "chablis" in blob:
         return True
     if any(g in grapes or g in blob for g in LEAN_WHITE_GRAPES):
@@ -478,10 +618,61 @@ def is_full_red(wine: Dict) -> bool:
     if wine_color(wine) != "red":
         return False
     blob = _blob(wine)
-    if "pinot noir" in blob or "pinot" in str(wine.get("grapes") or "").lower():
+    grapes = str(wine.get("grapes") or "").lower()
+    if "pinot noir" in blob or "pinot noir" in grapes or (
+        "pinot" in grapes and "gris" not in grapes and "grigio" not in grapes
+    ):
         if not any(m in blob for m in ("napa", "cabernet")):
             return False
+    if "geyserville" in blob:
+        return True
     return any(m in blob for m in FULL_RED_MARKERS)
+
+
+def is_crisp_red(wine: Dict) -> bool:
+    if wine_color(wine) != "red":
+        return False
+    blob = _blob(wine)
+    if is_full_red(wine) and "pinot" not in blob:
+        return False
+    if any(m in blob for m in ("barolo", "barbaresco", "nebbiolo", "cabernet", "opus", "monte bello", "zinfandel", "pauillac", "amarone", "brunello")):
+        return False
+    return is_light_red(wine) or any(
+        m in blob for m in ("pinot noir", "gamay", "barbera", "chianti", "sancerre")
+    )
+
+
+def matches_named(query_or_intent, wine: Dict) -> bool:
+    named = query_or_intent.named if hasattr(query_or_intent, "named") else None
+    if not named:
+        q = str(query_or_intent if isinstance(query_or_intent, str) else getattr(query_or_intent, "raw", "") or "").lower()
+        named = None
+        for key in ("sancerre", "barolo", "champagne", "chablis", "riesling", "chardonnay", "pinot noir", "cabernet"):
+            if key in q:
+                named = key
+                break
+    if not named:
+        return True
+    blob = _blob(wine)
+    if named == "sancerre":
+        return "sancerre" in blob
+    if named == "barolo":
+        return "barolo" in blob
+    if named == "champagne":
+        return "champagne" in blob
+    if named == "chablis":
+        return "chablis" in blob
+    if named == "riesling":
+        return "riesling" in blob
+    if named == "chardonnay":
+        return any(m in blob for m in ("chardonnay", "chablis", "puligny", "meursault", "montrachet", "mâcon", "macon"))
+    if named == "pinot noir":
+        return "pinot noir" in blob or ("pinot" in blob and "gris" not in blob and "grigio" not in blob)
+    if named == "cabernet":
+        return "cabernet" in blob
+    if named == "prosecco":
+        return "prosecco" in blob or "glera" in blob or "valdobbiadene" in blob
+    return True
 
 
 def is_off_dry(wine: Dict) -> bool:
@@ -523,8 +714,20 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
 
     if color == "mixed":
         return -10.0
+    if not matches_named(intent, wine):
+        return -10.0
 
     q = (intent.raw or "").lower()
+    try:
+        price = int(wine.get("price") or 0)
+    except (TypeError, ValueError):
+        price = 0
+
+    # Token overlap so typed names and dishes beat catalog order.
+    stop = {"wine", "with", "the", "and", "crisp", "clean", "profile", "bodied", "body", "drink", "from"}
+    tokens = [t for t in re.findall(r"[a-zà-ü]{4,}", q) if t not in stop]
+    score += 0.35 * sum(1 for t in tokens if t in blob)
+
     if "france" in q or "french" in q:
         if any(m in blob for m in ("france", "burgundy", "bordeaux", "loire", "rhone", "rhône", "alsace", "champagne", "chablis", "pauillac", "puligny", "meursault")):
             score += 2.2
@@ -537,6 +740,14 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
         else:
             score -= 8.0
 
+    if intent.named == "champagne" or ("champagne" in q and intent.color == "sparkling"):
+        if "champagne" in blob:
+            score += 4.5
+        else:
+            score -= 8.0
+        if any(m in blob for m in ("prosecco", "glera", "cava", "corpinnat", "pened")):
+            score -= 4.0
+
     if "rich_white" in intent.profile:
         if color != "white":
             score -= 8.0
@@ -548,33 +759,91 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
     if intent.color:
         wanted = {intent.color}
         if intent.color == "white" and "crisp" not in intent.profile:
-            wanted.add("sparkling")
+            if "offdry" not in intent.profile or not re.search(r"\bwhite\b", q):
+                wanted.add("sparkling")
+                wanted.add("champagne")
         if intent.color == "sparkling":
             wanted.update({"sparkling", "champagne"})
+            if intent.named == "champagne":
+                wanted.add("rose")
         if intent.color == "rose":
             wanted.update({"rose", "rosé"})
         if color not in wanted:
-            if intent.lock_color:
+            if intent.lock_color and not (intent.named == "champagne" and "champagne" in blob):
                 return -10.0
             score -= 0.8
 
-    if "crisp" in intent.profile:
-        if color == "red" and intent.color != "red":
-            score -= 8.0
-        if is_oaky_chardonnay(wine):
+    cellar_ask = "cellar" in q or "splurge" in q
+    if cellar_ask:
+        if price >= 250:
+            score += 2.8
+        else:
             score -= 6.0
-        if is_off_dry(wine):
-            score -= 4.0
-        if is_lean_white(wine):
-            score += 2.2
-        if "chablis" in blob:
-            score += 1.5
-        if any(g in blob for g in ("sauvignon", "pinot gris", "arneis")):
-            score += 1.0
+
+    # Default "just white" / "just red": do not lead with trophy Cabs or oaky CA Chard.
+    if not intent.profile and not intent.food and not intent.named and not cellar_ask:
+        if intent.color == "white" and intent.body is None:
+            if is_lean_white(wine):
+                score += 2.2
+            if is_oaky_chardonnay(wine):
+                score -= 3.0
+            if "sancerre" in blob or "chablis" in blob or "riesling" in blob:
+                score += 1.2
+        if intent.color == "red" and intent.body is None:
+            if price >= 250:
+                score -= 2.2
+            elif 40 <= price <= 120:
+                score += 1.0
+            if is_full_red(wine) and price >= 200:
+                score -= 1.0
+        if intent.color is None and price >= 250:
+            score -= 2.0
+
+    if not cellar_ask and price >= 250:
+        score -= 0.8
+
+    if "crisp" in intent.profile:
+        if intent.color == "red":
+            if is_crisp_red(wine) or is_light_red(wine):
+                score += 3.4
+            if "pinot noir" in blob:
+                score += 1.6
+            if "sancerre" in blob and color == "red":
+                score += 1.4
+            if is_full_red(wine) or any(m in blob for m in ("napa", "cabernet", "opus", "monte bello", "barolo", "nebbiolo")):
+                score -= 6.5
+        else:
+            if color == "red":
+                score -= 8.0
+            if is_oaky_chardonnay(wine):
+                score -= 6.0
+            if is_off_dry(wine):
+                score -= 4.0
+            if any(m in blob for m in BARREL_WHITE_MARKERS) or "gravonia" in blob:
+                score -= 3.2
+            if is_lean_white(wine):
+                score += 2.2
+            if "sancerre" in blob and color == "white":
+                score += 2.4
+            if "chablis" in blob:
+                score += 2.0
+            if "riesling" in blob and not is_off_dry(wine):
+                score += 1.6
+            if "arneis" in blob or "xarel" in blob:
+                score += 1.2
+            if "pinot gris" in blob:
+                score += 0.2
+            if color in {"sparkling", "champagne", "rose"} or intent.named == "champagne":
+                if "blanc de blancs" in blob or "pierre péters" in blob:
+                    score += 2.2
+                if "extra dry" in blob or "prosecco" in blob:
+                    score -= 2.0
 
     if "offdry" in intent.profile:
         if is_off_dry(wine):
             score += 4.0
+            if "moscato" in blob and intent.body == "full":
+                score -= 3.0
         else:
             score -= 8.0
 
@@ -591,8 +860,10 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
                 score -= 3.5
             if is_oaky_chardonnay(wine):
                 score -= 3.0
-            if any(m in blob for m in ("sauvignon", "viognier", "torrontes", "pinot gris", "chenin", "albari", "fiano")):
-                score += 1.8
+            if any(m in blob for m in ("riesling", "arneis", "sancerre", "pinot gris", "sauvignon", "chenin", "albari")):
+                score += 2.2
+            if "fiano" in blob or "roussanne" in blob:
+                score -= 0.8
         else:
             if any(m in blob for m in ("zinfandel", "malbec", "caymus", "geyserville")):
                 score += 1.2
@@ -606,6 +877,11 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
             score -= 2.0
         if any(m in blob for m in ("burgundy", "barolo", "chablis", "rioja", "nebbiolo", "barbaresco")):
             score += 1.2
+        if color == "white":
+            if any(m in blob for m in ("gravonia", "tondonia", "viura", "rioja")):
+                score += 3.0
+            if any(m in blob for m in ("puligny", "kistler", "aubert", "mâcon", "macon")):
+                score -= 1.4
         if intent.body == "full" and color == "red":
             if any(m in blob for m in ("barolo", "barbaresco", "brunello", "rioja", "nebbiolo")):
                 score += 2.5
@@ -620,83 +896,138 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
         if "pinot gris" in blob or "arneis" in blob or "chablis" in blob:
             score += 0.8
     elif intent.body == "full":
-        if is_lean_white(wine) and intent.color != "white":
-            score -= 3.0
-        if is_light_red(wine) and not is_full_red(wine):
-            score -= 3.0
-        if is_full_red(wine) or is_oaky_chardonnay(wine):
-            score += 2.0
-        if any(m in blob for m in ("cabernet", "barolo", "brunello", "syrah", "malbec")):
-            score += 0.8
+        if "crisp" in intent.profile and color == "white":
+            if "chablis" in blob or "sancerre" in blob:
+                score += 2.0
+            if is_oaky_chardonnay(wine) or "moscato" in blob:
+                score -= 4.0
+        else:
+            if is_lean_white(wine) and intent.color != "white":
+                score -= 3.0
+            if is_light_red(wine) and not is_full_red(wine):
+                score -= 3.0
+            if is_full_red(wine) or is_oaky_chardonnay(wine):
+                score += 2.0
+            if "moscato" in blob:
+                score -= 6.0
+            if any(m in blob for m in ("cabernet", "barolo", "brunello", "syrah", "malbec")):
+                score += 0.8
     elif intent.body == "medium":
-        if is_oaky_chardonnay(wine) or (is_full_red(wine) and "cabernet" in blob and "napa" in blob):
-            score -= 0.8
+        if is_full_red(wine):
+            score -= 3.5
+        if is_oaky_chardonnay(wine) and "crisp" in intent.profile:
+            score -= 2.0
         if is_lean_white(wine) and "chablis" not in blob:
             score += 0.4
         if "chianti" in blob or "rioja" in blob or "pinot" in blob:
             score += 1.0
+        if any(m in blob for m in ("saint-aubin", "st-aubin", "carbonnieux", "pessac")):
+            score += 1.2
 
     food = intent.food
     if food == "oysters":
-        if is_lean_white(wine) or "chablis" in blob or color in {"sparkling", "champagne"}:
-            score += 3.0
-        if is_oaky_chardonnay(wine) or is_full_red(wine):
-            score -= 6.0
-        if "chablis" in blob or "muscadet" in blob:
-            score += 0.6
-        if "sauvignon" in blob and "pessac" not in blob and "bordeaux" not in blob:
-            score += 0.5
-        if "pessac" in blob or "sauternes" in blob:
-            score -= 1.0
+        if intent.color == "red":
+            if is_crisp_red(wine) or is_light_red(wine):
+                score += 2.5
+            else:
+                score -= 5.0
+        else:
+            if is_lean_white(wine) or "chablis" in blob or color in {"sparkling", "champagne"}:
+                score += 3.0
+            if is_oaky_chardonnay(wine) or is_full_red(wine):
+                score -= 6.0
+            if "chablis" in blob or "muscadet" in blob or "sancerre" in blob:
+                score += 1.2
+            if "pinot gris" in blob:
+                score -= 1.6
+            if "sauvignon" in blob and "pessac" not in blob and "bordeaux" not in blob:
+                score += 0.5
+            if "pessac" in blob or "sauternes" in blob:
+                score -= 1.0
     elif food == "branzino":
-        # Principle: lean, high-acid, no oak. Any grape that does that is in play —
-        # Soave, Verdicchio, dry Riesling, Albariño, Muscadet, Chablis, Pinot Gris.
         if is_lean_white(wine):
             score += 2.8
-        if is_oaky_chardonnay(wine) or color == "red":
+        if is_oaky_chardonnay(wine) or (color == "red" and intent.color != "red"):
             score -= 6.0
         if any(m in blob for m in MED_LEAN_WHITES):
-            score += 1.6  # Mediterranean fish loves Italian coastal whites
+            score += 1.6
         if any(m in blob for m in ("chablis", "riesling", "albari", "pinot gris", "sauvignon", "muscadet")):
             score += 0.5
     elif food == "steak":
+        if intent.color == "white":
+            if is_oaky_chardonnay(wine) or any(m in blob for m in ("meursault", "puligny", "aubert", "kistler")):
+                score += 3.0
+            if is_lean_white(wine) or is_off_dry(wine):
+                score -= 4.0
+        else:
+            if is_full_red(wine):
+                score += 3.0
+            if is_lean_white(wine) or is_off_dry(wine):
+                score -= 5.0
+            if any(m in blob for m in ("cabernet", "syrah", "malbec", "bordeaux", "pauillac")):
+                score += 1.5
+    elif food == "tartare":
+        if is_light_red(wine) or "pinot noir" in blob:
+            score += 3.2
         if is_full_red(wine):
-            score += 3.0
-        if is_lean_white(wine) or is_off_dry(wine):
-            score -= 5.0
-        if any(m in blob for m in ("cabernet", "syrah", "malbec", "bordeaux", "pauillac")):
-            score += 1.5
+            score -= 4.0
     elif food == "chicken":
-        if is_light_red(wine) or (color == "white" and not is_off_dry(wine)):
-            score += 2.0
+        if is_light_red(wine):
+            score += 2.6
+        if color == "white" and not is_off_dry(wine):
+            score += 1.4
         if is_tannic(wine) and "cabernet" in blob:
             score -= 2.0
-        if "pinot" in blob or "chardonnay" in blob:
-            score += 1.0
+        if "pinot noir" in blob:
+            score += 1.6
+        if is_oaky_chardonnay(wine):
+            score -= 0.8
+        if any(m in blob for m in ("meursault", "puligny", "dundee")):
+            score += 1.4
+        if "pinot gris" in blob:
+            score -= 1.2
     elif food == "cream":
-        # Fat needs acid or modest oak; tannin turns metallic with cream.
         if is_tannic(wine):
             score -= 5.0
         if color == "white" or is_light_red(wine):
             score += 2.2
-        if "chardonnay" in blob or "pinot" in blob or "meursault" in blob:
-            score += 1.5
-        if is_oaky_chardonnay(wine):
-            score -= 1.8
-        if is_lean_white(wine) and "chablis" in blob:
-            score += 0.6
+        if any(m in blob for m in ("meursault", "puligny", "saint-aubin")):
+            score += 2.4
+        if "chardonnay" in blob or "pinot" in blob:
+            score += 1.2
+        if "crisp" in intent.profile:
+            if "chablis" in blob:
+                score += 1.0
+            if is_oaky_chardonnay(wine):
+                score -= 2.0
+        else:
+            if is_oaky_chardonnay(wine):
+                score += 1.2
+            if "chablis" in blob:
+                score -= 1.2
+            if "pinot gris" in blob:
+                score -= 1.6
     elif food == "tomato":
-        # Tomato acid wants acid, not oak or heavy tannin.
-        if is_sangiovese(wine) or "chianti" in blob:
-            score += 3.5
-        if "chianti" in blob:
-            score += 2.0
-        if "brunello" in blob:
-            score -= 1.5
-        if color == "red" and not is_oaky_chardonnay(wine):
-            score += 1.0
-        if is_oaky_chardonnay(wine) or ("cabernet" in blob and "napa" in blob):
-            score -= 3.0
+        if intent.color == "white":
+            if any(m in blob for m in BARREL_WHITE_MARKERS):
+                score -= 3.0
+            if any(m in blob for m in ("arneis", "sancerre", "verdicchio")):
+                score += 3.2
+            if "sauvignon" in blob and not any(m in blob for m in BARREL_WHITE_MARKERS):
+                score += 2.4
+            if "chardonnay" in blob:
+                score -= 2.2
+        else:
+            if is_sangiovese(wine) or "chianti" in blob:
+                score += 3.5
+            if "chianti" in blob:
+                score += 2.0
+            if "brunello" in blob:
+                score -= 1.5
+            if color == "red" and not is_oaky_chardonnay(wine):
+                score += 1.0
+            if is_oaky_chardonnay(wine) or ("cabernet" in blob and "napa" in blob):
+                score -= 3.0
         if is_off_dry(wine):
             score -= 4.0
     elif food == "hard_cheese":
@@ -711,10 +1042,16 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
     elif food == "soft_cheese":
         if is_tannic(wine):
             score -= 5.0
-        if is_lean_white(wine) or color in {"sparkling", "champagne", "white"}:
-            score += 2.2
-        if "sauvignon" in blob or "chablis" in blob or "champagne" in blob:
-            score += 1.4
+        if color in {"sparkling", "champagne", "rose"}:
+            score += 3.4
+        if is_oaky_chardonnay(wine) or "meursault" in blob:
+            score += 2.0
+        if "chablis" in blob:
+            score -= 0.6
+        if is_lean_white(wine) and color == "white":
+            score += 0.6
+        if "champagne" in blob:
+            score += 1.6
 
     return score
 
@@ -724,12 +1061,19 @@ def passes_color_lock(query: str, wine: Dict) -> bool:
     if not intent.lock_color or not intent.color:
         return True
     color = wine_color(wine)
+    blob = _blob(wine)
+    if intent.named == "champagne" or (intent.color == "sparkling" and "champagne" in (intent.raw or "").lower()):
+        return "champagne" in blob
     if intent.color == "white":
-        if "crisp" in intent.profile or "offdry" in intent.profile:
+        if "crisp" in intent.profile:
             return color == "white"
+        if "offdry" in intent.profile:
+            if re.search(r"\bwhite\b", (intent.raw or "").lower()):
+                return color == "white"
+            return color in {"white", "sparkling"}
         return color in {"white", "sparkling", "champagne"}
     if intent.color == "sparkling":
-        return color in {"sparkling", "champagne"}
+        return color in {"sparkling", "champagne", "rose"}
     if intent.color == "rose":
         return color in {"rose", "rosé"}
     if intent.color == "red":
@@ -740,30 +1084,57 @@ def passes_color_lock(query: str, wine: Dict) -> bool:
 def passes_profile(query: str, wine: Dict) -> bool:
     intent = parse_intent(query)
     color = wine_color(wine)
+    blob = _blob(wine)
+    if not matches_named(intent, wine):
+        return False
     if "crisp" in intent.profile:
-        if is_oaky_chardonnay(wine):
-            return False
-        if color == "red" and intent.color != "red":
-            return False
-        if is_off_dry(wine):
-            return False
+        if intent.color == "red":
+            if is_oaky_chardonnay(wine) or color == "white":
+                return False
+            if not is_crisp_red(wine) and not is_light_red(wine):
+                return False
+            if any(m in blob for m in ("barolo", "barbaresco", "nebbiolo", "cabernet", "opus", "monte bello", "zinfandel", "pauillac")):
+                return False
+        else:
+            if is_oaky_chardonnay(wine):
+                return False
+            if color == "red" and intent.color != "red":
+                return False
+            if is_off_dry(wine):
+                return False
+            if any(m in blob for m in BARREL_WHITE_MARKERS):
+                return False
     if "offdry" in intent.profile and not is_off_dry(wine):
         return False
     if intent.lock_body and intent.body == "light":
         if is_full_red(wine) or is_oaky_chardonnay(wine):
             return False
     if intent.lock_body and intent.body == "full":
-        if is_lean_white(wine):
+        if "crisp" in intent.profile and color == "white":
+            if "moscato" in blob or "pinot gris" in blob:
+                return False
+        else:
+            if is_lean_white(wine) and "crisp" not in intent.profile:
+                return False
+            if is_light_red(wine) and not is_full_red(wine):
+                return False
+        if "moscato" in blob and "offdry" not in intent.profile:
             return False
-        if is_light_red(wine) and not is_full_red(wine):
+    if intent.lock_body and intent.body == "medium":
+        if is_full_red(wine):
             return False
     food = intent.food
     if food in {"oysters", "branzino"}:
-        if color == "red" or is_oaky_chardonnay(wine):
+        if intent.color == "red":
+            if not (is_light_red(wine) or is_crisp_red(wine)):
+                return False
+        elif color == "red" or is_oaky_chardonnay(wine):
             return False
+    if food == "tartare" and is_full_red(wine):
+        return False
     if food in {"cream", "soft_cheese"} and is_tannic(wine) and is_full_red(wine):
         return False
-    if food == "tomato" and (is_off_dry(wine) or is_oaky_chardonnay(wine)):
+    if food == "tomato" and (is_off_dry(wine) or (is_oaky_chardonnay(wine) and intent.color != "white")):
         return False
     return True
 

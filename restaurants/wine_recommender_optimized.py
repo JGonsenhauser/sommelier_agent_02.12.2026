@@ -212,7 +212,8 @@ class OptimizedWineRecommender:
         relaxed = ""
         widened = dict(filters or {})
         price = dict(widened.get("price") or {})
-        if price:
+        floor_only = "$gte" in price and "$lte" not in price
+        if price and not floor_only:
             if "$lte" in price:
                 price["$lte"] = int(float(price["$lte"]) * 1.4)
             if "$gte" in price:
@@ -231,7 +232,7 @@ class OptimizedWineRecommender:
                 return matches, "I loosened the color filter to stay on this list."
             relaxed = "I loosened the color filter to stay on this list."
 
-        if "price" in (filters or {}):
+        if "price" in (filters or {}) and not floor_only:
             no_price = dict(filters or {})
             no_price.pop("price", None)
             # Keep implied color (crisp/clean → white). Never fall back to reds.
