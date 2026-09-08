@@ -256,7 +256,7 @@ def _pair(query: str, wine: dict, menu: list) -> str | None:
                 return f"{found['name']} — {found['description']}"
     if wine.get("wine_style") == "red":
         found = next((d for d in menu if d["name"] == "Prime NY Strip Gratin"), None)
-        if found and ("steak" in q or "red" in q):
+        if found and ("steak" in q or "strip" in q):
             return f"{found['name']} — {found['description']}"
     return None
 
