@@ -32,6 +32,7 @@ from restaurants.restaurant_config import (
     list_restaurant_configs,
     PRODUCT_LOGO,
     PRODUCT_NAME,
+    GUEST_ID,
 )
 from restaurants.wine_recommender_optimized import OptimizedWineRecommender
 from data.embedding_pipeline import EmbeddingError
@@ -82,7 +83,7 @@ def phone_base_url() -> str:
     return f"http://{detect_lan_ip()}:{API_PORT}"
 
 
-def guest_url(restaurant_id: str = "maass") -> str:
+def guest_url(restaurant_id: str = GUEST_ID) -> str:
     return f"{phone_base_url()}/?r={restaurant_id}"
 
 
@@ -194,7 +195,7 @@ WineRecommendation = GuestWine
 
 class RecommendationRequest(BaseModel):
     query: str = Field(..., min_length=1, max_length=500)
-    restaurant_id: str = "maass"
+    restaurant_id: str = GUEST_ID
     channel: str = "pwa"
 
 
@@ -210,7 +211,7 @@ class RecommendationResponse(BaseModel):
 
 class EmailWineRequest(BaseModel):
     email: str
-    restaurant_id: str = "maass"
+    restaurant_id: str = GUEST_ID
     recommendation_id: Optional[str] = None
 
 
@@ -222,9 +223,10 @@ def get_recommender(restaurant_id: str) -> OptimizedWineRecommender:
     config = get_restaurant_config(restaurant_id)
     if not config:
         raise HTTPException(status_code=404, detail="Restaurant not found")
-    if restaurant_id not in recommenders:
-        recommenders[restaurant_id] = OptimizedWineRecommender(config)
-    return recommenders[restaurant_id]
+    key = config.restaurant_id
+    if key not in recommenders:
+        recommenders[key] = OptimizedWineRecommender(config)
+    return recommenders[key]
 
 
 def to_guest_wine(wine: dict) -> GuestWine:
@@ -261,14 +263,14 @@ async def admin_page():
 
 
 @app.get("/manifest.json", include_in_schema=False)
-async def dynamic_manifest(r: str = "maass"):
-    config = get_restaurant_config(r) or get_restaurant_config("maass")
+async def dynamic_manifest(r: str = GUEST_ID):
+    config = get_restaurant_config(r) or get_restaurant_config(GUEST_ID)
     return JSONResponse(
         {
             "name": "Jarvis Sommelier",
             "short_name": "Jarvis",
             "description": "Your sommelier",
-            "start_url": f"/?r={config.restaurant_id if config else 'maass'}",
+            "start_url": f"/?r={GUEST_ID}",
             "scope": "/",
             "display": "standalone",
             "background_color": config.background_color if config else "#F3EEE6",
@@ -471,11 +473,11 @@ async def admin_report(
 @app.on_event("startup")
 async def warmup():
     crm_store.init_db()
-    write_guest_qr(guest_url("maass"))
-    config = get_restaurant_config("maass")
+    write_guest_qr(guest_url(GUEST_ID))
+    config = get_restaurant_config(GUEST_ID)
     if config:
-        recommenders["maass"] = OptimizedWineRecommender(config)
-        logger.info("Warmed recommender for maass")
+        recommenders[config.restaurant_id] = OptimizedWineRecommender(config)
+        logger.info("Warmed recommender for %s", config.restaurant_id)
 
 
 @app.get("/api/health")
@@ -485,7 +487,7 @@ async def health_check():
         "active_restaurants": len(recommenders),
     }
     if settings.environment == "development":
-        payload["phone_url"] = guest_url("maass")
+        payload["phone_url"] = guest_url(GUEST_ID)
         payload["showcase_url"] = f"{PHONE_URL}/showcase"
     return payload
 
@@ -495,7 +497,7 @@ app.mount("/", StaticFiles(directory=str(MOBILE_DIR), html=True), name="pwa")
 
 if __name__ == "__main__":
     import uvicorn
-    print(f"Phone app:  {guest_url('maass')}")
+    print(f"Phone app:  {guest_url(GUEST_ID)}")
     print(f"QR display: {PHONE_URL}/showcase")
     print(f"Admin:      {PHONE_URL}/admin")
     uvicorn.run(app, host="0.0.0.0", port=8000)

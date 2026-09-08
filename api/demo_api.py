@@ -28,6 +28,7 @@ from restaurants.restaurant_config import (
     list_restaurant_configs,
     PRODUCT_LOGO,
     PRODUCT_NAME,
+    GUEST_ID,
 )
 from data import crm_store
 from data.mailer import build_body, send_wine_email
@@ -57,7 +58,7 @@ crm_store.init_db()
 CATALOG = parse_list(LIST_PATH.read_text(encoding="utf-8"))
 
 
-def guest_url(restaurant_id: str = "maass") -> str:
+def guest_url(restaurant_id: str = GUEST_ID) -> str:
     return f"{PUBLIC_BASE}/?r={restaurant_id}"
 
 
@@ -93,7 +94,7 @@ def _qr_png_bytes(url: str) -> bytes:
 
 
 try:
-    png = _qr_png_bytes(guest_url("maass"))
+    png = _qr_png_bytes(guest_url(GUEST_ID))
     (MOBILE / "qr.png").write_bytes(png)
 except Exception:
     pass
@@ -164,13 +165,13 @@ def _enrich_with_grok(query: str, wines: list, menu: list, restaurant_name: str)
 
 class RecommendationRequest(BaseModel):
     query: str = Field(..., min_length=1, max_length=500)
-    restaurant_id: str = "maass"
+    restaurant_id: str = GUEST_ID
     channel: str = "pwa"
 
 
 class EmailWineRequest(BaseModel):
     email: str
-    restaurant_id: str = "maass"
+    restaurant_id: str = GUEST_ID
     recommendation_id: str | None = None
 
 
@@ -281,14 +282,14 @@ async def admin():
 
 
 @app.get("/manifest.json", include_in_schema=False)
-async def manifest(r: str = "maass"):
-    config = get_restaurant_config(r) or get_restaurant_config("maass")
+async def manifest(r: str = GUEST_ID):
+    config = get_restaurant_config(r) or get_restaurant_config(GUEST_ID)
     public = config.to_public_dict() if config else {"name": PRODUCT_NAME}
     return JSONResponse(
         {
             "name": "Jarvis Sommelier",
             "short_name": "Jarvis",
-            "start_url": f"/?r={config.restaurant_id if config else 'maass'}",
+            "start_url": f"/?r={GUEST_ID}",
             "display": "standalone",
             "background_color": public.get("background_color") or "#F3EEE6",
             "theme_color": public.get("background_color") or "#F3EEE6",
@@ -469,7 +470,7 @@ async def health():
 
 @app.get("/qr.png", include_in_schema=False)
 async def qr_png():
-    return Response(content=_qr_png_bytes(guest_url("maass")), media_type="image/png")
+    return Response(content=_qr_png_bytes(guest_url(GUEST_ID)), media_type="image/png")
 
 
 app.mount("/", StaticFiles(directory=str(MOBILE), html=True), name="pwa")

@@ -55,7 +55,7 @@
         <div class="credit" id="credit">Jarvis Sommelier</div>
     </div>
     <script>
-        const r = new URLSearchParams(location.search).get("r") || "maass";
+        const r = new URLSearchParams(location.search).get("r") || "demo";
         fetch("/api/restaurants/" + r)
             .then((res) => res.ok ? res.json() : null)
             .then((data) => {

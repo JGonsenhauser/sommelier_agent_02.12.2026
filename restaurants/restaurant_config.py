@@ -144,11 +144,25 @@ MAASS_CONFIG = RestaurantConfig(
 )
 
 
+GUEST_ID = "demo"
+_ALIASES = {
+    "demo": "maass",
+    "maass": "maass",
+    "": "maass",
+}
+
+
+def resolve_restaurant_id(restaurant_id: Optional[str]) -> str:
+    key = (restaurant_id or GUEST_ID).strip().lower()
+    return _ALIASES.get(key, key)
+
+
 def get_restaurant_config(restaurant_id: str) -> Optional[RestaurantConfig]:
     configs = {
         "maass": MAASS_CONFIG,
+        "demo": MAASS_CONFIG,
     }
-    return configs.get(restaurant_id)
+    return configs.get(resolve_restaurant_id(restaurant_id))
 
 
 def list_restaurant_configs() -> List[RestaurantConfig]:
