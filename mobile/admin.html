@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Jarvis Sommelier</title>
+    <link rel="icon" type="image/png" href="/brand-logo.png">
+    <style>
+        :root { --bg: #F3EEE6; --ink: #1C1A16; --line: #DDD4C8; --sage: #7A8A78; }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Georgia, serif;
+            background: var(--bg);
+            color: var(--ink);
+            padding: 32px 20px 64px;
+        }
+        main { max-width: 920px; margin: 0 auto; }
+        h1 { font-weight: 600; font-size: 28px; margin: 0 0 8px; }
+        .sub { color: #6B645C; margin-bottom: 24px; font-size: 14px; }
+        label { display: block; font-size: 13px; margin-bottom: 8px; }
+        input, button {
+            font: inherit;
+            padding: 10px 12px;
+        }
+        button {
+            background: var(--ink);
+            color: var(--bg);
+            border: 0;
+            cursor: pointer;
+        }
+        .hidden { display: none; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 32px; }
+        th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+        th { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sage); }
+        .score { font-variant-numeric: tabular-nums; color: var(--sage); }
+        .wine { margin: 0 0 6px; }
+        #msg { color: #8a3d3d; min-height: 1.2em; }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>Jarvis</h1>
+        <p class="sub">Recommendations and emails. Scores stay here.</p>
+        <section id="login">
+            <label>Password</label>
+            <input id="password" type="password">
+            <button type="button" id="loginBtn">Enter</button>
+            <p id="msg"></p>
+        </section>
+        <section id="desk" class="hidden">
+            <p><button type="button" id="refresh">Refresh</button>
+               <button type="button" id="logout">Log out</button></p>
+            <h2>Top bottles shown</h2>
+            <table><thead><tr><th>Wine id</th><th>Times shown</th></tr></thead>
+            <tbody id="top"></tbody></table>
+            <h2>Recommendations</h2>
+            <table>
+                <thead><tr><th>When</th><th>Guest asked</th><th>Bottles (score)</th></tr></thead>
+                <tbody id="recs"></tbody>
+            </table>
+            <h2>Emails</h2>
+            <table>
+                <thead><tr><th>When</th><th>Email</th><th>Bottles</th><th>Sent</th></tr></thead>
+                <tbody id="leads"></tbody>
+            </table>
+        </section>
+    </main>
+    <script>
+        const login = document.getElementById("login");
+        const desk = document.getElementById("desk");
+        const msg = document.getElementById("msg");
+
+        function escapeHtml(text) {
+            const div = document.createElement("div");
+            div.textContent = text == null ? "" : String(text);
+            return div.innerHTML;
+        }
+        function wineLine(w) {
+            const title = [w.vintage, w.producer, w.wine_name].filter(Boolean).join(" ");
+            const score = (w.score || w.score === 0) ? ` · ${Number(w.score).toFixed(2)}` : "";
+            return `<div class="wine">${escapeHtml(title)}${w.price ? " · $" + escapeHtml(w.price) : ""}<span class="score">${escapeHtml(score)}</span></div>`;
+        }
+
+        async function loadReport() {
+            const res = await fetch("/api/admin/report", { credentials: "same-origin" });
+            if (res.status === 401) {
+                login.classList.remove("hidden");
+                desk.classList.add("hidden");
+                return;
+            }
+            const data = await res.json();
+            login.classList.add("hidden");
+            desk.classList.remove("hidden");
+            document.getElementById("top").innerHTML = (data.top_wines || []).map((w) =>
+                `<tr><td>${escapeHtml(w.wine_id)}</td><td>${escapeHtml(w.n)}</td></tr>`
+            ).join("") || `<tr><td colspan="2">None yet</td></tr>`;
+            document.getElementById("recs").innerHTML = (data.recommendations || []).map((r) =>
+                `<tr><td>${escapeHtml(r.ts.replace("T", " ").replace("+00:00",""))}</td>
+                 <td>${escapeHtml(r.query)}</td>
+                 <td>${(r.wines || []).map(wineLine).join("")}</td></tr>`
+            ).join("") || `<tr><td colspan="3">None yet</td></tr>`;
+            document.getElementById("leads").innerHTML = (data.leads || []).map((r) =>
+                `<tr><td>${r.ts.replace("T", " ").replace("+00:00","")}</td>
+                 <td>${escapeHtml(r.email)}</td>
+                 <td>${(r.wines || []).map(wineLine).join("")}</td>
+                 <td>${r.sent ? "yes" : "held"}</td></tr>`
+            ).join("") || `<tr><td colspan="4">None yet</td></tr>`;
+        }
+
+        document.getElementById("loginBtn").addEventListener("click", async () => {
+            msg.textContent = "";
+            const res = await fetch("/api/admin/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify({ password: document.getElementById("password").value })
+            });
+            if (!res.ok) {
+                msg.textContent = "Wrong password.";
+                return;
+            }
+            await loadReport();
+        });
+        document.getElementById("logout").addEventListener("click", async () => {
+            await fetch("/api/admin/logout", { method: "POST" });
+            location.reload();
+        });
+        document.getElementById("refresh").addEventListener("click", loadReport);
+        loadReport();
+    </script>
+</body>
+</html>

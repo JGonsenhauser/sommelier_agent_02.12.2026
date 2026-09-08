@@ -18,8 +18,8 @@ API_URL = os.getenv("API_URL", "http://localhost:8000")
 bottle_icon = str(Path(__file__).parent.parent / "bottle_icon.jpeg")
 vortex_icon = str(Path(__file__).parent.parent / "vortex.jpeg")
 
-# Restaurant logos
-maass_logo = str(Path(__file__).parent / "maass" / "maass_logo.jpg")
+# Header / favicon logo
+brand_logo = str(Path(__file__).parent.parent / "logo" / "03-spine-ring.png")
 
 
 @st.cache_data(ttl=3600)  # Cache for 1 hour
@@ -32,7 +32,7 @@ def get_wine_recommendations(query: str, restaurant_id: str) -> Optional[Dict]:
         response = requests.post(
             f"{API_URL}/api/recommend",
             json={"query": query, "restaurant_id": restaurant_id},
-            timeout=60
+            timeout=120
         )
 
         if response.status_code == 200:
@@ -114,14 +114,14 @@ def display_wine_streaming(wine: dict, index: int):
         st.markdown(tasting_note)
         st.markdown("")
 
-    # Food Pairing - ONLY display if explicitly set (not None)
-    food_pairing = wine.get('food_pairing')
+    food_pairing = wine.get("food_pairing")
     if food_pairing:
-        st.markdown(f"**Food Pairing:**")
+        st.markdown("**Food pairing:**")
         st.markdown(food_pairing)
         st.markdown("")
 
-    st.markdown("---")
+    if index == 0:
+        st.markdown("---")
 
 
 def init_session_state():
@@ -130,14 +130,148 @@ def init_session_state():
         st.session_state.messages = []
     if "restaurant_id" not in st.session_state:
         st.session_state.restaurant_id = None
+    if "guide" not in st.session_state:
+        st.session_state.guide = {
+            "color": None,
+            "body": None,
+            "profile": None,
+            "price": None,
+            "food": None,
+        }
+    if "results" not in st.session_state:
+        st.session_state.results = None
+
+
+def _toggle_guide(group: str, value: str):
+    current = st.session_state.guide.get(group)
+    st.session_state.guide[group] = None if current == value else value
+
+
+def compose_guided_query(text: str, guide: Dict) -> str:
+    bits = []
+    color = guide.get("color")
+    if color == "Champagne":
+        bits.append("champagne, sparkling")
+    elif color:
+        bits.append(f"{color.lower()} wine")
+    body = guide.get("body")
+    if body:
+        bits.append(f"{body.lower()}-bodied")
+    profile = guide.get("profile")
+    if profile == "Dry & crisp":
+        bits.append("dry and crisp")
+    elif profile == "Off-dry":
+        bits.append("off-dry")
+    elif profile == "Fruity":
+        bits.append("fruity profile")
+    elif profile == "Earthy":
+        bits.append("earthy profile")
+    elif profile:
+        bits.append(profile.lower())
+    price = guide.get("price")
+    if price and price != "Any price":
+        bits.append(price.lower())
+    food = guide.get("food")
+    if food:
+        bits.append(f"to drink with {food.lower()}")
+    extra = ", ".join(bits)
+    text = (text or "").strip()
+    if text and extra:
+        return f"{text}. Preferences: {extra}."
+    return text or extra
+
+
+def render_guide_row(number: str, label: str, group: str, options: List[str]):
+    st.caption(f"{number}  {label}")
+    cols = st.columns(len(options))
+    for col, option in zip(cols, options):
+        with col:
+            on = st.session_state.guide.get(group) == option
+            if st.button(option, key=f"guide_{group}_{option}", type="primary" if on else "secondary"):
+                _toggle_guide(group, option)
+                st.rerun()
+
+
+def inject_css(results_mode: bool = False):
+    extra = ""
+    if results_mode:
+        extra = """
+        [data-testid="stChatInput"],
+        [data-testid="stChatInputContainer"],
+        .stChatInput,
+        footer,
+        [data-testid="stBottomBlockContainer"] {
+            display: none !important;
+        }
+        """
+    st.markdown(f"""
+        <style>
+        .stApp {{
+            background-color: #FFFFFF;
+        }}
+        [data-testid="stSidebar"] {{
+            display: none;
+        }}
+        h1 {{
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 600;
+            color: #000000;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }}
+        .element-container p {{
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #4A4A4A;
+            font-size: 1rem;
+            line-height: 1.6;
+        }}
+        .stChatMessage {{
+            background-color: #F8F9FA;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }}
+        [data-testid="chatAvatarIcon-user"],
+        [data-testid="chatAvatarIcon-assistant"] {{
+            border-radius: 50%;
+        }}
+        .stChatInputContainer {{
+            border-top: 1px solid #E5E7EB;
+            padding-top: 1rem;
+        }}
+        .stButton>button {{
+            background-color: #000000;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }}
+        hr {{
+            border-color: #E5E7EB;
+            margin: 1.5rem 0;
+        }}
+        #MainMenu {{visibility: hidden;}}
+        footer {{visibility: hidden;}}
+        header {{visibility: hidden;}}
+        [data-testid="stToolbar"] {{display: none;}}
+        [data-testid="stDecoration"] {{display: none;}}
+        [data-testid="stStatusWidget"] {{display: none;}}
+        .viewerBadge_container__r5tak {{display: none;}}
+        .stDeployButton {{display: none;}}
+        {extra}
+        </style>
+    """, unsafe_allow_html=True)
 
 
 def main():
     """Main Streamlit app."""
     # Page config MUST be first Streamlit command
     st.set_page_config(
-        page_title="Maass Sommelier",
-        page_icon=maass_logo,
+        page_title="Jarvis Sommelier",
+        page_icon=brand_logo,
         layout="centered",
         initial_sidebar_state="collapsed"
     )
@@ -153,116 +287,46 @@ def main():
     init_session_state()
     st.session_state.restaurant_id = restaurant_id
 
-    # Sleek black and white styling
+    if st.session_state.results:
+        inject_css(results_mode=True)
+        top_l, top_r = st.columns([1, 1])
+        with top_l:
+            st.image(brand_logo, width=88)
+        with top_r:
+            st.write("")
+            if st.button("New search", type="primary"):
+                st.session_state.results = None
+                st.session_state.messages = []
+                st.session_state.guide = {
+                    "color": None,
+                    "body": None,
+                    "profile": None,
+                    "price": None,
+                    "food": None,
+                }
+                st.rerun()
+        for i, wine in enumerate(st.session_state.results):
+            display_wine_streaming(wine, i)
+        return
+
+    inject_css(results_mode=False)
+
+    # Header — brand logo + guest QR
+    qr_path = Path(__file__).parent / "maass" / "static" / "maass_qr.png"
+    header_l, header_r = st.columns([1, 1])
+    with header_l:
+        st.image(brand_logo, width=140)
+    with header_r:
+        if qr_path.exists():
+            st.image(str(qr_path), width=180)
+            st.caption("Staff kiosk — guests should scan the PWA QR on :8000")
+
     st.markdown("""
-        <style>
-        /* Clean interface */
-        .stApp {
-            background-color: #FFFFFF;
-        }
+Hi! I'm **Jarvis**, your personal wine assistant.
 
-        /* Hide sidebar */
-        [data-testid="stSidebar"] {
-            display: none;
-        }
+Not sure what to order? You don't need the right wine words.
 
-        /* Header styling */
-        h1 {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            font-weight: 600;
-            color: #000000;
-            letter-spacing: -0.02em;
-            margin-bottom: 0.5rem;
-        }
-
-        /* Text styling */
-        .element-container p {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            color: #4A4A4A;
-            font-size: 1rem;
-            line-height: 1.6;
-        }
-
-        /* Chat messages */
-        .stChatMessage {
-            background-color: #F8F9FA;
-            border: 1px solid #E5E7EB;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        /* Custom avatars */
-        [data-testid="chatAvatarIcon-user"],
-        [data-testid="chatAvatarIcon-assistant"] {
-            border-radius: 50%;
-        }
-
-        /* Input box */
-        .stChatInputContainer {
-            border-top: 1px solid #E5E7EB;
-            padding-top: 1rem;
-        }
-
-        /* Buttons */
-        .stButton>button {
-            background-color: #000000;
-            color: #FFFFFF;
-            border: none;
-            border-radius: 6px;
-            padding: 0.5rem 1rem;
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-        }
-
-        /* Dividers */
-        hr {
-            border-color: #E5E7EB;
-            margin: 1.5rem 0;
-        }
-
-        /* Hide Streamlit branding completely */
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
-        [data-testid="stToolbar"] {display: none;}
-        [data-testid="stDecoration"] {display: none;}
-        [data-testid="stStatusWidget"] {display: none;}
-        .viewerBadge_container__r5tak {display: none;}
-        .stDeployButton {display: none;}
-
-        /* Performance badge */
-        .performance-badge {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: #000000;
-            color: #FFFFFF;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            z-index: 1000;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
-    # Header — restaurant logo
-    st.image(maass_logo, width=250)
-
-    # Jarvis introduction
-    st.markdown("""
-    Hi! I'm **Jarvis**, your personal wine assistant
-
-    Whether you are new to wine or a total pro, just type whatever you are thinking — no wrong answers!
-
-    Here are some easy ways to get started:
-    - Red wine under 80
-    - Something crisp and light for summer
-    - What pairs with steak? or type pairing and I will recommend a dish from the menu to pair with the wines
-    - Cabernet Sauvignon from Napa, full-bodied, around 100 to 150
-
-    Tell me your mood, budget, food, grape, region, or any vibe you are after — I will recommend wines from your restaurant's list that match perfectly.
+Tap the options below to steer me — color, body, price, food — then add a thought if you like. Skip them and just type. Either way, I'll bring back two bottles, each with a tasting note and a dish that belongs with it.
     """)
 
     st.markdown("---")
@@ -281,8 +345,24 @@ def main():
             else:
                 st.markdown(message["content"])
 
-    # Chat input
-    user_query = st.chat_input("Describe the wine you're looking for...")
+    render_guide_row("1", "Color", "color", ["White", "Red", "Rosé", "Champagne"])
+    render_guide_row("2", "Body", "body", ["Light", "Medium", "Full"])
+    render_guide_row("3", "Profile", "profile", ["Fruity", "Earthy", "Dry & crisp", "Off-dry"])
+    render_guide_row("4", "Price", "price", ["Under $75", "$75–$150", "$150–$250", "Cellar", "Any price"])
+    render_guide_row("5", "Tonight", "food", ["Oysters", "Steak", "Chicken", "Branzino", "Cream sauce", "Tomato sauce", "Hard cheese", "Soft cheese"])
+
+    if st.button("Search with these guides"):
+        if compose_guided_query("", st.session_state.guide):
+            st.session_state["_pending_query"] = True
+            st.rerun()
+
+    typed = st.chat_input("Describe the wine you're looking for...")
+    if st.session_state.pop("_pending_query", None):
+        user_query = compose_guided_query("", st.session_state.guide)
+    elif typed:
+        user_query = compose_guided_query(typed, st.session_state.guide)
+    else:
+        user_query = None
 
     if user_query:
         # Display user message
@@ -308,22 +388,8 @@ def main():
                     "content": error_msg
                 })
             elif result and result.get('wines'):
-                processing_time = time.time() - start_time
-
-                # Display Jarvis response with wines
-                with st.chat_message("assistant", avatar=vortex_icon):
-                    for i, wine in enumerate(result['wines']):
-                        display_wine_streaming(wine, i)
-
-                    # Show performance badge
-                    st.caption(f"⚡ {processing_time:.2f}s (API: {result.get('processing_time', 0):.2f}s)")
-
-                # Store in session
-                st.session_state.messages.append({
-                    "role": "assistant",
-                    "wines": result['wines'],
-                    "processing_time": processing_time
-                })
+                st.session_state.results = result['wines']
+                st.rerun()
             else:
                 with st.chat_message("assistant", avatar=vortex_icon):
                     st.markdown("I couldn't find wines matching your criteria. Please try different search terms.")

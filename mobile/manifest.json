@@ -1,24 +1,25 @@
 {
-  "name": "Jarvis Wine Sommelier",
+  "name": "Jarvis Sommelier",
   "short_name": "Jarvis",
-  "description": "Your personal AI wine sommelier",
+  "description": "Your sommelier",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#000000",
+  "background_color": "#F3EEE6",
+  "theme_color": "#F3EEE6",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
+      "src": "brand-logo.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

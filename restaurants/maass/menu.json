@@ -1,0 +1,21 @@
+[
+  {"name": "Brioche Pull Aparts", "category": "Snacks", "description": "wildflower honey, butter"},
+  {"name": "Foie Gras Nutter Butter", "category": "Snacks", "description": "peanut, concord grape"},
+  {"name": "Beef Tartare", "category": "Snacks", "description": "potato pancake, egg yolk"},
+  {"name": "Wellfleet Oysters", "category": "Snacks", "description": "asian pear, chamomile, champagne"},
+  {"name": "Shrimp Cocktail", "category": "Snacks", "description": "celery, horseradish, citrus"},
+  {"name": "Kaluga Caviar", "category": "Snacks", "description": "french onion, potato pancake, citrus"},
+  {"name": "Apple and Burrata", "category": "Starters", "description": "snap pea, pistachio, flax seed"},
+  {"name": "Yellowtail Crudo", "category": "Starters", "description": "passionfruit, banana, brown butter, radish, rice cracker"},
+  {"name": "Foie Gras Terrine", "category": "Starters", "description": "banana, black truffle, szechuan maple syrup, milk bread"},
+  {"name": "Black Truffle Tagliatelle", "category": "Starters", "description": "fino sherry, parmesan"},
+  {"name": "Butternut Squash", "category": "Mains", "description": "maitake mushroom, dates, hazelnuts, onion jus"},
+  {"name": "Black Cod", "category": "Mains", "description": "chowder, potato, bacon, parsnip, brioche"},
+  {"name": "Hokkaido Scallop", "category": "Mains", "description": "artichoke, sunchoke, leeks, dashi"},
+  {"name": "Heritage Pork Schnitzel", "category": "Mains", "description": "spätzle, sweet and sour cabbage, apple, bacon"},
+  {"name": "Brioche Stuffed Amish Chicken", "category": "Mains", "description": "maitake mushroom, turnip, grape, chicken thigh pavé"},
+  {"name": "Prime NY Strip Gratin", "category": "Mains", "description": "potato, cipollini onion, black garlic, bordelaise"},
+  {"name": "Hazelnut Shaved Ice", "category": "Sweets", "description": "chocolate, pecan praline, vanilla"},
+  {"name": "Chocolate Cheesecake", "category": "Sweets", "description": "earl grey, coffee granola"},
+  {"name": "The Banana", "category": "Sweets", "description": "miso caramel, hazelnut, chocolate ice cream"}
+]

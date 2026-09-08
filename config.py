@@ -13,16 +13,16 @@ class Settings(BaseSettings):
     # XAI/Grok API
     xai_api_key: str
     encryption_key: Optional[str] = None
-    xai_chat_model: str = "grok-3"
+    xai_chat_model: str = "grok-4-fast-reasoning"
     xai_embedding_model: str = "grok-embedding"
-    embedding_dimensions: int = 1024  # OpenAI text-embedding-3-small dimension
+    embedding_dimensions: int = 1024
     master_list_id: str = "master"
     master_namespace: str = "master"
     
-    # OpenAI API (alternative for embeddings)
+    # Optional OpenAI embeddings (xAI has no public embedding model)
     openai_api_key: Optional[str] = None
     openai_embedding_model: str = "text-embedding-3-small"
-    use_openai_embeddings: bool = True
+    use_openai_embeddings: bool = False
     
     # Pinecone Configuration
     pinecone_api_key: str
@@ -40,24 +40,45 @@ class Settings(BaseSettings):
     # Application Settings
     environment: str = "development"
     log_level: str = "INFO"
+    public_base_url: Optional[str] = None  # HTTPS URL for guest QR / PWA
+    cors_origins: str = "http://localhost:8000,http://127.0.0.1:8000,http://localhost:8501"
+    admin_password: Optional[str] = None
+    admin_secret: Optional[str] = None
+    smtp_host: Optional[str] = None
+    smtp_port: int = 587
+    smtp_user: Optional[str] = None
+    smtp_password: Optional[str] = None
+    smtp_from: Optional[str] = None
+
+    def cors_origin_list(self) -> list:
+        origins = [o.strip() for o in (self.cors_origins or "").split(",") if o.strip()]
+        public = (self.public_base_url or "").strip().rstrip("/")
+        if public and public not in origins:
+            origins.append(public)
+        return origins or ["http://localhost:8000"]
+
+    def resolved_admin_password(self) -> Optional[str]:
+        if self.admin_password:
+            return self.admin_password
+        if (self.environment or "").lower() == "development":
+            return "maass-admin"
+        return None
     
     class Config:
         env_file = ".env"
         case_sensitive = False
+        extra = "ignore"
     
     def get_decrypted_xai_key(self) -> str:
-        """
-        Get decrypted XAI API key.
-        
-        Returns:
-            Decrypted XAI API key string
-        """
+        """Return the xAI key, decrypting only if it is Fernet-encrypted."""
+        raw = (self.xai_api_key or "").strip()
+        if raw.startswith("xai-"):
+            return raw
         try:
             key_manager = SecureKeyManager(encryption_key=self.encryption_key)
-            return key_manager.decrypt_key(self.xai_api_key)
+            return key_manager.decrypt_key(raw)
         except Exception:
-            # If decryption fails, assume key is not encrypted
-            return self.xai_api_key
+            return raw
 
 
 # Global settings instance

@@ -5,6 +5,8 @@ env/
 
 # Environment variables
 .env
+.env.*
+!.env.example
 
 # Python
 __pycache__/
@@ -28,6 +30,11 @@ data/raw/*
 # Logs
 *.log
 logs/
+
+# CRM / mail outbox
+data/crm.sqlite
+data/crm.sqlite-*
+data/outbox/
 
 # Distribution / packaging
 dist/

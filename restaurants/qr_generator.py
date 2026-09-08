@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class RestaurantQRGenerator:
     """Generate QR codes for restaurant wine list access."""
 
-    def __init__(self, base_url: str = "http://localhost:8501"):
+    def __init__(self, base_url: str = "http://localhost:8000"):
         """
         Initialize QR generator.
 
@@ -42,7 +42,7 @@ class RestaurantQRGenerator:
             Path to generated QR code
         """
         # Build URL with restaurant ID parameter
-        url = f"{self.base_url}/?restaurant={config.restaurant_id}"
+        url = f"{self.base_url}/?r={config.restaurant_id}"
 
         # Create QR code
         qr = qrcode.QRCode(
@@ -90,7 +90,7 @@ class RestaurantQRGenerator:
         from PIL import Image, ImageDraw
 
         # Build URL
-        url = f"{self.base_url}/?restaurant={config.restaurant_id}"
+        url = f"{self.base_url}/?r={config.restaurant_id}"
 
         # Create QR code
         qr = qrcode.QRCode(
@@ -138,7 +138,7 @@ class RestaurantQRGenerator:
         return output_path
 
 
-def generate_all_restaurant_qr_codes(base_url: str = "http://localhost:8501"):
+def generate_all_restaurant_qr_codes(base_url: str = "http://localhost:8000"):
     """Generate QR codes for all configured restaurants."""
     from restaurants.restaurant_config import get_restaurant_config
 
@@ -157,7 +157,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
     # For local testing
-    generate_all_restaurant_qr_codes(base_url="http://localhost:8501")
+    generate_all_restaurant_qr_codes(base_url="http://localhost:8000")
 
     # For production, use your deployed URL:
     # generate_all_restaurant_qr_codes(base_url="https://your-domain.com")

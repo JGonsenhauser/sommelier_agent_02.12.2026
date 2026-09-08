@@ -2,429 +2,588 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#000000">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#F3EEE6">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Jarvis Wine Sommelier</title>
+    <meta name="apple-mobile-web-app-title" content="Jarvis">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Jarvis Sommelier</title>
     <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="brand-logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #F3EEE6;
+            --ink: #1C1A16;
+            --sage: #7A8A78;
+            --muted: #6B645C;
+            --line: #DDD4C8;
+            --card: #FAF7F2;
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background: #FFFFFF;
-            color: #000000;
-            height: 100vh;
-            overflow: hidden;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            min-height: 100%;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: Outfit, "Segoe UI", sans-serif;
             -webkit-font-smoothing: antialiased;
         }
-
+        body {
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
         .container {
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            max-width: 600px;
+            min-height: 100dvh;
+            max-width: 440px;
             margin: 0 auto;
         }
-
         .header {
-            background: #000000;
-            color: #FFFFFF;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .header h1 {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .header p {
-            font-size: 14px;
-            color: #CCCCCC;
-        }
-
-        .chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .message {
-            margin-bottom: 20px;
-            animation: fadeIn 0.3s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .user-message {
-            background: #F0F0F0;
-            padding: 12px 16px;
-            border-radius: 18px;
-            margin-left: 40px;
-            font-size: 16px;
-        }
-
-        .assistant-message {
-            background: #000000;
-            color: #FFFFFF;
-            padding: 16px;
-            border-radius: 12px;
-            margin-right: 20px;
-        }
-
-        .wine-card {
-            background: #FFFFFF;
-            border: 1px solid #E0E0E0;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-
-        .wine-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #000000;
-            margin-bottom: 12px;
-            line-height: 1.4;
-        }
-
-        .wine-section {
-            margin-bottom: 12px;
-        }
-
-        .wine-section-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #666666;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .wine-section-content {
-            font-size: 15px;
-            color: #1F1F1F;
-            line-height: 1.5;
-        }
-
-        .input-container {
-            padding: 16px;
-            background: #FFFFFF;
-            border-top: 1px solid #E0E0E0;
-            display: flex;
-            gap: 12px;
-        }
-
-        #userInput {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1px solid #E0E0E0;
-            border-radius: 24px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        #userInput:focus {
-            border-color: #000000;
-        }
-
-        #sendButton {
-            background: #000000;
-            color: #FFFFFF;
-            border: none;
-            border-radius: 24px;
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-            white-space: nowrap;
-        }
-
-        #sendButton:active {
-            background: #333333;
-        }
-
-        #sendButton:disabled {
-            background: #CCCCCC;
-            cursor: not-allowed;
-        }
-
-        .loading {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 16px;
-            color: #666666;
-            font-size: 14px;
+            justify-content: space-between;
+            padding: 20px 22px 8px;
         }
-
-        .loading-dots {
+        .brand-lockup {
             display: flex;
-            gap: 4px;
+            align-items: center;
+            gap: 10px;
         }
-
-        .loading-dot {
-            width: 6px;
-            height: 6px;
-            background: #666666;
+        .header img {
+            height: 40px;
+            width: 40px;
             border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out both;
+            object-fit: cover;
+            background: #111;
         }
-
-        .loading-dot:nth-child(1) {
-            animation-delay: -0.32s;
+        .header .wordmark {
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
         }
-
-        .loading-dot:nth-child(2) {
-            animation-delay: -0.16s;
+        .header .credit {
+            font-size: 10px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--sage);
         }
-
-        @keyframes bounce {
-            0%, 80%, 100% {
-                transform: scale(0);
-            }
-            40% {
-                transform: scale(1);
-            }
+        #newSearchButton {
+            display: none;
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+            border-radius: 999px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-family: inherit;
+            min-height: 44px;
         }
-
-        .welcome-text {
-            background: #F8F9FA;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            line-height: 1.6;
-            color: #333333;
+        .container.results-mode #newSearchButton,
+        .container.searching-mode #newSearchButton { display: none; }
+        .container.results-mode #newSearchButton { display: inline-flex; align-items: center; }
+        .eyebrow {
+            font-size: 11px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--sage);
+            margin-bottom: 10px;
         }
-
-        .welcome-text strong {
-            color: #000000;
+        .welcome {
+            padding: 12px 22px 8px;
         }
-
-        .processing-time {
+        .welcome h1 {
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: 34px;
+            font-weight: 600;
+            line-height: 1.15;
+            margin-bottom: 10px;
+        }
+        .welcome p {
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.55;
+            font-weight: 300;
+        }
+        .guide-panel { padding: 8px 22px 12px; }
+        .guide-hint {
             font-size: 12px;
-            color: #999999;
-            margin-top: 8px;
-            text-align: right;
+            color: var(--muted);
+            margin-bottom: 12px;
         }
+        .guide-row { margin-bottom: 12px; }
+        .guide-label {
+            display: block;
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--sage);
+            margin-bottom: 8px;
+        }
+        .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .chip {
+            border: 1px solid var(--line);
+            background: transparent;
+            color: var(--ink);
+            border-radius: 999px;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-family: inherit;
+            min-height: 44px;
+        }
+        .chip.on {
+            background: var(--ink);
+            color: var(--bg);
+            border-color: var(--ink);
+        }
+        .input-container {
+            margin-top: auto;
+            padding: 12px 22px calc(16px + env(safe-area-inset-bottom));
+            display: flex;
+            gap: 8px;
+        }
+        #userInput {
+            flex: 1;
+            padding: 14px 16px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            font-size: 16px;
+            background: var(--card);
+            color: var(--ink);
+            font-family: inherit;
+            outline: none;
+            min-height: 48px;
+        }
+        #sendButton {
+            background: var(--ink);
+            color: var(--bg);
+            border: none;
+            border-radius: 999px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            min-height: 48px;
+        }
+        #sendButton:disabled { opacity: 0.4; }
+        .results {
+            padding: 8px 22px 32px;
+        }
+        .intro {
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: 22px;
+            line-height: 1.35;
+            margin: 8px 0 20px;
+        }
+        .relaxed {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 16px;
+        }
+        .wine-card {
+            padding: 22px 0;
+            border-top: 1px solid var(--line);
+        }
+        .wine-card:first-of-type { border-top: none; }
+        .wine-kicker {
+            font-size: 11px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--sage);
+            margin-bottom: 6px;
+        }
+        .wine-title {
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: 26px;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+        .wine-meta {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+        .wine-why {
+            font-size: 15px;
+            line-height: 1.55;
+            margin-bottom: 12px;
+        }
+        .wine-note {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #3A3530;
+        }
+        .pair-label {
+            margin-top: 14px;
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--sage);
+        }
+        .pair-body { font-size: 14px; line-height: 1.5; margin-top: 4px; }
+        .email-box {
+            margin-top: 12px;
+            padding-top: 20px;
+            border-top: 1px solid var(--line);
+        }
+        .email-box p {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+        .email-row { display: flex; gap: 8px; }
+        #emailInput {
+            flex: 1;
+            padding: 12px 14px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            font-size: 16px;
+            background: var(--card);
+            font-family: inherit;
+            min-height: 44px;
+        }
+        #emailButton {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--ink);
+            border-radius: 999px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-family: inherit;
+            min-height: 44px;
+            white-space: nowrap;
+        }
+        .email-status { font-size: 13px; color: var(--sage); margin-top: 10px; }
+        .status {
+            padding: 48px 22px;
+            text-align: center;
+            color: var(--muted);
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: 22px;
+        }
+        .error-box {
+            margin: 20px;
+            padding: 16px;
+            border: 1px solid var(--line);
+            color: var(--ink);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .container.results-mode .welcome,
+        .container.results-mode .guide-panel,
+        .container.results-mode .input-container,
+        .container.searching-mode .welcome,
+        .container.searching-mode .guide-panel,
+        .container.searching-mode .input-container { display: none; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>MAASS Beverage List</h1>
-            <p>Jarvis • Wine Sommelier</p>
+            <div class="brand-lockup">
+                <img id="brandLogo" src="/brand-logo.png" alt="Jarvis">
+                <span class="wordmark" id="brandName">Jarvis</span>
+            </div>
+            <button type="button" id="newSearchButton">Ask again</button>
         </div>
-
-        <div class="chat-container" id="chatContainer">
-            <div class="welcome-text">
-                Welcome to your personal sommelier! My name is <strong>Jarvis</strong>.
-                <br><br>
-                Tell me about the wine you're looking for. Share your preferred price point,
-                grape varietal, region, and body preference. Or, if you'd like a food pairing,
-                simply tell me what you're eating.
+        <div class="welcome" id="welcome">
+            <div class="eyebrow" id="propertyEyebrow">Jarvis</div>
+            <h1>What are you in the mood for?</h1>
+            <p>You do not need the right wine words. A dish, a color, a price — or just a feeling.</p>
+        </div>
+        <div class="guide-panel" id="guidePanel">
+            <div class="guide-hint">A light touch is enough. Skip these and type instead.</div>
+            <div class="guide-row">
+                <span class="guide-label">Color</span>
+                <div class="chips" data-group="color" id="colorChips"></div>
+            </div>
+            <div class="guide-row">
+                <span class="guide-label">Body</span>
+                <div class="chips" data-group="body" id="bodyChips"></div>
+            </div>
+            <div class="guide-row">
+                <span class="guide-label">Profile</span>
+                <div class="chips" data-group="profile" id="profileChips"></div>
+            </div>
+            <div class="guide-row">
+                <span class="guide-label">Price</span>
+                <div class="chips" data-group="price" id="priceChips"></div>
+            </div>
+            <div class="guide-row">
+                <span class="guide-label">Tonight</span>
+                <div class="chips" data-group="food" id="foodChips"></div>
             </div>
         </div>
-
-        <div class="input-container">
-            <input
-                type="text"
-                id="userInput"
-                placeholder="Describe the wine you're looking for..."
-                autocomplete="off"
-            >
-            <button id="sendButton">Send</button>
+        <div id="stage"></div>
+        <div class="input-container" id="composer">
+            <input id="userInput" type="text" placeholder="A glass of something quiet…" autocomplete="off">
+            <button type="button" id="sendButton">Ask</button>
         </div>
     </div>
-
     <script>
-        const API_URL = 'http://localhost:8000';
-        const chatContainer = document.getElementById('chatContainer');
-        const userInput = document.getElementById('userInput');
-        const sendButton = document.getElementById('sendButton');
+        const API_URL = window.location.origin;
+        const params = new URLSearchParams(window.location.search);
+        const restaurantId = params.get("r") || params.get("restaurant") || "maass";
+        const app = document.querySelector(".container");
+        const stage = document.getElementById("stage");
+        const userInput = document.getElementById("userInput");
+        const sendButton = document.getElementById("sendButton");
+        const newSearchButton = document.getElementById("newSearchButton");
+        const guides = { color: null, body: null, profile: null, price: null, food: null };
+        const guideQueries = { color: {}, body: {}, profile: {}, price: {}, food: {} };
+        let recommendationId = null;
+        let brand = {
+            name: "Jarvis",
+            credit: "Jarvis",
+            logo: "/brand-logo.png",
+            price_bands: [
+                { label: "Under $75", query: "under $75" },
+                { label: "$75–$150", query: "between $75 and $150" },
+                { label: "$150–$250", query: "between $150 and $250" },
+                { label: "Cellar", query: "cellar" },
+                { label: "Any price", query: "" }
+            ],
+            food_cues: [
+                { label: "Oysters", query: "to drink with oysters" },
+                { label: "Steak", query: "to drink with steak" },
+                { label: "Chicken", query: "to drink with roast chicken" },
+                { label: "Branzino", query: "to drink with branzino" },
+                { label: "Cream sauce", query: "to drink with cream sauce" },
+                { label: "Tomato sauce", query: "to drink with tomato sauce" },
+                { label: "Hard cheese", query: "to drink with hard cheese" },
+                { label: "Soft cheese", query: "to drink with soft cheese" }
+            ],
+            body_cues: [
+                { label: "Light", query: "light-bodied" },
+                { label: "Medium", query: "medium-bodied" },
+                { label: "Full", query: "full-bodied" }
+            ],
+            profile_cues: [
+                { label: "Fruity", query: "fruity profile" },
+                { label: "Earthy", query: "earthy profile" },
+                { label: "Dry & crisp", query: "dry and crisp" },
+                { label: "Off-dry", query: "off-dry" }
+            ]
+        };
 
-        function addUserMessage(text) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message';
-            messageDiv.innerHTML = `<div class="user-message">${escapeHtml(text)}</div>`;
-            chatContainer.appendChild(messageDiv);
-            scrollToMessage(messageDiv);
+        const COLORS = [
+            { label: "White", query: "white wine" },
+            { label: "Red", query: "red wine" },
+            { label: "Rosé", query: "rosé wine" },
+            { label: "Champagne", query: "champagne, sparkling" }
+        ];
+
+        function renderChips(el, group, options) {
+            el.innerHTML = options.map((opt) => {
+                guideQueries[group][opt.label] = opt.query;
+                return `<button type="button" class="chip" data-value="${escapeHtml(opt.label)}">${escapeHtml(opt.label)}</button>`;
+            }).join("");
         }
 
-        function addAssistantMessage(wines, processingTime) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message';
-
-            let wineCards = '';
-            wines.forEach((wine, index) => {
-                const title = [
-                    wine.vintage,
-                    wine.producer,
-                    wine.wine_name || wine.region,
-                    wine.price ? `$${wine.price}` : ''
-                ].filter(Boolean).join(' ');
-
-                wineCards += `
-                    <div class="wine-card">
-                        <div class="wine-title">${escapeHtml(title)}</div>
-
-                        ${wine.tasting_note ? `
-                            <div class="wine-section">
-                                <div class="wine-section-title">Tasting Note</div>
-                                <div class="wine-section-content">${escapeHtml(wine.tasting_note)}</div>
-                            </div>
-                        ` : ''}
-
-                        ${wine.food_pairing ? `
-                            <div class="wine-section">
-                                <div class="wine-section-title">Food Pairing</div>
-                                <div class="wine-section-content">${escapeHtml(wine.food_pairing)}</div>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-            });
-
-            messageDiv.innerHTML = `
-                <div class="assistant-message">
-                    ${wineCards}
-                    <div class="processing-time">⚡ ${processingTime.toFixed(2)}s</div>
-                </div>
-            `;
-            chatContainer.appendChild(messageDiv);
-            scrollToMessage(messageDiv);
-        }
-
-        function addLoadingMessage() {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message loading';
-            messageDiv.id = 'loadingMessage';
-            messageDiv.innerHTML = `
-                Searching our collection
-                <div class="loading-dots">
-                    <div class="loading-dot"></div>
-                    <div class="loading-dot"></div>
-                    <div class="loading-dot"></div>
-                </div>
-            `;
-            chatContainer.appendChild(messageDiv);
-            scrollToMessage(messageDiv);
-        }
-
-        function removeLoadingMessage() {
-            const loadingMsg = document.getElementById('loadingMessage');
-            if (loadingMsg) {
-                loadingMsg.remove();
+        function applyBrand() {
+            const display = brand.name || "Jarvis";
+            document.title = "Jarvis Sommelier";
+            document.getElementById("propertyEyebrow").textContent = display;
+            document.getElementById("brandName").textContent = display;
+            const logo = document.getElementById("brandLogo");
+            logo.src = brand.logo || "/brand-logo.png";
+            logo.alt = display;
+            if (brand.background_color) {
+                document.documentElement.style.setProperty("--bg", brand.background_color);
             }
+            if (brand.ink_color) {
+                document.documentElement.style.setProperty("--ink", brand.ink_color);
+            }
+            if (brand.primary_color) {
+                document.documentElement.style.setProperty("--sage", brand.primary_color);
+            }
+            renderChips(document.getElementById("colorChips"), "color", COLORS);
+            renderChips(document.getElementById("bodyChips"), "body", brand.body_cues || []);
+            renderChips(document.getElementById("profileChips"), "profile", brand.profile_cues || []);
+            renderChips(document.getElementById("priceChips"), "price", brand.price_bands || []);
+            renderChips(document.getElementById("foodChips"), "food", brand.food_cues || []);
         }
 
-        function addErrorMessage(error) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message';
-            messageDiv.innerHTML = `
-                <div class="assistant-message">
-                    <div class="wine-card">
-                        ⚠️ Sorry, I encountered an error. Please try again.
-                        <br><br>
-                        <small style="color: #999999;">${escapeHtml(error)}</small>
+        async function loadBrand() {
+            try {
+                const res = await fetch(`${API_URL}/api/restaurants/${restaurantId}`);
+                if (res.ok) brand = Object.assign(brand, await res.json());
+            } catch (err) {
+                console.warn(err);
+            }
+            applyBrand();
+        }
+
+        document.getElementById("guidePanel").addEventListener("click", (event) => {
+            const chip = event.target.closest(".chip");
+            if (!chip) return;
+            const row = chip.closest(".chips");
+            const group = row.dataset.group;
+            const value = chip.dataset.value;
+            const off = guides[group] === value;
+            guides[group] = off ? null : value;
+            row.querySelectorAll(".chip").forEach((el) => el.classList.toggle("on", !off && el === chip));
+        });
+
+        function composeQuery(text) {
+            const bits = [];
+            ["color", "body", "profile", "price", "food"].forEach((group) => {
+                const label = guides[group];
+                if (!label) return;
+                const q = guideQueries[group][label];
+                if (q) bits.push(q);
+            });
+            const extra = bits.join(", ");
+            text = (text || "").trim();
+            if (text && extra) return text + ". " + extra + ".";
+            return text || extra;
+        }
+
+        function showHome() {
+            app.classList.remove("results-mode", "searching-mode");
+            Object.keys(guides).forEach((k) => { guides[k] = null; });
+            document.querySelectorAll(".chip").forEach((el) => el.classList.remove("on"));
+            stage.innerHTML = "";
+            userInput.value = "";
+            sendButton.disabled = false;
+            recommendationId = null;
+        }
+
+        function showSearching() {
+            app.classList.add("searching-mode");
+            app.classList.remove("results-mode");
+            stage.innerHTML = `<div class="status">Looking through the cellar…</div>`;
+        }
+
+        function wineTitle(wine) {
+            return [wine.vintage, wine.producer].filter(Boolean).join(" ");
+        }
+
+        function wineSub(wine) {
+            return [wine.wine_name, wine.region, wine.price ? "$" + wine.price : ""]
+                .filter(Boolean).join(" · ");
+        }
+
+        function showResults(data) {
+            app.classList.remove("searching-mode");
+            app.classList.add("results-mode");
+            recommendationId = data.recommendation_id;
+            const intro = data.intro
+                ? `<p class="intro">${escapeHtml(data.intro)}</p>`
+                : "";
+            const relaxed = data.relaxed
+                ? `<p class="relaxed">${escapeHtml(data.relaxed)}</p>`
+                : "";
+            const cards = (data.wines || []).map((wine, i) => `
+                <article class="wine-card">
+                    <div class="wine-kicker">${i === 0 ? "To start" : "Also"}</div>
+                    <h2 class="wine-title">${escapeHtml(wineTitle(wine))}</h2>
+                    <div class="wine-meta">${escapeHtml(wineSub(wine))}</div>
+                    ${wine.why ? `<p class="wine-why">${escapeHtml(wine.why)}</p>` : ""}
+                    ${wine.tasting_note ? `<p class="wine-note">${escapeHtml(wine.tasting_note)}</p>` : ""}
+                    ${wine.food_pairing ? `
+                        <div class="pair-label">From tonight’s menu</div>
+                        <p class="pair-body">${escapeHtml(wine.food_pairing)}</p>
+                    ` : ""}
+                </article>
+            `).join("");
+            stage.innerHTML = `
+                <div class="results">
+                    ${intro}${relaxed}${cards}
+                    <div class="email-box">
+                        <p>Send these two bottles to yourself. No account.</p>
+                        <div class="email-row">
+                            <input id="emailInput" type="email" inputmode="email" placeholder="you@email.com" autocomplete="email">
+                            <button type="button" id="emailButton">Send</button>
+                        </div>
+                        <div class="email-status" id="emailStatus"></div>
                     </div>
                 </div>
             `;
-            chatContainer.appendChild(messageDiv);
-            scrollToMessage(messageDiv);
+            document.getElementById("emailButton").addEventListener("click", sendEmail);
+        }
+
+        function showError(message) {
+            app.classList.remove("searching-mode");
+            app.classList.add("results-mode");
+            stage.innerHTML = `<div class="error-box">${escapeHtml(message)}<br><br>Adjust the price or color, or ask again.</div>`;
         }
 
         async function sendQuery() {
-            const query = userInput.value.trim();
+            const query = composeQuery(userInput.value);
             if (!query) return;
-
-            // Add user message
-            addUserMessage(query);
-            userInput.value = '';
-
-            // Disable input
+            showSearching();
             sendButton.disabled = true;
-            userInput.disabled = true;
-            addLoadingMessage();
-
             try {
                 const response = await fetch(`${API_URL}/api/recommend`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query, restaurant_id: restaurantId })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || "Could not look through the list.");
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+                if (!data.wines || !data.wines.length) {
+                    showError(data.relaxed || "Nothing on this list matched. Try a broader price or color.");
+                    return;
+                }
+                showResults(data);
+            } catch (error) {
+                showError(error.message || "Something went wrong. Please try again.");
+            } finally {
+                sendButton.disabled = false;
+            }
+        }
+
+        async function sendEmail() {
+            const input = document.getElementById("emailInput");
+            const status = document.getElementById("emailStatus");
+            const email = (input.value || "").trim();
+            if (!email || !recommendationId) return;
+            status.textContent = "Sending…";
+            try {
+                const response = await fetch(`${API_URL}/api/email-wine`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        query: query,
-                        restaurant_id: 'maass'
+                        email,
+                        restaurant_id: restaurantId,
+                        recommendation_id: recommendationId
                     })
                 });
-
                 const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.detail || 'Failed to get recommendations');
-                }
-
-                removeLoadingMessage();
-
-                if (data.wines.length === 0) {
-                    addErrorMessage('No wines found matching your criteria. Please try different search terms.');
-                } else {
-                    addAssistantMessage(data.wines, data.processing_time);
-                }
-
+                if (!response.ok) throw new Error(data.detail || "Could not send.");
+                status.textContent = data.message || "Sent.";
             } catch (error) {
-                removeLoadingMessage();
-                addErrorMessage(error.message);
-                console.error('Error:', error);
-            } finally {
-                // Re-enable input
-                sendButton.disabled = false;
-                userInput.disabled = false;
-                userInput.focus();
+                status.textContent = error.message || "Could not send just now.";
             }
         }
 
         function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
+            const div = document.createElement("div");
+            div.textContent = text == null ? "" : String(text);
             return div.innerHTML;
         }
 
-        function scrollToMessage(element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        // Event listeners
-        sendButton.addEventListener('click', sendQuery);
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendQuery();
-            }
+        sendButton.addEventListener("click", sendQuery);
+        newSearchButton.addEventListener("click", showHome);
+        userInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") sendQuery();
         });
-
-        // Focus input on load
-        userInput.focus();
-
-        // Register service worker for PWA
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js')
-                .catch(err => console.log('Service worker registration failed:', err));
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("service-worker.js").catch(() => {});
         }
+        applyBrand();
+        loadBrand();
     </script>
 </body>
 </html>
