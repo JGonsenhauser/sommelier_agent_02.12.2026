@@ -39,6 +39,7 @@ from data.sommelier_knowledge import (
     passes_profile,
     approachable_note,
     guest_intro,
+    named_miss_intro,
     complementary_picks,
 )
 
@@ -137,6 +138,8 @@ def _enrich_with_grok(query: str, wines: list, menu: list, restaurant_name: str)
                         f"You are the house sommelier at {restaurant_name}. "
                         "Bottles are already chosen. Do not change them. "
                         "Write like a kind person at the table. Everyday words. "
+                        "Never call a Premier Cru a Grand Cru. Never call Napa Cab or Zinfandel "
+                        "a Super Tuscan or Burgundy. Only describe the bottles given. "
                         "No jargon, scores, or 'notes of'. JSON only."
                     ),
                 },
@@ -384,6 +387,10 @@ async def recommend(body: RecommendationRequest):
     wines = [_guest_wine(w, body.query, menu, i) for i, w in enumerate(picked)]
     wines, grok_intro = _enrich_with_grok(body.query, wines, menu, config.name)
     intro = grok_intro or guest_intro(body.query)
+    if not wines:
+        intro = named_miss_intro(body.query) or (
+            "Nothing on this list matched what you asked for. I won't substitute a random bottle."
+        )
     rec_id = None
     if wines:
         rec_id = crm_store.log_recommendation(

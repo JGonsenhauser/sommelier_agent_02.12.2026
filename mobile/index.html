@@ -533,7 +533,7 @@
                     return;
                 }
                 if (!data.wines || !data.wines.length) {
-                    showError(data.relaxed || "Nothing on this list matched. Try a broader price or color.");
+                    showError(data.intro || data.relaxed || "Nothing on this list matched. I won't substitute a random bottle.");
                     return;
                 }
                 showResults(data);

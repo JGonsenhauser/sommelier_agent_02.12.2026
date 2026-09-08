@@ -28,6 +28,8 @@ from data.sommelier_knowledge import (
     is_tannic,
     is_sangiovese,
     grape_family,
+    is_burgundy_grand_cru,
+    is_super_tuscan,
 )
 from restaurants.restaurant_config import MAASS_CONFIG
 
@@ -55,6 +57,9 @@ TYPED = [
     "dry Riesling",
     "Sancerre",
     "Barolo",
+    "grand cru burgundy",
+    "supertuscan red",
+    "Super Tuscan",
 ]
 
 
@@ -127,6 +132,10 @@ def violations(query: str, wines: list) -> list[str]:
     if len(wines) < 2:
         if "offdry" in intent.profile:
             flags.append("catalog_thin_offdry")
+        elif intent.named == "burgundy_gc" and not wines:
+            flags.append("catalog_thin_named")
+        elif intent.named and not wines:
+            flags.append("named_empty")
         else:
             flags.append("fewer_than_two")
         return flags
@@ -170,6 +179,16 @@ def violations(query: str, wines: list) -> list[str]:
     if "barolo" in q:
         if any("barolo" not in f"{w.get('label','')} {w.get('region','')} {w.get('major_region','')}".lower() for w in wines):
             flags.append("named_barolo_miss")
+    if "grand cru" in q and "burgundy" in q:
+        if wines:
+            flags.append("gc_burgundy_should_be_empty")
+        if any(not is_burgundy_grand_cru(w) for w in wines):
+            flags.append("named_gc_burgundy_miss")
+    if "super tuscan" in q or "supertuscan" in q:
+        if not wines:
+            flags.append("super_tuscan_empty")
+        elif any(not is_super_tuscan(w) for w in wines):
+            flags.append("named_super_tuscan_miss")
     if "champagne" in q:
         if any("champagne" not in f"{w.get('region','')} {w.get('major_region','')} {w.get('label','')}".lower() for w in wines):
             flags.append("named_champagne_miss")
@@ -273,7 +292,7 @@ def main():
             "flags": flags,
         }
         rows.append(row)
-        real = [f for f in flags if f != "catalog_thin_offdry"]
+        real = [f for f in flags if f not in {"catalog_thin_offdry", "catalog_thin_named"}]
         if real:
             fails.append(row)
     OUT.write_text(json.dumps({"total": len(rows), "fail": len(fails), "rows": rows, "fails": fails}, indent=2), encoding="utf-8")

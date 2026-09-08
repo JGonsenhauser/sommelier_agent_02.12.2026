@@ -9,3 +9,5 @@
 - Do not skip list rows on the substring `series` (kills Yalumba The Y Series). Skip `range` / `selections` / mixed-color mash-ups. `Rangen` is a vineyard, not a range.
 - Cellar is a price floor. Never relax it to a $20 Pinot Gris. One honest $400 bottle beats two cheap fillers.
 - Food chips must not overwrite a tapped color. Champagne + steak stays Champagne; White + steak stays rich white.
+- If the guest names a class that is not on the list (Grand Cru Burgundy), return empty. Never pad with 1er Cru, village Burgundy, or New World. Super Tuscan must stay on Sassicaia/Tignanello/Ornellaia — never Caymus or Zin.
+- Do not keep a second Vercel project named `jarvis` next to `jarvis_sommelier`. Live domain is jarvis_sommelier.

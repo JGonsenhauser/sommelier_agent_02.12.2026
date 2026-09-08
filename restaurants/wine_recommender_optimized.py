@@ -21,6 +21,7 @@ from data.sommelier_knowledge import (
     approachable_note,
     complementary_picks,
     grape_family,
+    named_miss_intro,
 )
 
 logger = logging.getLogger(__name__)
@@ -355,7 +356,10 @@ class OptimizedWineRecommender:
         enriched.sort(key=lambda w: w["score"], reverse=True)
         enriched = [w for w in enriched if w["score"] > -1]
         if not enriched:
-            return [], "", "I could not find a bottle on this list that fits. Try a broader price or color."
+            miss = named_miss_intro(user_query) or (
+                "Nothing on this list matched what you asked for. I won't substitute a random bottle."
+            )
+            return [], miss, miss
 
         diverse = []
         fam_n = {}

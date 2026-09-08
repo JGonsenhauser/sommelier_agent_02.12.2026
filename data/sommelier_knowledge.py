@@ -144,8 +144,22 @@ def parse_intent(query: str) -> GuestIntent:
         intent.color = "red"
         intent.lock_color = True
 
-    # Named grape / appellation — never fall through to catalog-order Napa Cab.
-    if "sancerre" in q:
+    # Named grape / appellation / class — never fall through to catalog-order Napa Cab.
+    if re.search(r"super[\s-]?tuscan", q) or "supertuscan" in q:
+        intent.named = "super_tuscan"
+        intent.color = "red"
+        intent.lock_color = True
+    elif ("grand cru" in q or "grand-cru" in q) and any(w in q for w in ("burgundy", "bourgogne")):
+        intent.named = "burgundy_gc"
+        if intent.color is None and re.search(r"\bwhite\b", q):
+            intent.color = "white"
+            intent.lock_color = True
+        elif intent.color is None and re.search(r"\bred\b", q):
+            intent.color = "red"
+            intent.lock_color = True
+    elif ("1er cru" in q or "premier cru" in q) and any(w in q for w in ("burgundy", "bourgogne")):
+        intent.named = "burgundy_1er"
+    elif "sancerre" in q:
         intent.named = "sancerre"
         if intent.color is None:
             intent.color = "red" if ("rouge" in q or re.search(r"\bred\b", q)) else "white"
@@ -180,6 +194,8 @@ def parse_intent(query: str) -> GuestIntent:
         if intent.color is None:
             intent.color = "red"
             intent.lock_color = True
+    elif "burgundy" in q or "bourgogne" in q:
+        intent.named = intent.named or "burgundy"
 
     if any(w in q for w in LIGHT_BODY_WORDS):
         intent.body = "light"
@@ -417,32 +433,17 @@ def complementary_picks(
     rest = [w for w in pool if wine_key(w) != wine_key(first)]
     same_color = [w for w in rest if wine_color(w) == first_color and wine_color(w) != "mixed"]
     q = (query or "").lower()
-    named = None
-    for needle, family in (
-        ("sancerre", "sancerre"),
-        ("barolo", "nebbiolo"),
-        ("champagne", "sparkling"),
-        ("chardonnay", "chard"),
-        ("chablis", "chard_lean"),
-        ("pinot noir", "pinot"),
-        ("sauvignon", "sauvignon"),
-        ("riesling", "riesling"),
-        ("pinot gris", "gris"),
-        ("malbec", "malbec"),
-        ("cabernet", "cabernet"),
-    ):
-        if needle in q:
-            named = family
-            break
-    if named:
-        same_grape = [w for w in same_color if named in grape_family(w) or named in _blob(w)]
-        if not same_grape:
-            same_grape = [w for w in unseen(ranked) if wine_key(w) != wine_key(first) and wine_color(w) == first_color and (named in grape_family(w) or named in _blob(w))]
-        if same_grape:
-            first_prod = (first.get("producer") or "").lower()
-            other_prod = [w for w in same_grape if (w.get("producer") or "").lower() != first_prod]
-            return [first, (other_prod or same_grape)[0]]
     intent = parse_intent(query) if query else None
+    if intent and intent.named:
+        same_named = [
+            w for w in unseen(ranked)
+            if wine_key(w) != wine_key(first) and matches_named(intent, w)
+        ]
+        if same_named:
+            first_prod = (first.get("producer") or "").lower()
+            other_prod = [w for w in same_named if (w.get("producer") or "").lower() != first_prod]
+            return [first, (other_prod or same_named)[0]]
+        return [first]
     if intent and intent.color == "rose":
         roses = [w for w in unseen(ranked) if wine_color(w) in {"rose", "rosé"}]
         if roses:
@@ -642,18 +643,92 @@ def is_crisp_red(wine: Dict) -> bool:
     )
 
 
+def is_burgundy(wine: Dict) -> bool:
+    blob = _blob(wine)
+    if any(m in blob for m in ("alsace", "champagne", "bordeaux", "loire", "rhone", "rhône")):
+        return False
+    return any(m in blob for m in ("burgundy", "bourgogne", "chablis", "meursault", "puligny", "gevrey", "chambolle", "nuits-saint", "morey-saint", "mercurey", "mâcon", "macon", "côte de beaune", "cote de beaune", "côte de nuits", "cote de nuits"))
+
+
+def is_burgundy_grand_cru(wine: Dict) -> bool:
+    """True Grand Cru Burgundy only — not village, not 1er Cru, not Alsace/Champagne GC."""
+    if not is_burgundy(wine):
+        return False
+    blob = _blob(wine)
+    if "1er cru" in blob or "premier cru" in blob:
+        return False
+    if "grand cru" in blob:
+        return True
+    # Village AOCs that contain a GC name are not Grand Cru.
+    village = (
+        "gevrey-chambertin", "chambolle-musigny", "puligny-montrachet",
+        "chassagne-montrachet", "aloxe-corton", "vosne-romanée", "vosne-romanee",
+    )
+    if any(v in blob for v in village):
+        if any(gc in blob for gc in (
+            "charmes-chambertin", "mazis-chambertin", "chapelle-chambertin",
+            "griotte-chambertin", "ruchottes", "latrici", "clos de bèze", "clos de beze",
+            "chevalier-montrachet", "bâtard-montrachet", "batard-montrachet",
+            "bienvenues", "criots", "corton-charlemagne",
+        )):
+            return True
+        return False
+    return any(m in blob for m in (
+        "romanée-conti", "romanee-conti", "la tâche", "la tache", "richebourg",
+        "musigny", "bonnes-mares", "clos de vougeot", "échezeaux", "echezeaux",
+        "chambertin", "corton", "montrachet", "clos de tart", "clos des lambrays",
+        "clos saint-denis", "clos de la roche",
+    ))
+
+
+def is_burgundy_premier_cru(wine: Dict) -> bool:
+    if not is_burgundy(wine) or is_burgundy_grand_cru(wine):
+        return False
+    blob = _blob(wine)
+    return "1er cru" in blob or "premier cru" in blob
+
+
+def is_super_tuscan(wine: Dict) -> bool:
+    blob = _blob(wine)
+    region = str(wine.get("region") or wine.get("wine_name") or wine.get("label") or "").lower()
+    label = str(wine.get("wine_name") or wine.get("label") or "").lower()
+    producer = str(wine.get("producer") or "").lower()
+    hay = f"{producer} {label} {region}"
+    if any(m in hay for m in ("chianti", "brunello", "nobile", "morellino", "vernaccia")):
+        return False
+    if any(m in hay for m in (
+        "tignanello", "sassicaia", "ornellaia", "solaia", "masseto",
+        "paleo", "flaccianello", "guidalberto",
+    )):
+        return True
+    return "bolgheri" in region and wine_color(wine) == "red"
+
+
 def matches_named(query_or_intent, wine: Dict) -> bool:
     named = query_or_intent.named if hasattr(query_or_intent, "named") else None
     if not named:
         q = str(query_or_intent if isinstance(query_or_intent, str) else getattr(query_or_intent, "raw", "") or "").lower()
         named = None
-        for key in ("sancerre", "barolo", "champagne", "chablis", "riesling", "chardonnay", "pinot noir", "cabernet"):
-            if key in q:
-                named = key
-                break
+        if re.search(r"super[\s-]?tuscan", q) or "supertuscan" in q:
+            named = "super_tuscan"
+        elif ("grand cru" in q or "grand-cru" in q) and any(w in q for w in ("burgundy", "bourgogne")):
+            named = "burgundy_gc"
+        else:
+            for key in ("sancerre", "barolo", "champagne", "chablis", "riesling", "chardonnay", "pinot noir", "cabernet"):
+                if key in q:
+                    named = key
+                    break
     if not named:
         return True
     blob = _blob(wine)
+    if named == "super_tuscan":
+        return is_super_tuscan(wine)
+    if named == "burgundy_gc":
+        return is_burgundy_grand_cru(wine)
+    if named == "burgundy_1er":
+        return is_burgundy_premier_cru(wine)
+    if named == "burgundy":
+        return is_burgundy(wine)
     if named == "sancerre":
         return "sancerre" in blob
     if named == "barolo":
@@ -673,6 +748,26 @@ def matches_named(query_or_intent, wine: Dict) -> bool:
     if named == "prosecco":
         return "prosecco" in blob or "glera" in blob or "valdobbiadene" in blob
     return True
+
+
+def named_miss_intro(query: str) -> Optional[str]:
+    intent = parse_intent(query)
+    if intent.named == "burgundy_gc":
+        return "There isn't a Grand Cru Burgundy on this list. I won't pour a Premier Cru or a wine from somewhere else."
+    if intent.named == "burgundy_1er":
+        return "There isn't a Premier Cru Burgundy on this list."
+    if intent.named == "super_tuscan":
+        return "There isn't a Super Tuscan on this list tonight."
+    if intent.named == "sancerre":
+        return "There isn't a Sancerre on this list tonight."
+    if intent.named == "barolo":
+        return "There isn't a Barolo on this list tonight."
+    if intent.named == "champagne":
+        return "There isn't a Champagne on this list tonight."
+    if intent.named:
+        label = intent.named.replace("_", " ")
+        return f"Nothing on this list is {label}. I won't substitute a different wine."
+    return None
 
 
 def is_off_dry(wine: Dict) -> bool:
@@ -740,6 +835,11 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
         else:
             score -= 8.0
 
+    if intent.named == "super_tuscan":
+        if any(m in blob for m in ("sassicaia", "ornellaia", "tignanello", "solaia", "masseto")):
+            score += 2.4
+        elif "guidalberto" in blob:
+            score += 0.4
     if intent.named == "champagne" or ("champagne" in q and intent.color == "sparkling"):
         if "champagne" in blob:
             score += 4.5
@@ -1311,7 +1411,9 @@ def grok_system_prompt(restaurant_name: str) -> str:
         "- Tomato sauce: Sangiovese / Chianti. Acid with acid. Not Napa Cab, not Moscato.\n"
         "- Hard cheese: structured red or Champagne. Soft cheese: Sancerre, Chablis, Champagne — not tannic red.\n"
         "- Chicken: Pinot Noir or moderate white.\n"
-        "- Only choose from the numbered list. Never invent a bottle, vintage, or price.\n\n"
+        "- Only choose from the numbered list. Never invent a bottle, vintage, or price.\n"
+        "- Never call a Premier Cru a Grand Cru. Never call Napa Cab or Zinfandel a Super Tuscan.\n"
+        "- If they named a place or class that is not on the list, say so. Do not substitute.\n\n"
         "Voice: two short everyday sentences. No jargon, scores, or 'notes of'. "
         "The why must echo their buttons or words.\n"
         "JSON only."
