@@ -15,3 +15,4 @@
 - Named grape must lock both bottles. "Sangiovese" is Chianti / Brunello / Vino Nobile / Flaccianello / Tignanello — never Pinot as the "also" pour. Complementary different-grape is wrong once they named a grape.
 - Old World / New World is geography, not a synonym. Syrah old world = Rhône. If this list has no Rhône Syrah, empty — never Barossa Shiraz. Grok only picks from wines that already passed that filter.
 - `grape_family` must test Cabernet before "sauvignon" or Cabernet Sauvignon is tagged Sauvignon Blanc. Sancerre rouge is Pinot, not Sauvignon. Bare "pinot" = Pinot Noir. Menu copy ("french onion") must not lock country.
+- "Sauvignon Blanc from France" is the grape, not "any French wine." Second bottle cannot be red Bordeaux. Loire Sancerre leads; Pessac blanc is a barrel blend, not the default.

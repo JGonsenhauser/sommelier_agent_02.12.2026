@@ -302,6 +302,11 @@ def parse_intent(query: str) -> GuestIntent:
         if intent.color is None:
             intent.color = "white"
             intent.lock_color = True
+    elif "sauvignon blanc" in q or ("sauvignon" in q and "cabernet" not in q):
+        intent.named = intent.named or "sauvignon"
+        if intent.color is None:
+            intent.color = "white"
+            intent.lock_color = True
     elif re.search(r"\bpinot noir\b", q) or (
         re.search(r"\bpinot\b", q) and "gris" not in q and "grigio" not in q
     ):
@@ -913,9 +918,9 @@ def matches_named(query_or_intent, wine: Dict) -> bool:
             named = "burgundy_gc"
         else:
             for key in (
-                "sancerre", "barolo", "champagne", "chablis", "riesling",
+                "sauvignon blanc", "sancerre", "barolo", "champagne", "chablis", "riesling",
                 "chardonnay", "pinot noir", "sangiovese", "brunello", "chianti",
-                "nebbiolo", "syrah", "malbec", "zinfandel", "cabernet",
+                "nebbiolo", "syrah", "malbec", "zinfandel", "cabernet", "sauvignon",
             ):
                 if key in q:
                     named = key
@@ -982,6 +987,8 @@ def matches_named(query_or_intent, wine: Dict) -> bool:
         return "riesling" in blob
     if named == "chardonnay":
         return any(m in blob for m in ("chardonnay", "chablis", "puligny", "meursault", "montrachet", "mâcon", "macon"))
+    if named == "sauvignon":
+        return is_sauvignon_blanc(wine)
     if named == "pinot noir":
         return "pinot noir" in blob or ("pinot" in blob and "gris" not in blob and "grigio" not in blob)
     if named == "sangiovese":
@@ -1114,6 +1121,22 @@ def is_tannic(wine: Dict) -> bool:
     ) and wine_color(wine) == "red"
 
 
+def is_sauvignon_blanc(wine: Dict) -> bool:
+    if wine_color(wine) == "red":
+        return False
+    blob = _blob(wine)
+    grapes = str(wine.get("grapes") or "").lower()
+    hay = blob + " " + grapes
+    if "cabernet" in hay and "sauvignon blanc" not in hay and "sancerre" not in hay and "pouilly" not in hay:
+        return False
+    if "sancerre" in hay and ("rouge" in hay or wine_color(wine) == "red"):
+        return False
+    return any(
+        m in hay
+        for m in ("sauvignon blanc", "sancerre", "pouilly", "touraine", "marlborough")
+    ) or ("sauvignon" in hay and "cabernet" not in hay)
+
+
 def is_sangiovese(wine: Dict) -> bool:
     """Chianti, Brunello, Vino Nobile, Morellino, Flaccianello, Tignanello/Solaia.
 
@@ -1191,6 +1214,13 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
             score += 3.5
         if intent.world == "old" and is_new_world(wine):
             score -= 8.0
+    if intent.named == "sauvignon":
+        if color == "red":
+            score -= 8.0
+        if "sancerre" in blob or "pouilly" in blob:
+            score += 2.8
+        if any(m in blob for m in BARREL_WHITE_MARKERS):
+            score -= 1.2
     if intent.named == "sangiovese":
         if "chianti" in blob:
             score += 2.6

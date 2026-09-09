@@ -27,6 +27,7 @@ from data.sommelier_knowledge import (
     is_lean_white,
     is_tannic,
     is_sangiovese,
+    is_sauvignon_blanc,
     grape_family,
     is_burgundy_grand_cru,
     is_super_tuscan,
@@ -77,6 +78,7 @@ TYPED = [
     "Barbaresco",
     "pinot",
     "GSM",
+    "Sauvignon Blanc from France",
 ]
 
 
@@ -215,6 +217,11 @@ def violations(query: str, wines: list) -> list[str]:
     if "french" in q and "chardonnay" not in q:
         if wines and any("france" not in str(w.get("country") or "").lower() for w in wines):
             flags.append("french_left_france")
+    if "sauvignon blanc" in q or ( "sauvignon" in q and "cabernet" not in q):
+        if any(not is_sauvignon_blanc(w) for w in wines):
+            flags.append("named_sauvignon_miss")
+        if any(wine_color(w) == "red" for w in wines):
+            flags.append("sauvignon_got_red")
     if "sangiovese" in q:
         if any(not is_sangiovese(w) for w in wines):
             flags.append("named_sangiovese_miss")
