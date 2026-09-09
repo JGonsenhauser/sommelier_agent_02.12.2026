@@ -210,6 +210,7 @@ def _grok_pick_and_note(query: str, ranked: list, restaurant_name: str):
                         "New World = USA, Australia, Chile, Argentina, New Zealand, South Africa. "
                         "Syrah Old World = Northern Rhône, not Australian Shiraz. "
                         "If no bottle on the list truly matches, return {\"intro\":\"...\",\"picks\":[]}. "
+                        "Pick exactly two bottles. Never mention a region or grape that is not on those two lines. "
                         "Everyday words. JSON only."
                     ),
                 },
@@ -237,7 +238,7 @@ def _grok_pick_and_note(query: str, ranked: list, restaurant_name: str):
         intro = str(payload.get("intro") or "").strip() or None
         picked = []
         seen = set()
-        for item in payload.get("picks") or []:
+        for item in (payload.get("picks") or [])[:2]:
             idx = int(item.get("n", 0)) - 1
             if 0 <= idx < len(pool) and idx not in seen:
                 seen.add(idx)
