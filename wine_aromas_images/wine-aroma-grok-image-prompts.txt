@@ -1,0 +1,409 @@
+WINE SENSORY AROMA TILES — GROK IMAGINE PROMPT PACK
+=====================================================
+A matching set of individual wine aroma / tasting-note images.
+Every prompt uses the SAME locked layout so the tiles look like one collection.
+
+HOW TO USE IN GROK IMAGINE
+--------------------------
+1. Set aspect ratio to Square / 1:1 BEFORE you generate.
+2. Turn Quality mode on if it is available.
+3. Generate GREEN APPLE first. That image is your visual anchor.
+4. If Grok Imagine lets you attach a style/reference image, attach the green-apple result
+   to every later generation. This is the single biggest consistency lock.
+5. Paste ONE complete prompt per image. Do not shorten the locked language.
+6. If an object looks wrong, regenerate that prompt. Do not rewrite lighting or background.
+7. One aroma per image. The only mixed arrangements are the FAMILY cards.
+
+LOCKED VISUAL SYSTEM (do not change between images)
+----------------------------------------------------
+- Square 1:1
+- Photorealistic luxury food still-life
+- One hero subject (or a tight named cluster) dead-centered, about 60% of the frame
+- Dark walnut butcher-block with a faint slate inlay
+- Warm key light from the upper left, soft rim light on the right
+- Shallow depth of field, 85mm eye-level lens look
+- Deep shadowy wine-cellar bokeh
+- No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles
+- No objects except those named in the subject line
+
+
+================================================================
+MASTER TEMPLATE
+================================================================
+Copy this and replace only the [SUBJECT] sentence.
+
+A square 1:1 photorealistic luxury food still-life photograph of [SUBJECT], dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+
+================================================================
+COMPLETE READY-TO-PASTE PROMPTS
+================================================================
+Each block below is a full prompt. Copy one block into Grok Imagine.
+
+
+----- FAMILY CARDS (the umbrella images you named) -----
+
+01  CITRUS (family)
+A square 1:1 photorealistic luxury food still-life photograph of a tight centered cluster of a lemon half, a lime half, a navel orange half, and a pink grapefruit half, cut faces up and glistening with juice, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+02  FLORAL (family)
+A square 1:1 photorealistic luxury food still-life photograph of a tight low bundle of a deep-pink rose, purple violets, white jasmine, and cream honeysuckle blossoms with short stems and a few green leaves, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+03  WOOD (family)
+A square 1:1 photorealistic luxury food still-life photograph of a short toasted oak barrel stave with visible grain, light char, and warm brown wood tones, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+04  APPLE (green — generate this one first as the style anchor)
+A square 1:1 photorealistic luxury food still-life photograph of a freshly cut green Granny Smith apple half with glistening juice on the white flesh and tiny droplets on the skin, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+
+----- CITRUS & GREEN FRUIT -----
+
+05  YELLOW APPLE
+A square 1:1 photorealistic luxury food still-life photograph of a ripe yellow-gold apple with one wedge removed to show creamy flesh, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+06  PEAR
+A square 1:1 photorealistic luxury food still-life photograph of a whole green-gold Bartlett pear with russet speckles and a short stem, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+07  QUINCE
+A square 1:1 photorealistic luxury food still-life photograph of a knobby golden quince with one cut face showing pale grainy flesh, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+08  LEMON
+A square 1:1 photorealistic luxury food still-life photograph of a bright yellow lemon cut in half with juice beading on the pulp, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+09  LIME
+A square 1:1 photorealistic luxury food still-life photograph of a glossy green lime cut in half with vivid pulp and glistening segments, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+10  GRAPEFRUIT
+A square 1:1 photorealistic luxury food still-life photograph of a pink grapefruit half with juicy translucent segments, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+11  ORANGE
+A square 1:1 photorealistic luxury food still-life photograph of a navel orange cut into a thick round wheel with pith and pulp clearly visible, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+12  ORANGE ZEST
+A square 1:1 photorealistic luxury food still-life photograph of a tight coil of fresh orange zest with visible oil glands, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+13  MARMALADE
+A square 1:1 photorealistic luxury food still-life photograph of a small glistening pool of chunky orange marmalade with visible peel strands, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+14  GOOSEBERRY
+A square 1:1 photorealistic luxury food still-life photograph of a small cluster of translucent green gooseberries with papery tails, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+
+----- STONE FRUIT & TROPICAL -----
+
+15  PEACH
+A square 1:1 photorealistic luxury food still-life photograph of a ripe blush peach split open to show golden flesh and a rough pit, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+16  APRICOT
+A square 1:1 photorealistic luxury food still-life photograph of two ripe velvety apricots, one halved to show orange flesh, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+17  NECTARINE
+A square 1:1 photorealistic luxury food still-life photograph of a smooth-skinned nectarine sliced to show radiant orange flesh, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+18  PINEAPPLE
+A square 1:1 photorealistic luxury food still-life photograph of a tight stack of three fresh pineapple rings with juice on the cut edges, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+19  MANGO
+A square 1:1 photorealistic luxury food still-life photograph of a ripe mango cheek scored in a glossy golden grid, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+20  PASSION FRUIT
+A square 1:1 photorealistic luxury food still-life photograph of a wrinkled purple passion fruit cracked open with glistening seed pulp, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+21  LYCHEE
+A square 1:1 photorealistic luxury food still-life photograph of a small cluster of peeled lychees with translucent white flesh and one pink shell, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+22  GUAVA
+A square 1:1 photorealistic luxury food still-life photograph of a halved pink guava with the seed cavity visible, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+23  MELON
+A square 1:1 photorealistic luxury food still-life photograph of a crescent of ripe cantaloupe with glistening wet orange flesh, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+
+----- RED FRUIT -----
+
+24  STRAWBERRY
+A square 1:1 photorealistic luxury food still-life photograph of three ripe strawberries with green caps, one sliced to show the interior, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+25  RASPBERRY
+A square 1:1 photorealistic luxury food still-life photograph of a tight mound of fresh raspberries with visible drupelets, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+26  CRANBERRY
+A square 1:1 photorealistic luxury food still-life photograph of a small mound of glossy fresh cranberries, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+27  SWEET CHERRY
+A square 1:1 photorealistic luxury food still-life photograph of a small cluster of glossy dark-red cherries on stems, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+28  SOUR CHERRY
+A square 1:1 photorealistic luxury food still-life photograph of a small cluster of bright sour cherries, one split open, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+29  POMEGRANATE
+A square 1:1 photorealistic luxury food still-life photograph of a cracked pomegranate showing a dense field of ruby arils, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+30  RED PLUM
+A square 1:1 photorealistic luxury food still-life photograph of a ripe red plum halved to show amber-red flesh, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+31  REDCURRANT
+A square 1:1 photorealistic luxury food still-life photograph of a small bunch of translucent redcurrants on the stem, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+
+----- BLACK FRUIT -----
+
+32  BLACKBERRY
+A square 1:1 photorealistic luxury food still-life photograph of a tight mound of ripe blackberries with tiny highlights, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+33  BLUEBERRY
+A square 1:1 photorealistic luxury food still-life photograph of a tight mound of blueberries with dusty natural bloom, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+34  BLACKCURRANT / CASSIS
+A square 1:1 photorealistic luxury food still-life photograph of a small cluster of dark blackcurrants on the stem, a few crushed to show deep purple juice, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+35  BLACK CHERRY
+A square 1:1 photorealistic luxury food still-life photograph of a cluster of almost-black cherries, one cut open, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+36  BLACK PLUM
+A square 1:1 photorealistic luxury food still-life photograph of a dark-skinned plum halved to show deep ruby flesh, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+37  BLACK OLIVE
+A square 1:1 photorealistic luxury food still-life photograph of a small cluster of ripe glossy black olives, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+
+----- DRIED FRUIT & NOBLE ROT -----
+
+38  RAISIN
+A square 1:1 photorealistic luxury food still-life photograph of a small heap of plump dark raisins, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+39  FRESH FIG
+A square 1:1 photorealistic luxury food still-life photograph of two fresh figs, one split to show the rosy seeded interior, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+40  DRIED FIG
+A square 1:1 photorealistic luxury food still-life photograph of a small stack of dried figs, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+41  DATE
+A square 1:1 photorealistic luxury food still-life photograph of a few glossy Medjool dates, one opened, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+42  PRUNE
+A square 1:1 photorealistic luxury food still-life photograph of a small pile of plump wrinkled prunes with a rich sheen, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+43  DRIED APRICOT
+A square 1:1 photorealistic luxury food still-life photograph of a small stack of deep-orange dried apricot halves, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+44  HONEY
+A square 1:1 photorealistic luxury food still-life photograph of a broken piece of golden honeycomb dripping raw amber honey, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+45  BEESWAX
+A square 1:1 photorealistic luxury food still-life photograph of a small natural honeycomb block with visible wax caps, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+46  GINGER
+A square 1:1 photorealistic luxury food still-life photograph of a knobby fresh ginger root with one sliced face showing pale fiber, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+
+----- FLORAL -----
+
+47  ROSE
+A square 1:1 photorealistic luxury food still-life photograph of a single deep-pink rose bloom with slightly open petals and no vase, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+48  VIOLET
+A square 1:1 photorealistic luxury food still-life photograph of a small cluster of purple violets with green leaves, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+49  JASMINE
+A square 1:1 photorealistic luxury food still-life photograph of a spray of white jasmine blossoms with tiny yellow centers, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+50  HONEYSUCKLE
+A square 1:1 photorealistic luxury food still-life photograph of a spray of cream honeysuckle trumpet flowers on a short stem, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+51  ELDERFLOWER
+A square 1:1 photorealistic luxury food still-life photograph of a flat cream elderflower umbel, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+52  ORANGE BLOSSOM
+A square 1:1 photorealistic luxury food still-life photograph of a small cluster of white orange blossoms with glossy green leaves, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+53  LAVENDER
+A square 1:1 photorealistic luxury food still-life photograph of a tight bundle of fresh lavender spikes, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+54  LILAC
+A square 1:1 photorealistic luxury food still-life photograph of a compact pale-purple lilac cluster, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+55  ACACIA
+A square 1:1 photorealistic luxury food still-life photograph of a spray of tiny creamy acacia blossoms, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+56  PEONY
+A square 1:1 photorealistic luxury food still-life photograph of a single pale peony bloom with ruffled petals and no vase, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+
+----- HERBACEOUS / VEGETAL / HERBAL -----
+
+57  CUT GRASS
+A square 1:1 photorealistic luxury food still-life photograph of a small neat bundle of freshly cut bright-green grass blades, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+58  MINT
+A square 1:1 photorealistic luxury food still-life photograph of a fresh mint sprig with dewy leaves, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+59  EUCALYPTUS
+A square 1:1 photorealistic luxury food still-life photograph of a few silver-green eucalyptus leaves and a small seed capsule, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+60  THYME
+A square 1:1 photorealistic luxury food still-life photograph of a compact bundle of fresh thyme sprigs, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+61  ROSEMARY
+A square 1:1 photorealistic luxury food still-life photograph of a few rosemary sprigs with needle leaves, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+62  DILL
+A square 1:1 photorealistic luxury food still-life photograph of fresh feathery dill fronds, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+63  FENNEL
+A square 1:1 photorealistic luxury food still-life photograph of a fennel bulb with one cut face and a few green fronds, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+64  GREEN BELL PEPPER
+A square 1:1 photorealistic luxury food still-life photograph of a halved green bell pepper showing pale ribs and seeds, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+65  TOMATO LEAF
+A square 1:1 photorealistic luxury food still-life photograph of a sprig of tomato vine with fragrant leaves and a small green tomato, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+66  ASPARAGUS
+A square 1:1 photorealistic luxury food still-life photograph of a tight bundle of raw green asparagus tips, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+67  BLACK TEA
+A square 1:1 photorealistic luxury food still-life photograph of a small pile of dark loose-leaf black tea, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+68  HAY
+A square 1:1 photorealistic luxury food still-life photograph of a small twist of dry golden hay, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+
+----- SPICE -----
+
+69  BLACK PEPPER
+A square 1:1 photorealistic luxury food still-life photograph of a small mound of cracked black peppercorns, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+70  WHITE PEPPER
+A square 1:1 photorealistic luxury food still-life photograph of a small mound of whole and cracked white peppercorns, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+71  CINNAMON
+A square 1:1 photorealistic luxury food still-life photograph of three cinnamon sticks with a light dusting of ground cinnamon, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+72  CLOVE
+A square 1:1 photorealistic luxury food still-life photograph of a small pile of whole cloves, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+73  NUTMEG
+A square 1:1 photorealistic luxury food still-life photograph of two whole nutmegs, one cracked open, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+74  STAR ANISE / LICORICE
+A square 1:1 photorealistic luxury food still-life photograph of two star anise pods beside a short stick of licorice root, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+75  SAFFRON
+A square 1:1 photorealistic luxury food still-life photograph of a pinch of saffron threads catching the light, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+
+----- OAK / WOOD / AGING -----
+
+76  VANILLA
+A square 1:1 photorealistic luxury food still-life photograph of a single Madagascar vanilla bean split open to show the oily black seeds, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+77  OAK
+A square 1:1 photorealistic luxury food still-life photograph of a curved oak stave fragment with light toast and visible grain, no barrel hardware, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+78  CEDAR
+A square 1:1 photorealistic luxury food still-life photograph of a small cedarwood block with warm reddish grain and a few matching shavings, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+79  COCONUT
+A square 1:1 photorealistic luxury food still-life photograph of a cracked coconut half showing white meat and brown shell edge, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+80  SMOKE
+A square 1:1 photorealistic luxury food still-life photograph of a faintly charred oak chip with a thin ribbon of woodsmoke rising from it, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+81  TOAST / BRIOCHE
+A square 1:1 photorealistic luxury food still-life photograph of a thick slice of golden toasted brioche with a browned crust and torn fluffy interior, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+82  CIGAR BOX
+A square 1:1 photorealistic luxury food still-life photograph of the open interior of an unbranded cedar cigar box showing rich wood grain and no cigars, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+83  COFFEE
+A square 1:1 photorealistic luxury food still-life photograph of a small mound of dark roasted coffee beans, one cracked open, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+84  DARK CHOCOLATE
+A square 1:1 photorealistic luxury food still-life photograph of a broken slab of dark chocolate with a dusty snap face, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+85  LEATHER
+A square 1:1 photorealistic luxury food still-life photograph of a folded piece of rich brown worn leather, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+86  TOBACCO
+A square 1:1 photorealistic luxury food still-life photograph of a small coil of dried tobacco leaf, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+
+----- YEAST / DAIRY / NUT -----
+
+87  BUTTER
+A square 1:1 photorealistic luxury food still-life photograph of a neat folded curl of pale cultured butter, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+88  CREAM
+A square 1:1 photorealistic luxury food still-life photograph of a dollop of thick crème fraîche on the slate, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+89  ALMOND
+A square 1:1 photorealistic luxury food still-life photograph of a small pile of whole almonds, a few cracked to show the interior, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+90  HAZELNUT
+A square 1:1 photorealistic luxury food still-life photograph of a small pile of toasted hazelnuts, a few with skins cracked, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+91  WALNUT
+A square 1:1 photorealistic luxury food still-life photograph of a cracked walnut showing the wrinkled kernel and broken shell, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+
+----- EARTH / MINERAL -----
+
+92  WET STONE
+A square 1:1 photorealistic luxury food still-life photograph of several wet river stones glistening with water, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+93  FLINT
+A square 1:1 photorealistic luxury food still-life photograph of a few sharp flint shards with chalky cortex, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+94  CHALK
+A square 1:1 photorealistic luxury food still-life photograph of a rough lump of white chalky limestone with a little crushed chalk dust, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+95  SLATE
+A square 1:1 photorealistic luxury food still-life photograph of a wet piece of dark slate with a sheen, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+96  FOREST FLOOR
+A square 1:1 photorealistic luxury food still-life photograph of a tight patch of damp oak leaves, moss, and dark soil, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+97  MUSHROOM
+A square 1:1 photorealistic luxury food still-life photograph of a few fresh porcini mushrooms with earthy caps and thick stems, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+98  TRUFFLE
+A square 1:1 photorealistic luxury food still-life photograph of a single dark knobby black truffle, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+99  GRAPHITE
+A square 1:1 photorealistic luxury food still-life photograph of a small heap of metallic graphite powder beside a broken unbranded pencil core, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+100 PETROL
+A square 1:1 photorealistic luxury food still-life photograph of a wet dark stone with a thin iridescent petroleum sheen and no container, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+101 OYSTER SHELL / SALINITY
+A square 1:1 photorealistic luxury food still-life photograph of two wet oyster shells with pearly interiors, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+102 VOLCANIC ROCK
+A square 1:1 photorealistic luxury food still-life photograph of a piece of porous dark volcanic basalt, slightly damp, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+
+================================================================
+OPTIONAL FAULTS APPENDIX (teaching cards only — not part of the main set)
+================================================================
+
+F1  CORK TAINT / WET CARDBOARD
+A square 1:1 photorealistic luxury food still-life photograph of a piece of damp corrugated cardboard with a musty darkened stain, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+F2  VOLATILE ACIDITY / VINEGAR
+A square 1:1 photorealistic luxury food still-life photograph of a small splash of amber vinegar on the slate with no bottle, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+F3  STRUCK MATCH / SULFUR
+A square 1:1 photorealistic luxury food still-life photograph of a single just-struck wooden match with a thin wisp of smoke, dead-centered in the frame and filling about 60 percent of the image. The subject rests on a dark walnut butcher-block surface with a faint slate inlay. Warm studio key light from the upper left, soft rim light on the right, shallow depth of field. Background is deep shadowy wine-cellar bokeh. Rich slightly warm natural color grade, 85mm eye-level lens look. No text, no labels, no logos, no watermarks, no people, no hands, no wine bottles, and no objects except those named in the subject.
+
+
+================================================================
+TROUBLESHOOTING CONSISTENCY
+================================================================
+- If the background changes color: you shortened the wrapper. Paste the full prompt.
+- If a wine glass, bottle, or label appears: add "no wine glass, no bottle, no label" at the end and regenerate.
+- If the object is too small or too large: keep "filling about 60 percent of the image."
+- If lighting flips sides: do not rewrite the lighting sentence.
+- If two tiles feel like different photoshoots: attach the green-apple image as a style reference.
+- If Grok adds text: the "no text, no labels, no logos, no watermarks" line is already in every prompt. Regenerate.
+- Family cards (Citrus, Floral, Wood) are the only images allowed to show more than one kind of object.

@@ -134,7 +134,6 @@ def init_session_state():
         st.session_state.guide = {
             "color": None,
             "body": None,
-            "profile": None,
             "price": None,
             "food": None,
         }
@@ -156,18 +155,7 @@ def compose_guided_query(text: str, guide: Dict) -> str:
         bits.append(f"{color.lower()} wine")
     body = guide.get("body")
     if body:
-        bits.append(f"{body.lower()}-bodied")
-    profile = guide.get("profile")
-    if profile == "Dry & crisp":
-        bits.append("dry and crisp")
-    elif profile == "Off-dry":
-        bits.append("off-dry")
-    elif profile == "Fruity":
-        bits.append("fruity profile")
-    elif profile == "Earthy":
-        bits.append("earthy profile")
-    elif profile:
-        bits.append(profile.lower())
+        bits.append(f"{body.lower()}-bodied" if body == "Full" else body.lower())
     price = guide.get("price")
     if price and price != "Any price":
         bits.append(price.lower())
@@ -270,7 +258,7 @@ def main():
     """Main Streamlit app."""
     # Page config MUST be first Streamlit command
     st.set_page_config(
-        page_title="Jarvis Sommelier",
+        page_title="Maass Sommelier",
         page_icon=brand_logo,
         layout="centered",
         initial_sidebar_state="collapsed"
@@ -300,7 +288,6 @@ def main():
                 st.session_state.guide = {
                     "color": None,
                     "body": None,
-                    "profile": None,
                     "price": None,
                     "food": None,
                 }
@@ -319,7 +306,7 @@ def main():
     with header_r:
         if qr_path.exists():
             st.image(str(qr_path), width=180)
-            st.caption("Staff kiosk — guests should scan the PWA QR on :8000")
+            st.caption("Scan to add Jarvis on your phone")
 
     st.markdown("""
 Hi! I'm **Jarvis**, your personal wine assistant.
@@ -346,10 +333,9 @@ Tap the options below to steer me — color, body, price, food — then add a th
                 st.markdown(message["content"])
 
     render_guide_row("1", "Color", "color", ["White", "Red", "Rosé", "Champagne"])
-    render_guide_row("2", "Body", "body", ["Light", "Medium", "Full"])
-    render_guide_row("3", "Profile", "profile", ["Fruity", "Earthy", "Dry & crisp", "Off-dry"])
-    render_guide_row("4", "Price", "price", ["Under $75", "$75–$150", "$150–$250", "Cellar", "Any price"])
-    render_guide_row("5", "Tonight", "food", ["Oysters", "Steak", "Chicken", "Branzino", "Cream sauce", "Tomato sauce", "Hard cheese", "Soft cheese"])
+    render_guide_row("2", "Body", "body", ["Light", "Crisp", "Medium", "Full"])
+    render_guide_row("3", "Price", "price", ["Under $10", "Under $20", "Under $35", "Any price"])
+    render_guide_row("4", "Food", "food", ["Steak", "Seafood", "Pasta", "Cheese"])
 
     if st.button("Search with these guides"):
         if compose_guided_query("", st.session_state.guide):

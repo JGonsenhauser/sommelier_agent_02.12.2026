@@ -1,0 +1,17 @@
+# Edit this file to change what the guest email says.
+# {{wines}} is replaced with the bottle or bottles they selected.
+# Mail is sent from jonathan@agenthaus.io. Deploy after you save this file.
+
+Subject: Your wines recommended by Jarvis at "X property"
+
+{{wines}}
+
+
+
+
+
+Thank you for using our digital Sommelier,
+
+
+
+· Built by Agenthaus
