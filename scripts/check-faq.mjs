@@ -15,7 +15,7 @@ function fail(message) {
 }
 
 function read(file) {
-  return fs.readFileSync(file, "utf8");
+  return fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n");
 }
 
 function decode(value) {
@@ -85,8 +85,23 @@ if (pages.length !== 1) {
 }
 
 const schema = pages[0] ? pages[0].mainEntity || [] : [];
-const visible = [...faqHtml.matchAll(/<div class="faq-item">\s*<h2>([\s\S]*?)<\/h2>\s*<p>([\s\S]*?)<\/p>\s*<\/div>/gi)]
+const visible = [...faqHtml.matchAll(/<div class="faq-item">\s*<h2>([\s\S]*?)<\/h2>([\s\S]*?)<\/div>/gi)]
   .map((match) => ({ question: shown(match[1]), answer: shown(match[2]) }));
+
+const llmsFaq = read(llmsPath).split(/\n## FAQ\n/)[1];
+if (!llmsFaq) {
+  fail("llms.txt is missing the FAQ section");
+}
+const llmsItems = llmsFaq
+  ? llmsFaq.trim().split(/\n(?=### )/).map((part) => {
+    const body = part.replace(/^### /, "");
+    const [question, ...rest] = body.split("\n");
+    return { question: shown(question), answer: shown(rest.join("\n")) };
+  })
+  : [];
+if (llmsItems.length !== schema.length) {
+  fail(`llms.txt has ${llmsItems.length} FAQ questions and the schema has ${schema.length}`);
+}
 
 if (schema.length !== visible.length) {
   fail(`schema has ${schema.length} questions and the page shows ${visible.length}`);
@@ -100,11 +115,17 @@ for (let i = 0; i < count; i += 1) {
   const schemaAnswer = fromSchema ? shown(String(fromSchema.acceptedAnswer?.text || "")) : "";
   const pageQuestion = fromPage ? fromPage.question : "";
   const pageAnswer = fromPage ? fromPage.answer : "";
+  const llmsItem = llmsItems[i];
   if (schemaQuestion !== pageQuestion) {
     fail(`question ${i + 1} does not match\n  schema: ${schemaQuestion}\n  page:   ${pageQuestion}`);
   }
   if (schemaAnswer !== pageAnswer) {
     fail(`answer ${i + 1} does not match\n  schema: ${schemaAnswer}\n  page:   ${pageAnswer}`);
+  }
+  if (!llmsItem || llmsItem.question !== schemaQuestion) {
+    fail(`llms.txt question ${i + 1} does not match\n  schema: ${schemaQuestion}\n  llms:   ${llmsItem ? llmsItem.question : ""}`);
+  } else if (llmsItem.answer !== schemaAnswer) {
+    fail(`llms.txt answer ${i + 1} does not match\n  schema: ${schemaAnswer}\n  llms:   ${llmsItem.answer}`);
   }
 }
 
