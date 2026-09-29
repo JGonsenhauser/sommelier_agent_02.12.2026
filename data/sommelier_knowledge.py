@@ -221,6 +221,20 @@ class GuestIntent:
     raw: str = ""
 
 
+def guest_grape(query: str) -> Optional[str]:
+    """Words a guest types for one grape. Shiraz is not Syrah."""
+    q = (query or "").lower()
+    if re.search(r"\bcabernet\b", q) or re.search(r"\bcabs?\b", q):
+        return "cabernet"
+    if re.search(r"\bchardon+ay\b", q) or re.search(r"\bchard\b", q):
+        return "chardonnay"
+    if re.search(r"\bshiraz\b", q):
+        return "shiraz"
+    if re.search(r"\bsyrah\b", q):
+        return "syrah"
+    return None
+
+
 def parse_intent(query: str) -> GuestIntent:
     q = (query or "").lower()
     intent = GuestIntent(raw=query or "")
@@ -235,7 +249,7 @@ def parse_intent(query: str) -> GuestIntent:
     elif "rosé" in q or re.search(r"\brose\b", q):
         intent.color = "rose"
         intent.lock_color = True
-    elif re.search(r"\bwhite\b", q) or "chardonnay" in q or "chablis" in q:
+    elif re.search(r"\bwhite\b", q) or re.search(r"\bchardon+ay\b", q) or re.search(r"\bchard\b", q) or "chablis" in q:
         intent.color = "white"
         intent.lock_color = True
     elif re.search(r"\bred\b", q):
@@ -297,7 +311,7 @@ def parse_intent(query: str) -> GuestIntent:
         if intent.color is None:
             intent.color = "white"
             intent.lock_color = True
-    elif "chardonnay" in q:
+    elif re.search(r"\bchardon+ay\b", q) or re.search(r"\bchard\b", q):
         intent.named = intent.named or "chardonnay"
         if intent.color is None:
             intent.color = "white"
@@ -335,7 +349,12 @@ def parse_intent(query: str) -> GuestIntent:
         if intent.color is None:
             intent.color = "red"
             intent.lock_color = True
-    elif "syrah" in q or "shiraz" in q:
+    elif re.search(r"\bshiraz\b", q):
+        intent.named = intent.named or "shiraz"
+        if intent.color is None:
+            intent.color = "red"
+            intent.lock_color = True
+    elif re.search(r"\bsyrah\b", q):
         intent.named = intent.named or "syrah"
         if intent.color is None:
             intent.color = "red"
@@ -355,7 +374,7 @@ def parse_intent(query: str) -> GuestIntent:
         if intent.color is None:
             intent.color = "red"
             intent.lock_color = True
-    elif "cabernet" in q:
+    elif re.search(r"\bcabernet\b", q) or re.search(r"\bcabs?\b", q):
         intent.named = intent.named or "cabernet"
         if intent.color is None:
             intent.color = "red"
@@ -550,6 +569,10 @@ def grape_family(wine: Dict) -> str:
         return "gris"
     if "cabernet" in hay:
         return "cabernet"
+    if "shiraz" in hay and "syrah" not in hay:
+        return "shiraz"
+    if "syrah" in hay and "shiraz" not in hay:
+        return "syrah"
     if "sancerre" in hay and ("rouge" in hay or "pinot" in hay or wine_color(wine) == "red"):
         return "pinot"
     if "sauvignon blanc" in hay or ("sauvignon" in hay and "cabernet" not in hay) or (
@@ -917,14 +940,16 @@ def matches_named(query_or_intent, wine: Dict) -> bool:
         elif ("grand cru" in q or "grand-cru" in q) and any(w in q for w in ("burgundy", "bourgogne")):
             named = "burgundy_gc"
         else:
-            for key in (
-                "sauvignon blanc", "sancerre", "barolo", "champagne", "chablis", "riesling",
-                "chardonnay", "pinot noir", "sangiovese", "brunello", "chianti",
-                "nebbiolo", "syrah", "malbec", "zinfandel", "cabernet", "sauvignon",
-            ):
-                if key in q:
-                    named = key
-                    break
+            named = guest_grape(q)
+            if not named:
+                for key in (
+                    "sauvignon blanc", "sancerre", "barolo", "champagne", "chablis", "riesling",
+                    "chardonnay", "pinot noir", "sangiovese", "brunello", "chianti",
+                    "nebbiolo", "malbec", "zinfandel", "sauvignon",
+                ):
+                    if key in q:
+                        named = key
+                        break
             if not named:
                 named = named_country_or_region(q)
     if not named:
@@ -1000,7 +1025,9 @@ def matches_named(query_or_intent, wine: Dict) -> bool:
     if named == "nebbiolo":
         return any(m in blob for m in ("nebbiolo", "barolo", "barbaresco"))
     if named == "syrah":
-        return "syrah" in blob or "shiraz" in blob
+        return "syrah" in blob and "shiraz" not in blob
+    if named == "shiraz":
+        return "shiraz" in blob
     if named == "rhone":
         return is_rhone(wine)
     if named == "malbec":
@@ -1192,7 +1219,7 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
             score += 2.2
         else:
             score -= 2.5
-    if "chardonnay" in q:
+    if intent.named == "chardonnay":
         chard = "chardonnay" in blob or "chablis" in blob or "puligny" in blob or "meursault" in blob or "montrachet" in blob
         if chard:
             score += 3.0
@@ -1272,7 +1299,7 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
 
     cellar_ask = "cellar" in q or "splurge" in q
     if cellar_ask:
-        if price >= 250:
+        if price > 251:
             score += 2.8
         else:
             score -= 6.0
@@ -1407,7 +1434,7 @@ def sommelier_score(query: str, wine: Dict, base: float = 0.0) -> float:
                 score += 2.0
             if "moscato" in blob:
                 score -= 6.0
-            if any(m in blob for m in ("cabernet", "barolo", "brunello", "syrah", "malbec")):
+            if any(m in blob for m in ("cabernet", "barolo", "brunello", "syrah", "shiraz", "malbec")):
                 score += 0.8
     elif intent.body == "medium":
         if is_full_red(wine):
@@ -1729,10 +1756,11 @@ def approachable_note(wine: Dict, query: str) -> Tuple[str, str]:
             )
             return why, note
     if "earthy" in intent.profile:
-        why = "Earthy here means forest floor, stone, or savory — not jammy fruit."
+        grape = grapes or "the grape on the label"
+        why = f"{producer}: {grape} from {region}."
         note = (
-            f"{producer} {name} from {region} is more savory than sweet. "
-            "It tastes like the place more than like ripe fruit."
+            f"{producer} {name} is {grape} from {region}. "
+            f"The savory, stony side of that place should show, specific to this grower."
         )
         return why, note
     if "fruity" in intent.profile:

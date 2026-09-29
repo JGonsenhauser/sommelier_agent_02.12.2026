@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        if (new URLSearchParams(location.search).get("office") === "demo") {
+            document.documentElement.classList.add("office-demo");
+        }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#F3EEE6">
@@ -52,13 +57,38 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            min-width: 0;
         }
-        .header img {
-            height: 40px;
-            width: 40px;
+        .logo-frame {
+            width: 64px;
+            height: 64px;
+            flex: 0 0 64px;
             border-radius: 50%;
+            overflow: hidden;
+            background: transparent;
+            line-height: 0;
+        }
+        .logo-frame img {
+            width: 64px;
+            height: 64px;
+            display: block;
             object-fit: cover;
-            background: #111;
+            object-position: center;
+            transform: scale(1.08);
+            transform-origin: center;
+            border: 0;
+            background: transparent;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 auto;
+        }
+        .header-back {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
         }
         .header .wordmark {
             font-family: "Cormorant Garamond", Georgia, serif;
@@ -87,11 +117,12 @@
         .container.searching-mode #newSearchButton { display: none; }
         .container.results-mode #newSearchButton { display: inline-flex; align-items: center; }
         .eyebrow {
-            font-size: 11px;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
+            font-size: 15px;
+            letter-spacing: 0.02em;
+            text-transform: none;
             color: var(--sage);
             margin-bottom: 10px;
+            font-family: "Cormorant Garamond", Georgia, serif;
         }
         .welcome {
             padding: 12px 22px 8px;
@@ -140,12 +171,53 @@
             color: var(--bg);
             border-color: var(--ink);
         }
+        .composer-stack { margin-top: auto; }
         .input-container {
-            margin-top: auto;
-            padding: 12px 22px calc(16px + env(safe-area-inset-bottom));
+            padding: 12px 22px 8px;
             display: flex;
             gap: 8px;
         }
+        .launch-row {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 0 22px 8px;
+            scroll-margin-top: 16px;
+            scroll-margin-bottom: 36px;
+        }
+        .contact-line {
+            margin: 0;
+            padding: 0 22px calc(16px + env(safe-area-inset-bottom));
+            font-size: 12px;
+            line-height: 1.45;
+            color: var(--muted);
+        }
+        .contact-line a {
+            color: var(--ink);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+        .launch-row .ask-btn {
+            min-height: 30px;
+            padding: 4px 10px;
+            font-size: 11px;
+        }
+        .ask-btn, .same-btn {
+            background: var(--ink);
+            color: var(--bg);
+            border: none;
+            border-radius: 999px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            min-height: 48px;
+            cursor: pointer;
+        }
+        .same-btn:disabled { opacity: 0.4; }
+        .tab-button.on { box-shadow: inset 0 0 0 2px var(--bg); }
         #userInput {
             flex: 1;
             padding: 14px 16px;
@@ -170,6 +242,39 @@
             min-height: 48px;
         }
         #sendButton:disabled { opacity: 0.4; }
+        #micButton {
+            width: 48px;
+            min-width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 1px solid var(--ink);
+            background: transparent;
+            color: var(--ink);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            cursor: pointer;
+        }
+        #micButton.listening {
+            background: var(--ink);
+            color: var(--bg);
+            animation: mic-pulse 1.2s ease-in-out infinite;
+        }
+        #micButton:disabled { opacity: 0.4; }
+        #micButton svg { width: 20px; height: 20px; display: block; }
+        @keyframes mic-pulse {
+            50% { box-shadow: 0 0 0 6px rgba(28, 26, 22, 0.16); }
+        }
+        .mic-status {
+            margin: 0;
+            padding: 0 22px 6px;
+            font-size: 12px;
+            line-height: 1.4;
+            color: var(--muted);
+            min-height: 0;
+        }
+        .mic-status:empty { display: none; }
         .results {
             padding: 8px 22px 32px;
         }
@@ -185,10 +290,31 @@
             margin-bottom: 16px;
         }
         .wine-card {
-            padding: 22px 0;
+            padding: 22px 10px;
+            margin: 0 -10px;
             border-top: 1px solid var(--line);
+            border-radius: 12px;
+            cursor: pointer;
         }
         .wine-card:first-of-type { border-top: none; }
+        .wine-card.selected {
+            outline: 1px solid #1C1A16;
+            outline-offset: 0;
+        }
+        .order-box {
+            margin-top: 8px;
+            padding-top: 18px;
+            border-top: 1px solid var(--line);
+        }
+        .order-note {
+            margin-top: 12px;
+            padding: 14px 16px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: var(--card);
+            font-size: 15px;
+            line-height: 1.5;
+        }
         .wine-kicker {
             font-size: 11px;
             letter-spacing: 0.16em;
@@ -218,6 +344,20 @@
             line-height: 1.6;
             color: #3A3530;
         }
+        .aroma-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .aroma-row img {
+            width: 76px;
+            height: 76px;
+            flex: 0 0 76px;
+            object-fit: cover;
+            border-radius: 12px;
+            background: var(--card);
+        }
         .pair-label {
             margin-top: 14px;
             font-size: 10px;
@@ -236,18 +376,40 @@
             color: var(--muted);
             margin-bottom: 10px;
         }
+        .email-box p.email-title {
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: 26px;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+        .wine-pick {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin: 0 0 12px;
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: 22px;
+            cursor: pointer;
+        }
+        .wine-pick.selected { border-color: #1C1A16; }
         .email-row { display: flex; gap: 8px; }
-        #emailInput {
+        .email-input {
             flex: 1;
             padding: 12px 14px;
             border: 1px solid var(--line);
             border-radius: 999px;
             font-size: 16px;
             background: var(--card);
+            color: var(--ink);
             font-family: inherit;
             min-height: 44px;
         }
-        #emailButton {
+        .email-send {
             background: transparent;
             color: var(--ink);
             border: 1px solid var(--ink);
@@ -257,7 +419,11 @@
             font-family: inherit;
             min-height: 44px;
             white-space: nowrap;
+            cursor: pointer;
         }
+        .info-box ol.stack li { display: block; }
+        .info-box ol.stack li span { display: block; }
+        .info-box ol.stack li span + span { color: var(--muted); font-size: 13px; margin-top: 2px; }
         .email-status { font-size: 13px; color: var(--sage); margin-top: 10px; }
         .status {
             padding: 48px 22px;
@@ -276,29 +442,183 @@
         }
         .container.results-mode .welcome,
         .container.results-mode .guide-panel,
-        .container.results-mode .input-container,
+        .container.results-mode .composer-stack,
         .container.searching-mode .welcome,
         .container.searching-mode .guide-panel,
-        .container.searching-mode .input-container { display: none; }
+        .container.searching-mode .composer-stack { display: none; }
+        .list-page, .note-page, .admin-overlay {
+            position: fixed; inset: 0; z-index: 30; background: var(--bg); color: var(--ink);
+            display: flex; flex-direction: column; font-family: Outfit, "Segoe UI", sans-serif;
+        }
+        .list-page[hidden], .note-page[hidden], .admin-overlay[hidden], .pin-overlay[hidden] { display: none; }
+        html.office-demo .container,
+        html.office-demo .list-page,
+        html.office-demo .note-page,
+        html.office-demo .pin-overlay { display: none !important; }
+        html.office-demo .admin-overlay { display: flex !important; }
+        .pin-overlay {
+            position: fixed; inset: 0; z-index: 40; background: rgba(243, 238, 230, 0.96);
+            display: flex; align-items: center; justify-content: center; padding: 24px;
+        }
+        .pin-card { width: min(360px, 100%); background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px 20px; text-align: center; }
+        #pinInput { width: 160px; margin-top: 8px; padding: 12px; border: 1px solid var(--ink); border-radius: 999px; background: var(--card); color: var(--ink); font-size: 20px; letter-spacing: 0.25em; text-align: center; }
+        .pin-actions { display: flex; justify-content: center; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+        .pin-error { min-height: 18px; margin-top: 10px; color: #8a3d3d; font-size: 13px; }
+        .page-top, .admin-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+        .page-top h2, .admin-top h2 { font-family: "Cormorant Garamond", Georgia, serif; font-size: 28px; font-weight: 600; }
+        .admin-tabs { display: flex; gap: 8px; padding: 12px 18px; flex-wrap: wrap; }
+        .admin-panel { flex: 1; overflow: auto; padding: 8px 18px 28px; }
+        .admin-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+        .admin-note, .save-status { font-size: 12px; color: var(--muted); }
+        #wineFilter { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 10px 14px; font: inherit; min-width: 160px; }
+        .sales-title {
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 1.15;
+            margin: 4px 0 8px;
+        }
+        .sales-wrap { max-width: 440px; }
+        .sales-wrap .info-box li .report-count { flex-basis: auto; white-space: nowrap; }
+        .sales-lead {
+            font-size: 15px;
+            line-height: 1.45;
+            margin: 0 0 12px;
+        }
+        .sales-sample {
+            display: inline-block;
+            margin: 0 0 14px;
+            padding: 4px 10px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: var(--sage);
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .outlet-grid { display: grid; gap: 10px; }
+        .outlet-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            width: 100%;
+            text-align: left;
+            background: var(--card);
+            color: var(--ink);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px 16px;
+            min-height: 72px;
+            font: inherit;
+            cursor: pointer;
+        }
+        .outlet-card strong {
+            display: block;
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: 26px;
+            font-weight: 600;
+            line-height: 1.1;
+            color: var(--ink);
+        }
+        .outlet-card .outlet-meta { display: block; margin-top: 4px; color: var(--muted); font-size: 13px; }
+        .outlet-card em { font-style: normal; color: var(--sage); font-size: 13px; white-space: nowrap; }
+        .sales-back { margin-bottom: 12px; }
+        .sales-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 4px 0 16px; }
+        .sales-stat {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 12px 14px;
+        }
+        .sales-stat span {
+            display: block;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--sage);
+        }
+        .sales-stat strong {
+            display: block;
+            margin-top: 4px;
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .sales-config { color: var(--muted); font-size: 13px; line-height: 1.45; margin: 0 0 14px; }
+        .sales-qr { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; }
+        .sales-qr img { width: 96px; height: 96px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); }
+        .sales-qr p { margin: 0; font-size: 13px; line-height: 1.4; color: var(--muted); overflow-wrap: anywhere; }
+        .sales-lines { list-style: none; }
+        .sales-lines li {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto auto;
+            gap: 8px 12px;
+            align-items: baseline;
+            padding: 10px 0;
+            border-top: 1px solid var(--line);
+            font-size: 14px;
+        }
+        .sales-lines li:first-child { color: var(--sage); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+        .sales-lines .qty, .sales-lines .rev { font-variant-numeric: tabular-nums; text-align: right; }
+        .sales-lines .qty { color: var(--muted); min-width: 2.5rem; }
+        .table-scroll { overflow: auto; }
+        .wine-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1100px; }
+        .wine-table th { text-align: left; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--sage); padding: 8px 6px; position: sticky; top: 0; background: var(--bg); }
+        .wine-table td { padding: 6px; border-bottom: 1px solid var(--line); }
+        .wine-table input { width: 100%; border: 1px solid transparent; background: transparent; color: var(--ink); font: inherit; padding: 6px 4px; }
+        .style-head { font-family: "Cormorant Garamond", Georgia, serif; font-size: 32px; margin: 22px 0 4px; }
+        .country-head { font-size: 16px; margin: 14px 0 2px; }
+        .region-head { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sage); margin: 10px 0 2px; }
+        .bottle-button { display: block; width: 100%; text-align: left; background: transparent; border: 0; border-bottom: 1px solid var(--line); padding: 14px 0; color: inherit; font: inherit; cursor: pointer; }
+        .bottle-name { font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; }
+        .bottle-meta { color: var(--muted); font-size: 13px; margin-top: 4px; }
+        .note-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: 32px; line-height: 1.15; margin: 12px 0 8px; }
+        .note-meta { color: var(--muted); margin-bottom: 18px; }
+        .note-kicker { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sage); }
+        .note-copy { font-size: 16px; line-height: 1.6; }
+        .page-body { flex: 1; overflow: auto; padding: 8px 22px 32px; }
+        .info-grid { display: grid; gap: 12px; max-width: 440px; }
+        .info-box { border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px 6px; background: var(--card); }
+        .info-box h3 { font-family: "Cormorant Garamond", Georgia, serif; font-size: 24px; margin-bottom: 8px; }
+        .info-box ol { list-style: none; max-height: 240px; overflow: auto; }
+        .info-box li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+        .info-box li .report-label { min-width: 0; }
+        .info-box li .report-count { flex: 0 0 3rem; text-align: right; font-variant-numeric: tabular-nums; }
+        .info-actions { margin-top: 16px; }
+        .stock-cell { display: flex; align-items: center; gap: 8px; }
+        .stock-toggle { width: 42px; height: 24px; border-radius: 12px; border: 1px solid var(--ink); background: transparent; position: relative; }
+        .stock-toggle i { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: var(--ink); }
+        .stock-toggle.on { background: var(--ink); }
+        .stock-toggle.on i { left: 20px; background: var(--bg); }
         .hidden { display: none !important; }
     </style>
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <div class="brand-lockup">
-                <img id="brandLogo" src="/brand-logo.png" alt="Jarvis">
+                <span class="logo-frame">
+                    <img id="brandLogo" src="/logo/agenthaus-mark.png" alt="Jarvis">
+                </span>
                 <span class="wordmark" id="brandName">Jarvis</span>
             </div>
-            <button type="button" id="newSearchButton">Ask again</button>
+            <div class="header-actions">
+                <a class="ask-btn header-back" href="/">Back</a>
+                <button type="button" id="newSearchButton">Ask again</button>
+            </div>
         </div>
         <div class="welcome" id="welcome">
-            <div class="eyebrow" id="propertyEyebrow">Jarvis</div>
+            <div class="eyebrow" id="propertyEyebrow">Ask Jarvis</div>
             <h1>What are you in the mood for?</h1>
             <p>You do not need the right wine words. A dish, a color, a price — or just a feeling.</p>
         </div>
         <div class="guide-panel" id="guidePanel">
-            <div class="guide-hint">A light touch is enough. Skip these and type instead.</div>
+            <div class="guide-hint">A light touch is enough. Skip these and speak or type instead.</div>
             <div class="guide-row">
                 <span class="guide-label">Color</span>
                 <div class="chips" data-group="color" id="colorChips"></div>
@@ -321,11 +641,132 @@
             </div>
         </div>
         <div id="stage"></div>
-        <div class="input-container" id="composer">
-            <input id="userInput" type="text" placeholder="A glass of something quiet…" autocomplete="off">
-            <button type="button" id="sendButton">Ask</button>
+        <div class="composer-stack" id="composerStack">
+            <div class="input-container" id="composer">
+                <input id="userInput" type="text" placeholder="Something quiet…" autocomplete="off">
+                <button type="button" id="micButton" aria-pressed="false" aria-label="Speak your request">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="3" width="6" height="11" rx="3"></rect>
+                        <path d="M6 11a6 6 0 0 0 12 0"></path>
+                        <path d="M12 17v4"></path>
+                        <path d="M8 21h8"></path>
+                    </svg>
+                </button>
+                <button type="button" id="sendButton">Ask</button>
+            </div>
+            <p id="micStatus" class="mic-status" role="status"></p>
+            <div class="launch-row" id="back-office">
+                <button type="button" id="listButton" class="ask-btn">Wine List</button>
+                <button type="button" id="adminButton" class="ask-btn">Beverage Intelligence</button>
+            </div>
+            <p class="contact-line">For pricing and further customization, contact us at <a href="mailto:jonathan@agenthaus.io">jonathan@agenthaus.io</a>.</p>
         </div>
     </div>
+
+    <div id="listPage" class="list-page" hidden>
+        <div class="page-top">
+            <button type="button" id="listBack" class="ask-btn">Back</button>
+            <h2>Wine list</h2>
+            <span></span>
+        </div>
+        <div id="listBody" class="page-body"></div>
+    </div>
+    <div id="notePage" class="note-page" hidden>
+        <div class="page-top">
+            <button type="button" id="noteBack" class="ask-btn">Back</button>
+            <button type="button" id="noteStartOver" class="ask-btn">Start over</button>
+        </div>
+        <div id="noteBody" class="page-body"></div>
+    </div>
+    <div id="pinOverlay" class="pin-overlay" hidden>
+        <form id="pinForm" class="pin-card">
+            <p id="pinPrompt">Enter the 6-digit admin pin.</p>
+            <input id="pinInput" type="password" inputmode="numeric" maxlength="6" autocomplete="off" aria-label="Admin pin">
+            <div class="pin-actions">
+                <button type="submit" class="ask-btn">Enter</button>
+                <button type="button" id="pinCancel" class="ask-btn">Cancel</button>
+            </div>
+            <p id="pinError" class="pin-error"></p>
+        </form>
+    </div>
+    <div id="adminOverlay" class="admin-overlay" hidden>
+        <div class="admin-top">
+            <h2 id="adminTitle">Admin</h2>
+            <script>
+                if (document.documentElement.classList.contains("office-demo")) {
+                    document.getElementById("adminTitle").textContent = "Admin - Demo";
+                }
+            </script>
+            <button type="button" id="adminClose" class="ask-btn">Close</button>
+        </div>
+        <div class="admin-tabs">
+            <button type="button" class="tab-button same-btn on" data-tab="wines">Wines</button>
+            <button type="button" class="tab-button same-btn" data-tab="info">Information</button>
+            <button type="button" class="tab-button same-btn" data-tab="sales">Sales</button>
+        </div>
+        <section id="winesPanel" class="admin-panel">
+            <div class="admin-toolbar">
+                <button type="button" id="addWine" class="same-btn">Add wine</button>
+                <button type="button" id="saveAll" class="same-btn">Update List</button>
+                <span id="wineCount" class="admin-note">Loading…</span>
+                <input id="wineFilter" type="text" placeholder="Find a wine" aria-label="Find a wine">
+            </div>
+            <p id="wineStayNote" class="admin-note">Edits stay here until you press Update List.</p>
+            <p id="saveStatus" class="save-status"></p>
+            <div class="table-scroll">
+                <table class="wine-table">
+                    <thead>
+                        <tr>
+                            <th>Wine producer</th>
+                            <th>Wine label</th>
+                            <th>Vintage</th>
+                            <th>Country</th>
+                            <th>Region</th>
+                            <th>Sub region</th>
+                            <th>Price</th>
+                            <th>Last edit date</th>
+                            <th>Inventory count</th>
+                            <th>In stock</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="wineRows"></tbody>
+                </table>
+            </div>
+        </section>
+        <section id="infoPanel" class="admin-panel" hidden>
+            <div id="infoList" class="info-grid"></div>
+            <div class="info-actions">
+                <button type="button" id="resetData" class="same-btn">Reset data</button>
+            </div>
+        </section>
+        <section id="salesPanel" class="admin-panel" hidden>
+            <div class="sales-wrap">
+                <div id="salesOverview">
+                    <p class="sales-sample">Sample data</p>
+                    <h3 class="sales-title">Per Outlet Sales</h3>
+                    <p class="sales-lead">Each outlet has a unique QR code to track guest activity and understand revenue. Select an outlet below to explore its sales performance and see which wines guests are ordering.</p>
+                    <div id="outletGrid" class="outlet-grid"></div>
+                </div>
+                <div id="salesDetail" hidden>
+                    <button type="button" id="salesBack" class="same-btn sales-back">All outlets</button>
+                    <p class="sales-sample">Sample data</p>
+                    <h3 id="salesOutletName" class="sales-title"></h3>
+                    <p id="salesConfig" class="sales-config"></p>
+                    <div class="sales-stats">
+                        <div class="sales-stat"><span>Revenue</span><strong id="salesRevenue"></strong></div>
+                        <div class="sales-stat"><span>Wine orders</span><strong id="salesOrders"></strong></div>
+                    </div>
+                    <div class="sales-qr">
+                        <img id="salesQr" alt="" width="96" height="96">
+                        <p id="salesQrNote"></p>
+                    </div>
+                    <div id="salesReport" class="info-grid"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <script src="voice.js"></script>
     <script>
         const API_URL = window.location.origin;
         const params = new URLSearchParams(window.location.search);
@@ -334,6 +775,56 @@
         const stage = document.getElementById("stage");
         const userInput = document.getElementById("userInput");
         const sendButton = document.getElementById("sendButton");
+        const micButton = document.getElementById("micButton");
+        const ANSWER = {
+            en: {
+                start: "To start", also: "Also", menu: "From tonight’s menu", order: "Order",
+                ordered: "Your order has been sent to the team, your wine will be with you shortly. Thank you.",
+                email: "Select one or both to send to yourself. No account needed.", send: "Send",
+                sending: "Sending…", pick: "Select a bottle first.", needEmail: "Enter an email.",
+                searching: "Looking through the cellar…", again: "Adjust the price or color, or ask again."
+            },
+            pt: {
+                start: "Para começar", also: "Também", menu: "Do menu de hoje", order: "Pedir",
+                ordered: "O pedido foi enviado à equipe. O vinho chega em seguida. Obrigado.",
+                email: "Escolha uma ou as duas para enviar a si. Sem conta.", send: "Enviar",
+                sending: "Enviando…", pick: "Escolha uma garrafa primeiro.", needEmail: "Escreva um e-mail.",
+                searching: "Olhando a carta…", again: "Ajuste o preço ou a cor, ou peça de novo."
+            },
+            es: {
+                start: "Para empezar", also: "También", menu: "Del menú de esta noche", order: "Pedir",
+                ordered: "El pedido se envió al equipo. El vino llega enseguida. Gracias.",
+                email: "Elige una o las dos para enviártelas. Sin cuenta.", send: "Enviar",
+                sending: "Enviando…", pick: "Elige una botella primero.", needEmail: "Escribe un correo.",
+                searching: "Mirando la carta…", again: "Ajusta el precio o el color, o pregunta de nuevo."
+            },
+            fr: {
+                start: "Pour commencer", also: "Aussi", menu: "Du menu de ce soir", order: "Commander",
+                ordered: "La commande est partie en salle. Le vin arrive. Merci.",
+                email: "Choisissez une ou les deux pour vous l’envoyer. Sans compte.", send: "Envoyer",
+                sending: "Envoi…", pick: "Choisissez une bouteille d’abord.", needEmail: "Écrivez un e-mail.",
+                searching: "Je regarde la carte…", again: "Ajustez le prix ou la couleur, ou redemandez."
+            },
+            de: {
+                start: "Zum Anfang", also: "Außerdem", menu: "Von der Karte heute", order: "Bestellen",
+                ordered: "Die Bestellung ist beim Team. Der Wein kommt gleich. Danke.",
+                email: "Eine oder beide auswählen und an sich senden. Kein Konto.", send: "Senden",
+                sending: "Senden…", pick: "Zuerst eine Flasche wählen.", needEmail: "E-Mail eintragen.",
+                searching: "Ich schaue in die Karte…", again: "Preis oder Farbe ändern, oder noch einmal fragen."
+            },
+            nl: {
+                start: "Om te beginnen", also: "Ook", menu: "Van de kaart vanavond", order: "Bestellen",
+                ordered: "De bestelling is naar het team. De wijn komt eraan. Dank u.",
+                email: "Kies een of beide om naar uzelf te sturen. Geen account.", send: "Versturen",
+                sending: "Versturen…", pick: "Kies eerst een fles.", needEmail: "Vul een e-mail in.",
+                searching: "Ik kijk in de kaart…", again: "Pas de prijs of kleur aan, of vraag opnieuw."
+            }
+        };
+
+        function answerCopy(lang) {
+            const base = (lang || "en").toLowerCase().split("-")[0];
+            return ANSWER[base] || ANSWER.en;
+        }
         const newSearchButton = document.getElementById("newSearchButton");
         const guides = { color: null, body: null, profile: null, price: null, food: null };
         const guideQueries = { color: {}, body: {}, profile: {}, price: {}, food: {} };
@@ -341,7 +832,7 @@
         let brand = {
             name: "Jarvis",
             credit: "Jarvis",
-            logo: "/brand-logo.png",
+            logo: "/logo/agenthaus-mark.png",
             price_bands: [
                 { label: "Under $75", query: "under $75" },
                 { label: "$75–$150", query: "between $75 and $150" },
@@ -376,7 +867,7 @@
             { label: "White", query: "white wine" },
             { label: "Red", query: "red wine" },
             { label: "Rosé", query: "rosé wine" },
-            { label: "Champagne", query: "champagne, sparkling" }
+            { label: "Sparkling", query: "champagne, sparkling" }
         ];
 
         function renderChips(el, group, options) {
@@ -386,13 +877,18 @@
             }).join("");
         }
 
+        function landBackOffice() {
+            if (location.hash !== "#back-office") return;
+            const row = document.getElementById("back-office");
+            if (row) row.scrollIntoView({ block: "nearest" });
+        }
+
         function applyBrand() {
             const display = brand.name || "Jarvis";
             document.title = "Jarvis Sommelier";
-            document.getElementById("propertyEyebrow").textContent = display;
             document.getElementById("brandName").textContent = display;
             const logo = document.getElementById("brandLogo");
-            logo.src = brand.logo || "/brand-logo.png";
+            logo.src = brand.logo || "/logo/agenthaus-mark.png";
             logo.alt = display;
             if (brand.background_color) {
                 document.documentElement.style.setProperty("--bg", brand.background_color);
@@ -408,6 +904,7 @@
             renderChips(document.getElementById("profileChips"), "profile", brand.profile_cues || []);
             renderChips(document.getElementById("priceChips"), "price", brand.price_bands || []);
             renderChips(document.getElementById("foodChips"), "food", brand.food_cues || []);
+            landBackOffice();
         }
 
         async function loadBrand() {
@@ -455,14 +952,22 @@
             recommendationId = null;
         }
 
-        function showSearching() {
+        function showSearching(lang) {
             app.classList.add("searching-mode");
             app.classList.remove("results-mode");
-            stage.innerHTML = `<div class="status">Looking through the cellar…</div>`;
+            stage.innerHTML = `<div class="status">${escapeHtml(answerCopy(lang).searching)}</div>`;
         }
 
         function wineTitle(wine) {
             return [wine.vintage, wine.producer].filter(Boolean).join(" ");
+        }
+
+        function aromaRow(wine) {
+            const items = Array.isArray(wine.aromas) ? wine.aromas.slice(0, 4) : [];
+            if (!items.length) return "";
+            return `<div class="aroma-row">${items.map((item) => `
+                <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.label)}" width="76" height="76">
+            `).join("")}</div>`;
         }
 
         function wineSub(wine) {
@@ -474,6 +979,7 @@
             app.classList.remove("searching-mode");
             app.classList.add("results-mode");
             recommendationId = data.recommendation_id;
+            const copy = answerCopy(data.language);
             const intro = data.intro
                 ? `<p class="intro">${escapeHtml(data.intro)}</p>`
                 : "";
@@ -481,14 +987,15 @@
                 ? `<p class="relaxed">${escapeHtml(data.relaxed)}</p>`
                 : "";
             const cards = (data.wines || []).map((wine, i) => `
-                <article class="wine-card">
-                    <div class="wine-kicker">${i === 0 ? "To start" : "Also"}</div>
+                <article class="wine-card" data-id="${escapeHtml(wine.wine_id || "")}" tabindex="0" aria-pressed="false">
+                    <div class="wine-kicker">${i === 0 ? escapeHtml(copy.start) : escapeHtml(copy.also)}</div>
                     <h2 class="wine-title">${escapeHtml(wineTitle(wine))}</h2>
                     <div class="wine-meta">${escapeHtml(wineSub(wine))}</div>
                     ${wine.why ? `<p class="wine-why">${escapeHtml(wine.why)}</p>` : ""}
                     ${wine.tasting_note ? `<p class="wine-note">${escapeHtml(wine.tasting_note)}</p>` : ""}
+                    ${aromaRow(wine)}
                     ${wine.food_pairing ? `
-                        <div class="pair-label">From tonight’s menu</div>
+                        <div class="pair-label">${escapeHtml(copy.menu)}</div>
                         <p class="pair-body">${escapeHtml(wine.food_pairing)}</p>
                     ` : ""}
                 </article>
@@ -496,35 +1003,65 @@
             stage.innerHTML = `
                 <div class="results">
                     ${intro}${relaxed}${cards}
+                    <div class="order-box">
+                        <button type="button" id="orderButton" class="email-send">${escapeHtml(copy.order)}</button>
+                        <p class="order-note" id="orderNote" hidden></p>
+                    </div>
                     <div class="email-box">
-                        <p>Send these two bottles to yourself. No account.</p>
+                        <p>${escapeHtml(copy.email)}</p>
                         <div class="email-row">
-                            <input id="emailInput" type="email" inputmode="email" placeholder="you@email.com" autocomplete="email">
-                            <button type="button" id="emailButton">Send</button>
+                            <input id="emailInput" class="email-input" type="email" inputmode="email" placeholder="you@email.com" autocomplete="email">
+                            <button type="button" id="emailButton" class="email-send">${escapeHtml(copy.send)}</button>
                         </div>
                         <div class="email-status" id="emailStatus"></div>
                     </div>
                 </div>
             `;
-            document.getElementById("emailButton").addEventListener("click", sendEmail);
+            stage.querySelectorAll(".wine-card").forEach((card) => {
+                const toggle = () => {
+                    card.classList.toggle("selected");
+                    card.setAttribute("aria-pressed", card.classList.contains("selected") ? "true" : "false");
+                };
+                card.addEventListener("click", toggle);
+                card.addEventListener("keydown", (event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        toggle();
+                    }
+                });
+            });
+            document.getElementById("orderButton").addEventListener("click", () => {
+                const note = document.getElementById("orderNote");
+                note.hidden = false;
+                note.textContent = copy.ordered;
+            });
+            document.getElementById("emailButton").addEventListener("click", () => sendEmail(copy));
         }
 
-        function showError(message) {
+        function showError(message, lang) {
             app.classList.remove("searching-mode");
             app.classList.add("results-mode");
-            stage.innerHTML = `<div class="error-box">${escapeHtml(message)}<br><br>Adjust the price or color, or ask again.</div>`;
+            stage.innerHTML = `<div class="error-box">${escapeHtml(message)}<br><br>${escapeHtml(answerCopy(lang).again)}</div>`;
         }
 
-        async function sendQuery() {
-            const query = composeQuery(userInput.value);
+        async function sendQuery(language) {
+            if (micButton && micButton.classList.contains("listening")) {
+                micButton.click();
+                return;
+            }
+            const typed = userInput.value.trim();
+            const buttons = ["color", "body", "profile", "price", "food"].map((group) => guides[group]).filter(Boolean);
+            const query = composeQuery(typed);
             if (!query) return;
-            showSearching();
+            showSearching(language);
             sendButton.disabled = true;
+            const payload = { query, restaurant_id: restaurantId, text: typed, buttons };
+            if (language) payload.language = language;
             try {
                 const response = await fetch(`${API_URL}/api/recommend`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ query, restaurant_id: restaurantId })
+                    body: JSON.stringify(payload)
                 });
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.detail || "Could not look through the list.");
@@ -533,23 +1070,37 @@
                     return;
                 }
                 if (!data.wines || !data.wines.length) {
-                    showError(data.intro || data.relaxed || "Nothing on this list matched. I won't substitute a random bottle.");
+                    showError(data.intro || data.relaxed || "Nothing on this list matched. I won't substitute a random bottle.", language || data.language);
                     return;
                 }
                 showResults(data);
             } catch (error) {
-                showError(error.message || "Something went wrong. Please try again.");
+                showError(error.message || "Something went wrong. Please try again.", language);
             } finally {
                 sendButton.disabled = false;
             }
         }
 
-        async function sendEmail() {
+        async function sendEmail(copy) {
             const input = document.getElementById("emailInput");
             const status = document.getElementById("emailStatus");
             const email = (input.value || "").trim();
-            if (!email || !recommendationId) return;
-            status.textContent = "Sending…";
+            const selected = Array.from(document.querySelectorAll(".wine-card.selected"));
+            const wineIds = selected.map((card) => card.dataset.id).filter(Boolean);
+            const notes = selected.map((card) => ({
+                wine_id: card.dataset.id,
+                tasting_note: (card.querySelector(".wine-note") || {}).textContent || ""
+            })).filter((item) => item.wine_id);
+            const words = copy || ANSWER.en;
+            if (!wineIds.length) {
+                status.textContent = words.pick;
+                return;
+            }
+            if (!email) {
+                status.textContent = words.needEmail;
+                return;
+            }
+            status.textContent = words.sending;
             try {
                 const response = await fetch(`${API_URL}/api/email-wine`, {
                     method: "POST",
@@ -557,10 +1108,12 @@
                     body: JSON.stringify({
                         email,
                         restaurant_id: restaurantId,
-                        recommendation_id: recommendationId
+                        recommendation_id: recommendationId,
+                        wine_ids: wineIds,
+                        notes: notes
                     })
                 });
-                const data = await response.json();
+                const data = await response.json().catch(() => ({}));
                 if (!response.ok) throw new Error(data.detail || "Could not send.");
                 status.textContent = data.message || "Sent.";
             } catch (error) {
@@ -574,7 +1127,17 @@
             return div.innerHTML;
         }
 
-        sendButton.addEventListener("click", sendQuery);
+        sendButton.addEventListener("click", () => sendQuery());
+        mountVoice({
+            button: micButton,
+            input: userInput,
+            status: document.getElementById("micStatus"),
+            ask: sendButton,
+            onUtterance: (text, language) => {
+                userInput.value = text;
+                sendQuery(language);
+            }
+        });
         newSearchButton.addEventListener("click", showHome);
         userInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") sendQuery();
@@ -584,6 +1147,13 @@
         }
         applyBrand();
         loadBrand();
+    </script>
+    <script src="admin.js"></script>
+    <script src="list.js"></script>
+    <script>
+        window.addEventListener("load", landBackOffice);
+        window.addEventListener("pageshow", landBackOffice);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(landBackOffice);
     </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const CACHE = "sommelier-pwa-v3";
+const CACHE = "sommelier-pwa-v4";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();

@@ -100,7 +100,7 @@ class RestaurantConfig:
             logo = f"/api/restaurants/{self.restaurant_id}/logo"
         else:
             display_name = PRODUCT_NAME
-            logo = "/api/brand/logo" if PRODUCT_LOGO.exists() else "/brand-logo.png"
+            logo = "/logo/agenthaus-mark.png"
         return {
             "id": self.restaurant_id,
             "name": display_name,
@@ -130,7 +130,7 @@ MAASS_CONFIG = RestaurantConfig(
     background_color="#F3EEE6",
     ink_color="#1C1A16",
     enable_menu_pairing=True,
-    cellar_min=250,
+    cellar_min=252,
     price_bands=[
         {"label": "Under $75", "query": "under $75"},
         {"label": "$75–$150", "query": "between $75 and $150"},

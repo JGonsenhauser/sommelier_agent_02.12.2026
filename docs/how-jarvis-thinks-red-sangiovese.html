@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Jarvis thinks: red sangiovese, and full body cab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F3EEE6;
+      --ink: #1C1A16;
+      --sage: #7A8A78;
+      --muted: #6B645C;
+      --line: #DDD4C8;
+      --card: #FAF7F2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Outfit, "Segoe UI", sans-serif;
+      font-weight: 300;
+      line-height: 1.45;
+    }
+    main { max-width: 820px; margin: 0 auto; padding: 36px 20px 72px; }
+    h1, h2, .step-no { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 500; }
+    h1 { font-size: 42px; line-height: 1.05; margin: 0 0 8px; }
+    .lede { color: var(--muted); max-width: 46rem; margin-bottom: 28px; }
+    .query {
+      display: inline-block;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      padding: 8px 16px;
+      letter-spacing: 0.02em;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 14px;
+      margin: 0 0 14px;
+    }
+    .step-no {
+      font-size: 28px;
+      color: var(--sage);
+      padding-top: 14px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px 18px 18px;
+    }
+    h2 { font-size: 26px; margin: 0 0 6px; }
+    p { margin: 0 0 8px; }
+    ul { margin: 6px 0 0; padding-left: 18px; }
+    li { margin: 4px 0; }
+    .arrow {
+      text-align: center;
+      color: var(--sage);
+      font-size: 22px;
+      margin: 2px 0 2px 72px;
+    }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .mini {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+    }
+    .mini strong { display: block; font-weight: 500; margin-bottom: 4px; }
+    .out { opacity: 0.72; }
+    .out strong { text-decoration: line-through; }
+    .keep { outline: 1px solid #1C1A16; }
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sage);
+      margin-bottom: 6px;
+    }
+    nav { display: flex; gap: 8px; margin: 18px 0 8px; flex-wrap: wrap; }
+    nav a {
+      color: var(--ink);
+      text-decoration: none;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 13px;
+      background: var(--card);
+    }
+    .chapter { margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--line); }
+    .result {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .bottle { padding: 14px; border-radius: 16px; background: #fff; border: 1px solid var(--ink); }
+    .bottle .kicker { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sage); }
+    .bottle h3 { font-family: "Cormorant Garamond", Georgia, serif; font-size: 26px; font-weight: 500; margin: 4px 0; }
+    .note { font-size: 13px; color: var(--muted); margin-top: 18px; }
+    @media (max-width: 700px) {
+      .step, .split, .result { grid-template-columns: 1fr; }
+      .arrow { margin-left: 0; }
+      h1 { font-size: 34px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="tag">A map of the current rules. Not part of the live app.</p>
+    <h1>How Jarvis thinks</h1>
+    <nav>
+      <a href="#sangiovese">red sangiovese</a>
+      <a href="#cab">full body cab</a>
+    </nav>
+    <h1 id="sangiovese">When you type red sangiovese</h1>
+    <p class="lede">No price button is pressed. The words alone are the whole request. On the list as it stands today, those words land on two bottles: a Chianti under $100, then a Super Tuscan between $101 and $160.</p>
+    <p class="query">red sangiovese</p>
+
+    <div class="step">
+      <div class="step-no">1</div>
+      <article class="card">
+        <h2>Read the words</h2>
+        <div class="split">
+          <div class="mini keep">
+            <strong>red</strong>
+            Color is locked to red. A white or sparkling bottle cannot come through, even if the name sounds Italian.
+          </div>
+          <div class="mini keep">
+            <strong>sangiovese</strong>
+            The named grape is Sangiovese. Both bottles have to be that grape. Pinot, Cabernet, and Nebbiolo are out.
+          </div>
+        </div>
+        <p style="margin-top:12px">Nothing in the sentence sets a price, a body, a place, or a dish. So the default price rule is allowed to run later.</p>
+      </article>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="step">
+      <div class="step-no">2</div>
+      <article class="card">
+        <h2>Walk the whole list</h2>
+        <p>272 bottles are in stock. Each one has to pass three gates. Today, 33 survive.</p>
+        <ul>
+          <li>In stock, and the inventory count is not zero.</li>
+          <li>The color of the bottle is red.</li>
+          <li>The bottle is Sangiovese: Chianti, Brunello, Vino Nobile, Morellino, Flaccianello, Tignanello, or Solaia. Sassicaia, Ornellaia, Masseto, and Guidalberto are refused even if the cellar file calls them Tuscan blends.</li>
+        </ul>
+      </article>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="step">
+      <div class="step-no">3</div>
+      <article class="card">
+        <h2>Score the 33 that remain</h2>
+        <p>A Chianti is lifted the most. The other Sangiovese lanes get a smaller lift. A Pinot that somehow said Sangiovese is pushed out of the running.</p>
+        <ul>
+          <li>Chianti Classico and the other Chiantis: +2.6</li>
+          <li>Vino Nobile: +1.8</li>
+          <li>Tignanello, Solaia, Flaccianello: +1.4</li>
+          <li>Brunello: +1.0, unless the guest also asked for a full body or the cellar</li>
+          <li>The word “sangiovese” sitting on the producer, label, grape, or place adds a smaller match on top</li>
+        </ul>
+        <p>The highest scores are a row of Chianti Classico, all at 3.95. Fontodi 2020 is the first of that row.</p>
+      </article>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="step">
+      <div class="step-no">4</div>
+      <article class="card">
+        <h2>A style pairing is considered, then set aside</h2>
+        <p>If a price had been chosen, Jarvis would pair two different Sangiovese lanes and two different producers. The top Chianti would sit next to the best bottle that is not a Chianti.</p>
+        <div class="split">
+          <div class="mini out">
+            <strong>Would have been the pair</strong>
+            2020 Fontodi Chianti Classico, $40, with 2019 Avignonesi Vino Nobile, $35. Same grape, different lane. This pair is not what you see.
+          </div>
+          <div class="mini keep">
+            <strong>Why it is dropped</strong>
+            No price was selected. The price rule replaces that pair. Grok is also not allowed to swap the bottles when no price was chosen.
+          </div>
+        </div>
+      </article>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="step">
+      <div class="step-no">5</div>
+      <article class="card">
+        <h2>The price rule chooses the two glasses</h2>
+        <p>From the 33 Sangiovese reds, already ranked by the score above:</p>
+        <div class="result">
+          <div class="bottle">
+            <div class="kicker">First · under $100</div>
+            <h3>2020 Fontodi</h3>
+            <p>Chianti Classico · $40 · score 3.95</p>
+            <p>Best Sangiovese still under $100. There are 24 bottles in that band. The Chiantis tie at the top, and Fontodi is the first.</p>
+          </div>
+          <div class="bottle">
+            <div class="kicker">Second · over $101 and under $160</div>
+            <h3>2019 Antinori Tignanello</h3>
+            <p>Tuscany · $150 · score 2.75</p>
+            <p>Best remaining Sangiovese in that band, and not the same bottle as the first. Four bottles sit in the band. Tignanello leads them.</p>
+          </div>
+        </div>
+      </article>
+    </div>
+    <div class="arrow">↓</div>
+
+    <div class="step">
+      <div class="step-no">6</div>
+      <article class="card">
+        <h2>Notes are written after the bottles are chosen</h2>
+        <p>The pairing is finished before any tasting note is written. Each note has to name that vintage, that producer, and that place. A 2019 and a 2020 of the same label are not allowed to wear the same note. The email then sends the notes that are on the screen.</p>
+        <p>There is no dish in “red sangiovese,” so Jarvis does not attach a plate from the menu.</p>
+      </article>
+    </div>
+
+    <section class="chapter" id="cab">
+      <h1>When you type full body cab</h1>
+      <p class="lede">No price button. “Full body” locks the weight. “Cab” now locks the grape: cab, cabernet, and cabernet sauvignon are the same word, and only Cabernet labels remain.</p>
+      <p class="query">full body cab</p>
+
+      <div class="step">
+        <div class="step-no">1</div>
+        <article class="card">
+          <h2>Read the words</h2>
+          <div class="split">
+            <div class="mini keep">
+              <strong>full body</strong>
+              Body is locked to full. Light reds are refused. Lean whites are refused. Moscato is refused.
+            </div>
+            <div class="mini keep">
+              <strong>cab</strong>
+              Cab, cabernet, and cabernet sauvignon are one grape. Both bottles have to be Cabernet. A Barolo, a Syrah, or a Shiraz cannot come through.
+            </div>
+          </div>
+          <p style="margin-top:12px">Color locks to red with the grape. No price word, so the default price rule can still run at the end. Shiraz is not treated as Syrah. Chard, chardonnay, and the misspelling chardonay are one grape.</p>
+        </article>
+      </div>
+      <div class="arrow">↓</div>
+
+      <div class="step">
+        <div class="step-no">2</div>
+        <article class="card">
+          <h2>Walk the whole list</h2>
+          <p>272 bottles are in stock. Cabernet plus full body leaves the Cabernets only. Barolo and the other full reds are out, because the grape is locked.</p>
+          <ul>
+            <li>In stock, and the inventory count is not zero.</li>
+            <li>The bottle is Cabernet. The word cabernet has to be on the producer, the label, or the grape.</li>
+            <li>Full body still removes a light red and a lean white, and Moscato.</li>
+          </ul>
+        </article>
+      </div>
+      <div class="arrow">↓</div>
+
+      <div class="step">
+        <div class="step-no">3</div>
+        <article class="card">
+          <h2>Score what remains</h2>
+          <p>A full red gets +2. Cabernet, Barolo, Brunello, Syrah, and Malbec get another +0.8. The letters “cab” add a smaller match wherever “cabernet” is written on the bottle.</p>
+          <p>Many bottles tie at 3.13. The list order breaks the tie. Ridge Vineyards Geyserville is first. On this list its grape is recorded as Cabernet Sauvignon, so it is treated as a Cabernet, at $50.</p>
+          <ul>
+            <li>A $100 bottle, such as Silver Oak Alexander Valley, sits in neither price band. Under $100 means below 100. The next band starts above $101.</li>
+            <li>Caymus at $90 and Montelena at $70 tie with Geyserville. Geyserville is simply earlier in the ranked list.</li>
+          </ul>
+        </article>
+      </div>
+      <div class="arrow">↓</div>
+
+      <div class="step">
+        <div class="step-no">4</div>
+        <article class="card">
+          <h2>A style pairing is considered, then set aside</h2>
+          <p>The grape is named, so the style pair stays on Cabernet and changes the producer. It is still set aside when no price was chosen.</p>
+          <div class="split">
+            <div class="mini out">
+              <strong>Would have been the pair</strong>
+              Two Cabernets from two producers, with no price split. This pair is not what you see when no price button is pressed.
+            </div>
+            <div class="mini keep">
+              <strong>Why it is dropped</strong>
+              No price was selected. The price rule replaces that pair. Grok is not allowed to swap the bottles.
+            </div>
+          </div>
+        </article>
+      </div>
+      <div class="arrow">↓</div>
+
+      <div class="step">
+        <div class="step-no">5</div>
+        <article class="card">
+          <h2>The price rule chooses the two glasses</h2>
+          <p>From the 214 bottles that passed, already ranked:</p>
+          <div class="result">
+            <div class="bottle">
+              <div class="kicker">First · under $100</div>
+              <h3>2020 Ridge Vineyards</h3>
+              <p>Geyserville · $50 · score 3.13</p>
+              <p>Best full bottle still under $100. 120 bottles are in that band. The 3.13 tie is won by list order.</p>
+            </div>
+            <div class="bottle">
+              <div class="kicker">Second · over $101 and under $160</div>
+              <h3>2018 Corison</h3>
+              <p>Cabernet Sauvignon · $120 · score 3.13</p>
+              <p>Best different bottle in that band. 33 bottles sit there. Dunn Howell Mountain is also $150 and the same score, and Corison comes first.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div class="arrow">↓</div>
+
+      <div class="step">
+        <div class="step-no">6</div>
+        <article class="card">
+          <h2>Notes come after the bottles</h2>
+          <p>The two glasses are already chosen. Each note is written for that vintage. Ridge Geyserville and a different vintage of the same label would not be allowed to share a note. No dish was named, so no plate is attached.</p>
+        </article>
+      </div>
+    </section>
+
+    <p class="note">Open this file on your computer. It is not linked from jarvis.agenthaus.io and it does not change what a guest receives.</p>
+  </main>
+</body>
+</html>

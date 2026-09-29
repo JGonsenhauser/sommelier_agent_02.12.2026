@@ -1,5 +1,7 @@
 .venv
 venv
+**/.venv
+**/venv
 .env
 .env.*
 !.env.example
@@ -10,7 +12,15 @@ docs
 *.xlsx
 *.csv
 test_*.py
-image_of_wine_ratings.jpg
+.git
+wine_producer_scaper
+wine_region_scraper
+wine_data_enricher
+floor_plan_demo
+outreach_documents
+*.pdf
+*.docx
 data/crm.sqlite
 data/outbox
-.git
+data/wine_master.json
+data/activity_log.jsonl

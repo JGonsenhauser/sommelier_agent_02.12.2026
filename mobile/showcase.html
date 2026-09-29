@@ -2,74 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#F3EEE6">
-    <title>Jarvis Demo QR</title>
-    <link rel="icon" type="image/png" href="/brand-logo.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Outfit:wght@300;400&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Add Jarvis to your phone</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            min-height: 100dvh;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: Outfit, sans-serif;
-            background: #F3EEE6;
-            color: #1C1A16;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #111;
+            color: #fff;
             text-align: center;
             padding: 32px 16px;
         }
-        .card { max-width: 520px; width: 100%; }
-        img.logo { height: 72px; width: 72px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; background: #111; }
-        h1 {
-            font-family: "Cormorant Garamond", Georgia, serif;
-            font-size: 32px;
-            font-weight: 600;
-            margin-bottom: 8px;
+        .card {
+            max-width: 520px;
+            width: 100%;
         }
-        p { color: #6B645C; line-height: 1.5; margin-bottom: 24px; font-weight: 300; }
+        img.logo { width: 96px; height: 96px; margin-bottom: 16px; }
+        h1 { font-size: 28px; font-weight: 650; margin-bottom: 8px; }
+        p { color: #cfcfcf; line-height: 1.5; margin-bottom: 20px; }
         .qr {
-            background: #FAF7F2;
-            border-radius: 8px;
-            padding: 24px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
             display: inline-block;
         }
-        .qr img { width: min(64vw, 320px); height: auto; display: block; }
-        .credit {
-            margin-top: 28px;
-            font-size: 10px;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: #7A8A78;
+        .qr img { width: min(72vw, 360px); height: auto; display: block; }
+        .url {
+            margin-top: 16px;
+            font-family: ui-monospace, Consolas, monospace;
+            font-size: 14px;
+            color: #f5d76e;
+            word-break: break-all;
+        }
+        ol {
+            text-align: left;
+            margin: 24px auto 0;
+            max-width: 360px;
+            color: #ddd;
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
     <div class="card">
-        <img class="logo" id="logo" src="/brand-logo.png" alt="Jarvis">
-        <h1>Jarvis Demo</h1>
-        <p>Scan this code on a phone to open the guest sommelier.</p>
-        <div class="qr"><img src="/qr.png" alt="QR code to the Jarvis demo"></div>
-        <p id="scanUrl" style="margin-top:16px;font-size:13px;word-break:break-all;">https://jarvis.agenthaus.io/?r=demo</p>
-        <div class="credit" id="credit">Jarvis Sommelier · Demo</div>
+        <img class="logo" src="/icon-192.png" alt="Jarvis">
+        <h1>Jarvis</h1>
+        <p>Scan to open the sommelier, then add it to your Home Screen.</p>
+        <div class="qr"><img src="/qr.png" alt="QR code for Jarvis"></div>
+        <div class="url" id="url"></div>
+        <ol>
+            <li>Scan this code with your phone camera</li>
+            <li>Open the page in Safari (iPhone) or Chrome (Android)</li>
+            <li>iPhone: Share → Add to Home Screen</li>
+            <li>Android: menu → Install app / Add to Home screen</li>
+        </ol>
     </div>
     <script>
-        const r = new URLSearchParams(location.search).get("r") || "demo";
-        document.getElementById("scanUrl").textContent = location.origin + "/?r=" + r;
-        fetch("/api/restaurants/" + r)
-            .then((res) => res.ok ? res.json() : null)
-            .then((data) => {
-                if (!data) return;
-                if (data.logo) {
-                    const img = document.getElementById("logo");
-                    img.src = data.logo;
-                    img.alt = data.name || "Jarvis";
-                }
-                document.getElementById("credit").textContent = (data.name || "Jarvis") + " Sommelier";
-            })
-            .catch(() => {});
+        document.getElementById("url").textContent = window.location.origin + "/";
     </script>
 </body>
 </html>
