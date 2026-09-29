@@ -85,7 +85,18 @@ if (pages.length !== 1) {
 }
 
 const schema = pages[0] ? pages[0].mainEntity || [] : [];
-const visible = [...faqHtml.matchAll(/<div class="faq-item">\s*<h2>([\s\S]*?)<\/h2>([\s\S]*?)<\/div>/gi)]
+const itemHtml = [...faqHtml.matchAll(/<div class="faq-item">([\s\S]*?)<\/div>/gi)];
+for (let i = 0; i < itemHtml.length; i += 1) {
+  const item = itemHtml[i][1];
+  if (!/<details>([\s\S]*?)<\/details>/.test(item) || !/<summary>\s*<h2>[\s\S]*?<\/h2>\s*<\/summary>/.test(item)) {
+    fail(`question ${i + 1} must be a closed disclosure: the question stays visible and the answer opens on click`);
+  }
+  if (/<details\b[^>]*\bopen\b/.test(item)) {
+    fail(`question ${i + 1} is expanded before the visitor clicks it`);
+  }
+}
+
+const visible = [...faqHtml.matchAll(/<div class="faq-item">\s*<details>\s*<summary>\s*<h2>([\s\S]*?)<\/h2>\s*<\/summary>([\s\S]*?)<\/details>\s*<\/div>/gi)]
   .map((match) => ({ question: shown(match[1]), answer: shown(match[2]) }));
 
 const llmsFaq = read(llmsPath).split(/\n## FAQ\n/)[1];

@@ -242,10 +242,51 @@
         }
         .faq-item {
             border-top: 1px solid var(--line);
+        }
+        .faq-item:last-child {
+            border-bottom: 1px solid var(--line);
+        }
+        .faq-item details {
+            margin: 0;
+        }
+        .faq-item summary {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
             padding: 18px 0;
+            cursor: pointer;
+            list-style: none;
+        }
+        .faq-item summary::-webkit-details-marker,
+        .faq-item summary::marker {
+            display: none;
+            content: "";
+        }
+        .faq-item summary:focus-visible {
+            outline: 2px solid var(--sage);
+            outline-offset: 4px;
+        }
+        .faq-item summary::after {
+            content: "+";
+            flex: none;
+            color: var(--sage);
+            font-family: Outfit, "Segoe UI", sans-serif;
+            font-size: 22px;
+            font-weight: 400;
+            line-height: 1.15;
+        }
+        .faq-item details[open] summary {
+            padding-bottom: 8px;
+        }
+        .faq-item details[open] summary::after {
+            content: "\2013";
+        }
+        .faq-item details[open] {
+            padding-bottom: 18px;
         }
         .faq-item h2 {
-            margin: 0 0 8px;
+            margin: 0;
             font-family: "Cormorant Garamond", Georgia, serif;
             font-size: 26px;
             font-weight: 600;
@@ -274,92 +315,124 @@
         <h1>Frequently Asked Questions</h1>
         <section class="faq" id="faq">
             <div class="faq-item">
-                <h2>What is an AI sommelier for hotels, resorts, and cruise lines?</h2>
-                <p>Jarvis gives guests personalized wine guidance wherever a sommelier may not be available. Guests can speak or type naturally about what they are looking for and receive recommendations from the wines actually available at that outlet.</p>
-                <p>At the same time, the beverage team gains insight into what guests are searching for, what they select, and what they want but cannot find on the current list.</p>
+                <details>
+                    <summary><h2>What is an AI sommelier for hotels, resorts, and cruise lines?</h2></summary>
+                    <p>Jarvis gives guests personalized wine guidance wherever a sommelier may not be available. Guests can speak or type naturally about what they are looking for and receive recommendations from the wines actually available at that outlet.</p>
+                    <p>At the same time, the beverage team gains insight into what guests are searching for, what they select, and what they want but cannot find on the current list.</p>
+                </details>
             </div>
             <div class="faq-item">
-                <h2>How do guests use Jarvis to choose a wine?</h2>
-                <p>Guests scan a QR code wherever they are on the property, whether at the restaurant, pool, lounge, suite, beach, or golf course. There is no app to download.</p>
-                <p>They can tell Jarvis what they are looking for in natural language, just as they would speak with a sommelier. They might ask for a Cabernet under $100, something light with lunch, a bottle for steak, or simply say, "I usually drink Sauvignon Blanc. What should I try?"</p>
-                <p>Guests can type their request or speak directly to Jarvis. Jarvis can also respond by voice.</p>
+                <details>
+                    <summary><h2>How do guests use Jarvis to choose a wine?</h2></summary>
+                    <p>Guests scan a QR code wherever they are on the property, whether at the restaurant, pool, lounge, suite, beach, or golf course. There is no app to download.</p>
+                    <p>They can tell Jarvis what they are looking for in natural language, just as they would speak with a sommelier. They might ask for a Cabernet under $100, something light with lunch, a bottle for steak, or simply say, "I usually drink Sauvignon Blanc. What should I try?"</p>
+                    <p>Guests can type their request or speak directly to Jarvis. Jarvis can also respond by voice.</p>
+                </details>
             </div>
             <div class="faq-item">
-                <h2>Does Jarvis pair wines with the actual food available at each outlet?</h2>
-                <p>Yes. Each outlet can have its own food menu and wine list, allowing Jarvis to recommend wines based on the dishes actually available where the guest is dining.</p>
-                <p>A guest at the steakhouse might receive a completely different set of recommendations from a guest ordering lunch by the pool. Jarvis can include the relevant dish pairing with each wine recommendation, creating a more useful and property-specific experience.</p>
+                <details>
+                    <summary><h2>Does Jarvis pair wines with the actual food available at each outlet?</h2></summary>
+                    <p>Yes. Each outlet can have its own food menu and wine list, allowing Jarvis to recommend wines based on the dishes actually available where the guest is dining.</p>
+                    <p>A guest at the steakhouse might receive a completely different set of recommendations from a guest ordering lunch by the pool. Jarvis can include the relevant dish pairing with each wine recommendation, creating a more useful and property-specific experience.</p>
+                </details>
             </div>
             <div class="faq-item">
-                <h2>Does Jarvis only recommend wines we actually have?</h2>
-                <p>Yes. Recommendations are tied to the wines available at that specific outlet. Your beverage team manages the wine list and availability from the back office, so wines can be added, updated, or marked unavailable as inventory changes.</p>
-                <p>Different outlets can have different wine selections, pricing, menus, and recommendation rules.</p>
+                <details>
+                    <summary><h2>Does Jarvis only recommend wines we actually have?</h2></summary>
+                    <p>Yes. Recommendations are tied to the wines available at that specific outlet. Your beverage team manages the wine list and availability from the back office, so wines can be added, updated, or marked unavailable as inventory changes.</p>
+                    <p>Different outlets can have different wine selections, pricing, menus, and recommendation rules.</p>
+                </details>
             </div>
             <div class="faq-item">
-                <h2>Does Jarvis always recommend two wines?</h2>
-                <p>No. The number of recommendations is customizable.</p>
-                <p>A property may choose to present two wines for a simple guest experience or offer additional selections based on its service style and wine program. The goal is to make Jarvis work the way your beverage team wants to present wine rather than forcing every property into the same format.</p>
+                <details>
+                    <summary><h2>Does Jarvis always recommend two wines?</h2></summary>
+                    <p>No. The number of recommendations is customizable.</p>
+                    <p>A property may choose to present two wines for a simple guest experience or offer additional selections based on its service style and wine program. The goal is to make Jarvis work the way your beverage team wants to present wine rather than forcing every property into the same format.</p>
+                </details>
             </div>
             <div class="faq-item">
-                <h2>Can we control the price points Jarvis recommends?</h2>
-                <p>Yes. Jarvis can be configured around your property's pricing strategy.</p>
-                <p>Based on a guest's request, Jarvis can recommend wines within the budget they provide. If the guest does not give a budget, the property can define how Jarvis approaches pricing, including presenting a lower and higher priced option.</p>
-                <p>These rules can be customized by property or outlet.</p>
+                <details>
+                    <summary><h2>Can we control the price points Jarvis recommends?</h2></summary>
+                    <p>Yes. Jarvis can be configured around your property's pricing strategy.</p>
+                    <p>Based on a guest's request, Jarvis can recommend wines within the budget they provide. If the guest does not give a budget, the property can define how Jarvis approaches pricing, including presenting a lower and higher priced option.</p>
+                    <p>These rules can be customized by property or outlet.</p>
+                </details>
             </div>
             <div class="faq-item">
-                <h2>Can Jarvis help us feature particular wines or promote events?</h2>
-                <p>Yes. After its primary recommendations, Jarvis can be configured to feature an additional wine your beverage team wants to highlight.</p>
-                <p>That could be a bottle you would like to introduce to more guests, a featured producer, a seasonal selection, or another priority within the wine program.</p>
-                <p>Jarvis can also surface experiences such as an upcoming wine dinner, tasting, or other beverage event when it is relevant to the guest's conversation.</p>
+                <details>
+                    <summary><h2>Can Jarvis help us feature particular wines or promote events?</h2></summary>
+                    <p>Yes. After its primary recommendations, Jarvis can be configured to feature an additional wine your beverage team wants to highlight.</p>
+                    <p>That could be a bottle you would like to introduce to more guests, a featured producer, a seasonal selection, or another priority within the wine program.</p>
+                    <p>Jarvis can also surface experiences such as an upcoming wine dinner, tasting, or other beverage event when it is relevant to the guest's conversation.</p>
+                </details>
             </div>
             <div class="faq-item">
-                <h2>Can Jarvis match how our sommeliers and beverage team talk about wine?</h2>
-                <p>Yes. This is an important part of the customization.</p>
-                <p>Jarvis can be configured around your team's tasting notes, terminology, pairing philosophy, recommendation style, and the way your team communicates with guests. The objective is for Jarvis to feel like an extension of the property's beverage program rather than a generic third-party wine app.</p>
-                <p>Its recommendations, tasting notes, prompts, buttons, calls to action, and guest experience can all be customized around the property.</p>
+                <details>
+                    <summary><h2>Can Jarvis match how our sommeliers and beverage team talk about wine?</h2></summary>
+                    <p>Yes. This is an important part of the customization.</p>
+                    <p>Jarvis can be configured around your team's tasting notes, terminology, pairing philosophy, recommendation style, and the way your team communicates with guests. The objective is for Jarvis to feel like an extension of the property's beverage program rather than a generic third-party wine app.</p>
+                    <p>Its recommendations, tasting notes, prompts, buttons, calls to action, and guest experience can all be customized around the property.</p>
+                </details>
             </div>
             <div class="faq-item">
-                <h2>Does Jarvis replace sommeliers or the beverage team?</h2>
-                <p>No. Jarvis is designed to complement the beverage team, not replace it.</p>
-                <p>A sommelier provides a level of personal interaction and hospitality that technology should not try to replace. Jarvis extends that service into areas where a sommelier may not always be present, such as the pool, beach, lounge, golf course, in-room dining, or other outlets across the property.</p>
-                <p>It allows the beverage team's knowledge and standards to reach more guests while the team continues to provide the personal service that defines the wine program.</p>
+                <details>
+                    <summary><h2>Does Jarvis replace sommeliers or the beverage team?</h2></summary>
+                    <p>No. Jarvis is designed to complement the beverage team, not replace it.</p>
+                    <p>A sommelier provides a level of personal interaction and hospitality that technology should not try to replace. Jarvis extends that service into areas where a sommelier may not always be present, such as the pool, beach, lounge, golf course, in-room dining, or other outlets across the property.</p>
+                    <p>It allows the beverage team's knowledge and standards to reach more guests while the team continues to provide the personal service that defines the wine program.</p>
+                </details>
             </div>
             <div class="faq-item">
-                <h2>Can guests talk to Jarvis?</h2>
-                <p>Yes. Jarvis supports voice as well as text.</p>
-                <p>A guest can speak naturally to Jarvis rather than navigating a traditional menu or filling out a questionnaire. Jarvis understands conversational requests, can ask follow-up questions when appropriate, and can respond in writing or by voice.</p>
-                <p>The experience is designed to feel more like a conversation about wine than using a search tool.</p>
+                <details>
+                    <summary><h2>Can guests talk to Jarvis?</h2></summary>
+                    <p>Yes. Jarvis supports voice as well as text.</p>
+                    <p>A guest can speak naturally to Jarvis rather than navigating a traditional menu or filling out a questionnaire. Jarvis understands conversational requests, can ask follow-up questions when appropriate, and can respond in writing or by voice.</p>
+                    <p>The experience is designed to feel more like a conversation about wine than using a search tool.</p>
+                </details>
             </div>
             <div class="faq-item">
-                <h2>Do guests need to download an app to use Jarvis?</h2>
-                <p>No. Guests simply scan the property's QR code with their phone camera and Jarvis opens directly in the browser.</p>
-                <p>There is no account or app download required to begin using it. Guests can also add Jarvis to their Home Screen for quicker access during their stay.</p>
+                <details>
+                    <summary><h2>Do guests need to download an app to use Jarvis?</h2></summary>
+                    <p>No. Guests simply scan the property's QR code with their phone camera and Jarvis opens directly in the browser.</p>
+                    <p>There is no account or app download required to begin using it. Guests can also add Jarvis to their Home Screen for quicker access during their stay.</p>
+                </details>
             </div>
             <div class="faq-item">
-                <h2>Can Jarvis match our property's brand and guest experience?</h2>
-                <p>Yes. Jarvis can be customized around the property rather than appearing as a generic technology platform.</p>
-                <p>Branding, colors, language, buttons, prompts, tasting notes, pairings, featured wines, outlet selections, and guest actions can all be configured around the property and its service style.</p>
-                <p>The goal is for the guest to experience Jarvis as part of your hospitality and beverage program.</p>
+                <details>
+                    <summary><h2>Can Jarvis match our property's brand and guest experience?</h2></summary>
+                    <p>Yes. Jarvis can be customized around the property rather than appearing as a generic technology platform.</p>
+                    <p>Branding, colors, language, buttons, prompts, tasting notes, pairings, featured wines, outlet selections, and guest actions can all be configured around the property and its service style.</p>
+                    <p>The goal is for the guest to experience Jarvis as part of your hospitality and beverage program.</p>
+                </details>
             </div>
             <div class="faq-item">
-                <h2>What does the beverage team see in Jarvis?</h2>
-                <p>Beverage Intelligence shows what guests searched for, what they selected, and what they wanted but could not find, with activity broken down by outlet.</p>
-                <p>Your team can see patterns such as searches for Cabernet under $100, wines for steak, Sauvignon Blanc versus Chardonnay, preferred price ranges, or requests for bottles you do not currently carry.</p>
-                <p>Because each outlet can have its own QR code, the beverage team can also better understand how guest demand differs between locations such as the pool, in-room dining, beach, golf course, lounge, and restaurant.</p>
+                <details>
+                    <summary><h2>What does the beverage team see in Jarvis?</h2></summary>
+                    <p>Beverage Intelligence shows what guests searched for, what they selected, and what they wanted but could not find, with activity broken down by outlet.</p>
+                    <p>Your team can see patterns such as searches for Cabernet under $100, wines for steak, Sauvignon Blanc versus Chardonnay, preferred price ranges, or requests for bottles you do not currently carry.</p>
+                    <p>Because each outlet can have its own QR code, the beverage team can also better understand how guest demand differs between locations such as the pool, in-room dining, beach, golf course, lounge, and restaurant.</p>
+                </details>
             </div>
             <div class="faq-item">
-                <h2>Can a guest send their wine selection to the service team?</h2>
-                <p>Yes. Jarvis can be configured so that after choosing a wine, the guest can send the selection to the appropriate service team.</p>
-                <p>The exact workflow can be customized around how the property operates and how it wants guests and service teams to interact.</p>
+                <details>
+                    <summary><h2>Can a guest send their wine selection to the service team?</h2></summary>
+                    <p>Yes. Jarvis can be configured so that after choosing a wine, the guest can send the selection to the appropriate service team.</p>
+                    <p>The exact workflow can be customized around how the property operates and how it wants guests and service teams to interact.</p>
+                </details>
             </div>
             <div class="faq-item">
-                <h2>Who built Jarvis?</h2>
-                <p>Jarvis was created by Jonathan Gonsenhauser, Advanced Sommelier, with experience leading wine and beverage programs with more than $1 million in inventory.</p>
-                <p>It was built by AgentHaus around the practical realities of hospitality wine programs, including different outlets, menus, inventory, pricing, service teams, and the way guests actually choose wine.</p>
+                <details>
+                    <summary><h2>Who built Jarvis?</h2></summary>
+                    <p>Jarvis was created by Jonathan Gonsenhauser, Advanced Sommelier, with experience leading wine and beverage programs with more than $1 million in inventory.</p>
+                    <p>It was built by AgentHaus around the practical realities of hospitality wine programs, including different outlets, menus, inventory, pricing, service teams, and the way guests actually choose wine.</p>
+                </details>
             </div>
             <div class="faq-item">
-                <h2>How much does Jarvis cost, and can we try it first?</h2>
-                <p>Pricing depends on the size of the property, number of outlets, and level of customization.</p>
-                <p>Properties can begin with a single-outlet pilot that includes branding, wine list setup, availability management, menu pairings, and Beverage Intelligence.</p>
+                <details>
+                    <summary><h2>How much does Jarvis cost, and can we try it first?</h2></summary>
+                    <p>Pricing depends on the size of the property, number of outlets, and level of customization.</p>
+                    <p>Properties can begin with a single-outlet pilot that includes branding, wine list setup, availability management, menu pairings, and Beverage Intelligence.</p>
+                </details>
             </div>
         </section>
         <p class="back"><a href="/">Back</a></p>
