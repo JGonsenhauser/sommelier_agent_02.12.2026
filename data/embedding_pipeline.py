@@ -105,17 +105,7 @@ class EmbeddingPipeline:
         return text
     
     def get_embeddings(self, texts: List[str]) -> List[List[float]]:
-        """Embed texts. xAI has no public embedding model; OpenAI is optional."""
-        if settings.use_openai_embeddings and settings.openai_api_key:
-            if self.openai_client is None:
-                self.openai_client = OpenAI(api_key=settings.openai_api_key, timeout=20.0)
-            response = self.openai_client.embeddings.create(
-                model=settings.openai_embedding_model,
-                input=texts,
-                dimensions=settings.embedding_dimensions,
-            )
-            by_index = {item.index: item.embedding for item in response.data}
-            return [by_index[i] for i in range(len(texts))]
+        """xAI does not ship a public embeddings model; search uses lexical + Grok."""
         raise EmbeddingError("xAI embeddings are not available; using catalog search.")
     
     def extract_tasting_keywords(self, tasting_note: str) -> str:
@@ -363,10 +353,13 @@ class EmbeddingPipeline:
         Returns:
             List of (wine_id, score, metadata) tuples
         """
+        # Build filter
         query_filter: Dict = {}
         effective_list_id = list_id or qr_id
         if effective_list_id:
             query_filter["list_id"] = effective_list_id
+        if qr_id and list_id:
+            query_filter["qr_id"] = qr_id
         if filters:
             query_filter.update(filters)
 
@@ -382,7 +375,14 @@ class EmbeddingPipeline:
                 )
                 matches = self._parse_query_matches(results)
                 if matches:
-                    return matches
+                    from data.wine_master import guest_stock, visible_to_guest
+                    by_id, by_bottle = guest_stock()
+                    matches = [
+                        match for match in matches
+                        if visible_to_guest(match[2], by_id, by_bottle)
+                    ]
+                    if matches:
+                        return matches
                 logger.warning("Vector search returned no matches; trying lexical fallback")
             except EmbeddingError as e:
                 logger.warning("Embeddings unavailable (%s); using catalog search", e)
@@ -418,6 +418,12 @@ class EmbeddingPipeline:
             items = vectors if vectors is not None else page
             for item in items:
                 yield item.id if hasattr(item, "id") else item
+
+    def invalidate_catalog(self, namespace: Optional[str] = None) -> None:
+        if namespace:
+            self._namespace_catalog.pop(namespace, None)
+        else:
+            self._namespace_catalog.clear()
 
     def _load_namespace_catalog(self, namespace: str) -> List[Tuple[str, Dict]]:
         if namespace in self._namespace_catalog:
@@ -482,27 +488,10 @@ class EmbeddingPipeline:
         return catalog
 
     @staticmethod
-    def _style_aliases(value: str) -> set:
-        v = (value or "").lower().strip()
-        if v in {"rose", "rosé"}:
-            return {"rose", "rosé"}
-        if v in {"sparkling", "champagne"}:
-            return {"sparkling", "champagne"}
-        return {v} if v else set()
-
-    @classmethod
-    def _metadata_matches_filter(cls, metadata: Dict, query_filter: Dict) -> bool:
+    def _metadata_matches_filter(metadata: Dict, query_filter: Dict) -> bool:
         if not query_filter:
             return True
         for key, expected in query_filter.items():
-            if key in {"wine_style", "wine_type"}:
-                actual = str(
-                    metadata.get("wine_style") or metadata.get("wine_type") or ""
-                ).lower()
-                wanted = cls._style_aliases(str(expected))
-                if not wanted.intersection(cls._style_aliases(actual)):
-                    return False
-                continue
             actual = metadata.get(key)
             if isinstance(expected, dict):
                 try:
@@ -515,46 +504,23 @@ class EmbeddingPipeline:
                     return False
                 if "$eq" in expected and numeric != float(expected["$eq"]):
                     return False
-            elif str(actual) != str(expected):
+            elif actual != expected:
                 return False
         return True
 
-    LIGHT_GRAPES = {
-        "pinot", "gamay", "riesling", "gris", "grigio", "arneis", "muscadet",
-        "albariño", "albarino", "chenin", "glera",
-    }
-    FULL_GRAPES = {
-        "cabernet", "syrah", "shiraz", "malbec", "nebbiolo", "sangiovese",
-        "tempranillo", "zinfandel", "grenache", "mourvedre",
-    }
-    FOOD_AFFINITY = {
-        "steak": {"styles": {"red"}, "grapes": {"cabernet", "syrah", "malbec", "nebbiolo", "sangiovese", "tempranillo"}},
-        "strip": {"styles": {"red"}, "grapes": {"cabernet", "syrah", "nebbiolo", "sangiovese"}},
-        "oyster": {"styles": {"white", "sparkling", "champagne"}, "grapes": {"chablis", "muscadet", "sauvignon", "champagne", "chardon"}},
-        "oysters": {"styles": {"white", "sparkling", "champagne"}, "grapes": {"chablis", "muscadet", "sauvignon", "champagne"}},
-        "branzino": {"styles": {"white", "sparkling"}, "grapes": {"chablis", "sauvignon", "vermentino", "pinot gris"}},
-        "seafood": {"styles": {"white", "sparkling", "rose", "rosé"}, "grapes": {"sauvignon", "chablis", "riesling", "vermentino"}},
-        "chicken": {"styles": {"white", "red", "rose", "rosé"}, "grapes": {"chardonnay", "pinot", "chenin"}},
-        "cream": {"styles": {"white", "red"}, "grapes": {"chardonnay", "pinot", "chenin"}},
-        "tomato": {"styles": {"red"}, "grapes": {"sangiovese", "barbera", "nebbiolo"}},
-        "pork": {"styles": {"white", "red", "sparkling"}, "grapes": {"pinot", "riesling", "chenin", "nebbiolo"}},
-        "cheese": {"styles": {"red", "white", "sparkling"}, "grapes": {"chardonnay", "pinot", "sauvignon", "nebbiolo"}},
-        "cod": {"styles": {"white"}, "grapes": {"chardonnay", "chenin", "riesling"}},
-        "caviar": {"styles": {"sparkling", "champagne", "white"}, "grapes": {"chardon", "pinot"}},
-    }
-
-    @classmethod
-    def _lexical_score(cls, query_text: str, metadata: Dict) -> float:
+    @staticmethod
+    def _lexical_score(query_text: str, metadata: Dict) -> float:
         stop = {
             "a", "an", "the", "for", "and", "with", "from", "around", "about",
             "under", "over", "than", "less", "more", "wine", "wines", "please",
             "something", "looking", "want", "need", "me", "my", "i", "to",
-            "drink", "preferences", "between", "any", "price",
         }
         tokens = [
             t for t in re.findall(r"[a-zA-Z]+", query_text.lower())
             if t not in stop and len(t) > 2
         ]
+        if not tokens:
+            return 0.1
         grapes = str(metadata.get("grapes", "")).lower()
         style = str(metadata.get("wine_style") or metadata.get("wine_type") or "").lower()
         haystack = " ".join([
@@ -568,51 +534,32 @@ class EmbeddingPipeline:
             style,
             str(metadata.get("text", "")),
         ]).lower()
-        if not tokens:
-            return 0.05
         hits = sum(1 for token in tokens if token in haystack)
-        score = hits / max(len(tokens), 1)
+        score = hits / len(tokens)
         joined = " ".join(tokens)
         if joined in haystack:
             score += 0.4
-        grape_tokens = [t for t in tokens if t not in {"light", "crisp", "bold", "dry", "full", "medium"}]
-        if grape_tokens and all(token in grapes or token in haystack for token in grape_tokens[:2]):
-            score += 0.35
+        if joined in grapes or all(token in grapes for token in tokens if token not in {"light", "crisp", "bold", "dry"}):
+            score += 0.5
         q = query_text.lower()
         sparkling_query = any(word in q for word in ("sparkling", "champagne", "bubbly", "prosecco"))
         if not sparkling_query and style in {"sparkling", "champagne"}:
-            score -= 0.55
-        light_query = any(word in q for word in ("light", "fresh", "summer", "refreshing"))
-        bold_query = any(word in q for word in ("bold", "heavy", "tannin", "full"))
-        grape_blob = grapes + " " + haystack
-        if light_query:
-            if any(g in grape_blob for g in cls.LIGHT_GRAPES) or style in {"white", "rose", "rosé", "sparkling"}:
-                score += 0.4
-            if any(g in grape_blob for g in cls.FULL_GRAPES) and "pinot" not in grape_blob:
-                score -= 0.45
-        if bold_query:
-            if any(g in grape_blob for g in cls.FULL_GRAPES) or style == "red":
-                score += 0.4
-            if any(g in grape_blob for g in cls.LIGHT_GRAPES) and style != "red":
-                score -= 0.2
-        if re.search(r"\bred\b", q) and style == "red":
+            score -= 0.45
+        light_query = any(word in q for word in ("light", "crisp", "fresh", "summer", "refreshing", "zesty"))
+        bold_query = any(word in q for word in ("bold", "steak", "heavy", "tannin", "full"))
+        if light_query and style in {"white", "rose", "rosé", "sparkling"}:
+            score += 0.35
+        if bold_query and style == "red":
+            score += 0.35
+        if "red" in q and style == "red":
             score += 0.45
-        if re.search(r"\bwhite\b", q) and style == "white":
+        if "white" in q and style == "white":
             score += 0.45
-        if ("rosé" in q or re.search(r"\brose\b", q)) and style in {"rose", "rosé"}:
+        if ("rosé" in q or "rose" in q) and style in {"rose", "rosé"}:
             score += 0.45
-        if sparkling_query and style in {"sparkling", "champagne"}:
-            score += 0.55
-        for word, affinity in cls.FOOD_AFFINITY.items():
-            if word in q:
-                if style in affinity["styles"]:
-                    score += 0.35
-                if any(g in grape_blob for g in affinity["grapes"]):
-                    score += 0.4
-                elif style and style not in affinity["styles"]:
-                    score -= 0.35
-        from data.sommelier_knowledge import sommelier_score
-        return sommelier_score(query_text, metadata, base=score)
+        if "champagne" in q and style in {"sparkling", "champagne"}:
+            score += 0.5
+        return score
 
     def _lexical_search_wines(
         self,
@@ -621,10 +568,16 @@ class EmbeddingPipeline:
         top_k: int,
         namespace: Optional[str],
     ) -> List[Tuple[str, float, Dict]]:
+        from data.wine_master import guest_stock, visible_to_guest
+
         ns = namespace or "maass_wine_list"
         catalog = self._load_namespace_catalog(ns)
+        by_id, by_bottle = guest_stock()
         scored = []
+
         for wine_id, metadata in catalog:
+            if not visible_to_guest(metadata, by_id, by_bottle):
+                continue
             if not self._metadata_matches_filter(metadata, query_filter):
                 continue
             score = self._lexical_score(query_text, metadata)
@@ -632,7 +585,15 @@ class EmbeddingPipeline:
                 continue
             scored.append((wine_id, score, metadata))
         scored.sort(key=lambda item: item[1], reverse=True)
-        return scored[:top_k]
+        if scored:
+            return scored[:top_k]
+        # Last resort: any wines that pass filters, so the guest UI never goes blank
+        leftovers = [
+            (wine_id, 0.05, metadata)
+            for wine_id, metadata in catalog
+            if visible_to_guest(metadata, by_id, by_bottle) and self._metadata_matches_filter(metadata, query_filter)
+        ]
+        return leftovers[:top_k]
     
     def search_menu_items(
         self,
@@ -653,42 +614,23 @@ class EmbeddingPipeline:
             List of (dish_id, score, metadata) tuples.
         """
         menu_namespace = namespace or f"{restaurant_id}_menu"
-        if settings.use_openai_embeddings and settings.openai_api_key:
-            try:
-                query_embedding = self.get_embeddings([query_text])[0]
-                results = self.index.query(
-                    vector=query_embedding,
-                    top_k=top_k,
-                    include_metadata=True,
-                    namespace=menu_namespace,
-                )
-                matches = self._parse_query_matches(results)
-                if matches:
-                    return matches
-            except Exception as e:
-                logger.debug("Menu vector search skipped: %s", e)
+        query_embedding = self.get_embeddings([query_text])[0]
 
-        from restaurants.restaurant_config import get_restaurant_config
+        results = self.index.query(
+            vector=query_embedding,
+            top_k=top_k,
+            include_metadata=True,
+            namespace=menu_namespace,
+        )
 
-        config = get_restaurant_config(restaurant_id)
-        dishes = config.load_menu() if config else []
-        scored = []
-        for i, dish in enumerate(dishes):
-            metadata = {
-                "dish_id": f"dish_{i}",
-                "name": dish.get("name", ""),
-                "description": dish.get("description", ""),
-                "category": dish.get("category", ""),
-            }
-            haystack = " ".join(
-                str(metadata[k]) for k in ("name", "description", "category")
-            ).lower()
-            tokens = re.findall(r"[a-zA-Z]+", query_text.lower())
-            hits = sum(1 for t in tokens if len(t) > 3 and t in haystack)
-            score = hits / max(len(tokens), 1)
-            scored.append((metadata["dish_id"], score, metadata))
-        scored.sort(key=lambda item: item[1], reverse=True)
-        return scored[:top_k]
+        matches = []
+        for match in results["matches"]:
+            dish_id = match["metadata"].get("dish_id", match.get("id", "unknown"))
+            score = match["score"]
+            metadata = match["metadata"]
+            matches.append((dish_id, score, metadata))
+
+        return matches
 
     def delete_business_embeddings(self, qr_id: str, namespace: Optional[str] = None) -> None:
         """

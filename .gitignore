@@ -46,3 +46,9 @@ build/
 # Exclude nested git repos
 wine_producer_scaper/
 wine_region_scraper/wine_vintage_scrape_repo/
+
+# Local-only data and notes
+data/activity_log.jsonl
+docs/readmes/REDIS_CLOUD_SETUP_COMPLETE.md
+.env*
+!.env.example

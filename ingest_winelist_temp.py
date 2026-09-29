@@ -9,7 +9,7 @@ from pathlib import Path
 try:
     from pinecone import Pinecone
     from config import settings
-except Exception:  # demo server has no Pinecone / .env
+except Exception:
     Pinecone = None
     settings = None
 
@@ -20,14 +20,23 @@ QR_ID = "qr_maass"
 RESTAURANT = "maass"
 DIM = 1024
 
+_EXTRA_FIELDS = (
+    r"(?:\s*\|\s*(?P<sub_region>[^|]*))?"
+    r"(?:\s*\|\s*(?P<inventory>[^|]*))?"
+    r"(?:\s*\|\s*(?P<stock>[^|]*))?"
+    r"(?:\s*\|\s*(?P<edited>[^|]*))?"
+    r"\s*$"
+)
+
 LINE_RE = re.compile(
-    r"^(?P<vintage>NV|\d{4}(?:\s*[–-]\s*\d{4})?)\s*\|\s*"
+    r"^(?P<vintage>NV|\d{4}(?:\s*[–-]\s*\d{4})?(?:\s+range)?)\s*\|\s*"
     r"(?P<producer>.+?)\s*\|\s*"
     r"(?P<label>.+?)\s*\|\s*"
     r"(?P<region>.+?)\s*\|\s*"
     r"(?P<country>.+?)\s*\|\s*"
-    r"\$(?P<price>[0-9,]+)\+?(?:\s*[–-]\s*\$?(?P<price2>[0-9,]+))?"
-    r"(?:\s*\((?P<stylehint>red|white)\))?\s*$",
+    r"\$(?P<price>[0-9,]+)(?:\s*[–-]\s*\$?(?P<price2>[0-9,]+))?"
+    r"(?:\s*\((?P<stylehint>red|white)\))?"
+    + _EXTRA_FIELDS,
     re.IGNORECASE,
 )
 NOVINTAGE_RE = re.compile(
@@ -35,10 +44,12 @@ NOVINTAGE_RE = re.compile(
     r"(?P<label>.+?)\s*\|\s*"
     r"(?P<region>.+?)\s*\|\s*"
     r"(?P<country>.+?)\s*\|\s*"
-    r"\$(?P<price>[0-9,]+)\+?(?:\s*[–-]\s*\$?(?P<price2>[0-9,]+))?\s*$"
+    r"\$(?P<price>[0-9,]+)(?:\s*[–-]\s*\$?(?P<price2>[0-9,]+))?"
+    + _EXTRA_FIELDS,
+    re.IGNORECASE,
 )
 STYLE_RE = re.compile(
-    r"^(Reds|Whites|Sparkling|Still)\b",
+    r"^(Reds|Whites|Sparkling|Still|Rose|Rosé)\b",
     re.IGNORECASE,
 )
 
@@ -64,34 +75,11 @@ def price_range(price: int) -> str:
     return "$200+"
 
 
-def _skip_list_row(vintage: str, label: str, producer: str = "") -> bool:
-    """Drop grouping notes that are not a single bottle."""
-    v = (vintage or "").lower()
-    lab = (label or "").lower()
-    prod = (producer or "").lower()
-    if "range" in v or "range" in prod:
-        return True
-    if "etc" in lab or "selections" in lab:
-        return True
-    if "|" in (producer or "") or "|" in (label or ""):
-        return True
-    # Dual SKUs ("Malbec / Bramare") but keep Champagne "Collection / Brut".
-    if " / " in lab and not any(ok in lab for ok in ("brut", "collection", "rosé", "rose", "blanc")):
-        return True
-    reds = ("malbec", "cabernet", "pinot noir", "syrah", "merlot")
-    whites = ("chardonnay", "sauvignon blanc", "riesling", "chenin")
-    if any(r in lab for r in reds) and any(w in lab for w in whites):
-        return True
-    return False
-
-
 def infer_style(section: str, major: str, hint: str | None, label: str) -> str:
     if hint:
         return hint.lower()
-    lab = (label or "").lower()
-    maj = (major or "").lower()
-    if any(g in lab for g in ("cabernet sauvignon", "pinot noir", "barolo", "barbaresco", "brunello", "malbec", "syrah", "zinfandel")) and "blanc" not in lab and "blanc de" not in lab:
-        return "red"
+    if (section or "").strip().lower() in {"rose", "rosé"}:
+        return "rose"
     blob = f"{section} {major} {label}".lower()
     if any(w in blob for w in ("sparkling", "champagne", "prosecco", "cava", "corpinnat", "brut")):
         return "sparkling"
@@ -99,20 +87,13 @@ def infer_style(section: str, major: str, hint: str | None, label: str) -> str:
         return "white"
     if re.search(r"\breds?\b", blob):
         return "red"
-    if "sancerre" in blob and "rouge" not in lab:
-        return "white"
-    if any(w in blob for w in (
-        "chardonnay", "riesling", "sauvignon", "chenin", "fiano", "arneis",
-        "pinot gris", "blanc", "xarel", "viura", "white wine", "gravonia",
-    )):
+    if any(w in blob for w in ("chardonnay", "riesling", "sauvignon", "chenin", "fiano", "arneis", "pinot gris", "blanc")):
         return "white"
     red_regions = (
         "napa", "sonoma", "barolo", "barbaresco", "brunello", "chianti", "bolgheri",
         "pauillac", "saint-julien", "saint-estèphe", "margaux", "pomerol", "saint-émilion",
         "rioja", "ribera", "mclaren", "barossa", "willamette", "burgundy",
     )
-    if "sancerre" in maj:
-        return "white"
     if any(r in blob for r in red_regions):
         return "red"
     return "red"
@@ -121,8 +102,6 @@ def infer_style(section: str, major: str, hint: str | None, label: str) -> str:
 def infer_grapes(label: str, region: str, major: str, style: str) -> str:
     blob = f"{label} {region} {major}".lower()
     pairs = [
-        ("geyserville", "Zinfandel"),
-        ("blanc de blancs", "Chardonnay"),
         ("pinot noir", "Pinot Noir"),
         ("pinot gris", "Pinot Gris"),
         ("chardonnay", "Chardonnay"),
@@ -159,21 +138,17 @@ def infer_grapes(label: str, region: str, major: str, style: str) -> str:
             return "Macabeo, Xarel-lo, Parellada"
         return "Chardonnay, Pinot Noir, Pinot Meunier"
     if style == "white":
-        if "sancerre" in major_l or "sancerre" in blob:
-            return "Sauvignon Blanc"
-        if "xarel" in blob:
-            return "Xarel-lo"
         if "burgundy" in major_l or "chablis" in blob or "meursault" in blob:
             return "Chardonnay"
+        if "sancerre" in major_l:
+            return "Sauvignon Blanc"
         if "alsace" in major_l:
             return "Riesling"
         if "bordeaux" in major_l:
             return "Sauvignon Blanc, Semillon"
         if "rioja" in major_l:
             return "Viura"
-        return "White blend"
-    if "sancerre" in blob:
-        return "Pinot Noir" if style == "red" else "Sauvignon Blanc"
+        return "Chardonnay"
     if "willamette" in blob or "dundee" in blob or "eola" in blob or "ribbon" in blob:
         return "Pinot Noir"
     if "burgundy" in major_l:
@@ -204,7 +179,7 @@ def parse_list(text: str) -> list[dict]:
     seen = set()
     for raw in text.splitlines():
         line = raw.strip()
-        if not line or line.lower().startswith("winelist"):
+        if not line or line.lower().startswith("winelist") or line.lower().startswith("generated from"):
             continue
         if STYLE_RE.match(line):
             section = STYLE_RE.match(line).group(1)
@@ -225,8 +200,6 @@ def parse_list(text: str) -> list[dict]:
             vintage = "NV"
         producer = data["producer"].strip()
         label = data["label"].strip()
-        if _skip_list_row(vintage, label, producer):
-            continue
         region = data["region"].strip()
         country = data["country"].strip()
         price = int(data["price"].replace(",", ""))
@@ -235,85 +208,170 @@ def parse_list(text: str) -> list[dict]:
         hint = data.get("stylehint")
         style = infer_style(section, major, hint, label)
         grapes = infer_grapes(label, region, major, style)
-        key = (producer.lower(), label.lower(), vintage, region.lower())
+        sub_region = (data.get("sub_region") or "").strip()
+        inventory_raw = (data.get("inventory") or "").strip()
+        inventory_count = int(inventory_raw) if inventory_raw.isdigit() else None
+        stock_raw = (data.get("stock") or "").strip().lower()
+        in_stock = stock_raw not in {"out", "0", "false", "no"}
+        last_edit_date = (data.get("edited") or "").strip()
+        key = (
+            producer.lower(),
+            label.lower(),
+            vintage,
+            region.lower(),
+            sub_region.lower(),
+            price,
+            inventory_count,
+            in_stock,
+        )
         if key in seen:
             continue
         seen.add(key)
-        text_field = (
-            f"Producer: {producer} | Label: {label} | Grapes: {grapes} | "
-            f"Region: {region} | Major Region: {major or region} | "
-            f"Country: {country} | Wine Style: {style}"
-        )
-        wines.append(
-            {
-                "vintage": vintage,
-                "producer": producer,
-                "label": label,
-                "region": region,
-                "major_region": major or region,
-                "country": country,
-                "price": price,
-                "price_range": price_range(price),
-                "wine_style": style,
-                "grapes": grapes,
-                "text": text_field,
-            }
-        )
+        wine = {
+            "vintage": vintage,
+            "producer": producer,
+            "label": label,
+            "region": region,
+            "sub_region": sub_region,
+            "major_region": major or region,
+            "country": country,
+            "price": price,
+            "price_range": price_range(price),
+            "wine_style": style,
+            "grapes": grapes,
+            "inventory_count": inventory_count,
+            "in_stock": in_stock,
+            "last_edit_date": last_edit_date,
+        }
+        wine["text"] = compose_text(wine)
+        wines.append(wine)
     return wines
 
 
-def upsert_wines(wines: list[dict]) -> int:
-    pc = Pinecone(api_key=settings.pinecone_api_key)
-    index = pc.Index(settings.pinecone_index_name)
-    try:
-        index.delete(delete_all=True, namespace=NAMESPACE)
-        print(f"Cleared namespace {NAMESPACE}")
-    except Exception as exc:
-        print(f"Clear note: {exc}")
+def compose_text(wine: dict) -> str:
+    return (
+        f"Producer: {wine.get('producer', '')} | Label: {wine.get('label', '')} | "
+        f"Grapes: {wine.get('grapes', '')} | Region: {wine.get('region', '')} | "
+        f"Sub Region: {wine.get('sub_region', '')} | "
+        f"Major Region: {wine.get('major_region') or wine.get('region', '')} | "
+        f"Country: {wine.get('country', '')} | Wine Style: {wine.get('wine_style', '')}"
+    )
 
-    vectors = []
-    for wine in wines:
-        master_id = hashlib.md5(
-            f"{wine['producer']}_{wine['label']}_{wine['grapes']}_{wine['region']}_{wine['country']}".encode()
-        ).hexdigest()
-        vectors.append(
-            {
-                "id": f"maass_{LIST_ID}_wine_{master_id[:8]}",
-                "values": hash_vector(wine["text"]),
-                "metadata": {
-                    "producer": wine["producer"],
-                    "label": wine["label"],
-                    "wine_name": wine["label"],
-                    "grapes": wine["grapes"],
-                    "region": wine["region"],
-                    "major_region": wine["major_region"],
-                    "country": wine["country"],
-                    "vintage": wine["vintage"],
-                    "text": wine["text"],
-                    "sync_version": 2,
-                    "price_range": wine["price_range"],
-                    "price": wine["price"],
-                    "wine_style": wine["wine_style"],
-                    "wine_type": wine["wine_style"],
-                    "tasting_keywords": "",
-                    "list_id": LIST_ID,
-                    "qr_id": QR_ID,
-                    "restaurant": RESTAURANT,
-                    "source": "winelist_temp",
-                },
-            }
+
+def _list_ids(index, namespace: str) -> list[str]:
+    ids = []
+    for page in index.list(namespace=namespace):
+        vectors = getattr(page, "vectors", None)
+        items = vectors if vectors is not None else page
+        for item in items:
+            ids.append(item.id if hasattr(item, "id") else str(item))
+    return ids
+
+
+def _prepare_wine(wine: dict) -> dict:
+    prepared = dict(wine)
+    if not prepared.get("wine_style"):
+        prepared["wine_style"] = infer_style(
+            "",
+            prepared.get("major_region", ""),
+            None,
+            prepared.get("label", ""),
         )
+    if not prepared.get("grapes"):
+        prepared["grapes"] = infer_grapes(
+            prepared.get("label", ""),
+            prepared.get("region", ""),
+            prepared.get("major_region", ""),
+            prepared["wine_style"],
+        )
+    if not prepared.get("major_region"):
+        prepared["major_region"] = prepared.get("region", "")
+    price = prepared.get("price") or 0
+    prepared["price"] = int(price) if isinstance(price, float) and price.is_integer() else price
+    prepared["price_range"] = price_range(int(float(prepared["price"])))
+    prepared["text"] = compose_text(prepared)
+    if not prepared.get("id"):
+        prepared["id"] = hashlib.md5(
+            f"{prepared['producer']}_{prepared['label']}_{prepared['grapes']}_{prepared['region']}_{prepared['country']}".encode()
+        ).hexdigest()
+    return prepared
 
+
+def _metadata(wine: dict) -> dict:
+    metadata = {
+        "producer": wine.get("producer", ""),
+        "label": wine.get("label", ""),
+        "wine_name": wine.get("label", ""),
+        "grapes": wine.get("grapes", ""),
+        "region": wine.get("region", ""),
+        "sub_region": wine.get("sub_region", ""),
+        "major_region": wine.get("major_region", ""),
+        "country": wine.get("country", ""),
+        "vintage": wine.get("vintage", ""),
+        "text": wine.get("text", ""),
+        "sync_version": 2,
+        "price_range": wine.get("price_range", ""),
+        "price": wine.get("price", 0),
+        "wine_style": wine.get("wine_style", ""),
+        "wine_type": wine.get("wine_style", ""),
+        "tasting_keywords": "",
+        "list_id": LIST_ID,
+        "qr_id": QR_ID,
+        "restaurant": RESTAURANT,
+        "source": "wine_master",
+        "in_stock": bool(wine.get("in_stock", True)),
+        "last_edit_date": wine.get("last_edit_date") or "",
+        "master_id": wine.get("id", ""),
+    }
+    if wine.get("inventory_count") is not None:
+        metadata["inventory_count"] = int(wine["inventory_count"])
+    return metadata
+
+
+def _upsert_batches(index, vectors: list[dict]) -> None:
     batch = 100
     for i in range(0, len(vectors), batch):
         index.upsert(vectors=vectors[i : i + batch], namespace=NAMESPACE)
         print(f"Upserted {min(i + batch, len(vectors))}/{len(vectors)}")
+
+
+def upsert_wines(wines: list[dict]) -> int:
+    """Publish wines into the restaurant search list, then drop stale rows."""
+    pc = Pinecone(api_key=settings.pinecone_api_key)
+    index = pc.Index(settings.pinecone_index_name)
+    prepared = [_prepare_wine(wine) for wine in wines]
+    vectors = [
+        {
+            "id": f"maass_{wine['id']}",
+            "values": hash_vector(wine["text"]),
+            "metadata": _metadata(wine),
+        }
+        for wine in prepared
+    ]
+    new_ids = {vector["id"] for vector in vectors}
+    _upsert_batches(index, vectors)
+    try:
+        stale = [wine_id for wine_id in _list_ids(index, NAMESPACE) if wine_id not in new_ids]
+        for i in range(0, len(stale), 100):
+            index.delete(ids=stale[i : i + 100], namespace=NAMESPACE)
+        if stale:
+            print(f"Removed {len(stale)} stale wines from {NAMESPACE}")
+    except Exception as exc:
+        print(f"Prune failed ({exc}); replacing {NAMESPACE}")
+        index.delete(delete_all=True, namespace=NAMESPACE)
+        _upsert_batches(index, vectors)
     return len(vectors)
 
 
 def main() -> None:
-    wines = parse_list(MD_PATH.read_text(encoding="utf-8"))
-    print(f"Parsed {len(wines)} wines from {MD_PATH}")
+    from data.wine_master import load_wines, master_exists
+
+    if master_exists():
+        wines = load_wines()
+        print(f"Loaded {len(wines)} wines from the wine master")
+    else:
+        wines = parse_list(MD_PATH.read_text(encoding="utf-8"))
+        print(f"Parsed {len(wines)} wines from {MD_PATH}")
     styles = {}
     for wine in wines:
         styles[wine["wine_style"]] = styles.get(wine["wine_style"], 0) + 1

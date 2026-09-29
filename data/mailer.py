@@ -6,6 +6,7 @@ import html
 import json
 import logging
 import os
+import re
 import smtplib
 import urllib.error
 import urllib.request
@@ -15,6 +16,10 @@ from typing import Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
 OUTBOX = Path(__file__).resolve().parent / "outbox"
+SENDER = "jonathan@agenthaus.io"
+GMAIL_CONNECTOR = "gmail/jarvis-gmail"
+GMAIL_SUBJECT = "ni25XOsoNbhVfcdoM2MfX3lW"
+GMAIL_SCOPES = ["https://www.googleapis.com/auth/gmail.send", "email", "openid"]
 
 
 def _format_wine_text(wine: Dict) -> str:
@@ -29,10 +34,8 @@ def _format_wine_text(wine: Dict) -> str:
     ).strip()
     lines = [title or "Wine from the list"]
     region = wine.get("region") or ""
-    price = wine.get("price") or ""
-    meta = " · ".join(p for p in (region, f"${price}" if price else "") if p)
-    if meta:
-        lines.append(meta)
+    if region:
+        lines.append(str(region))
     if wine.get("why"):
         lines.append(str(wine["why"]))
     if wine.get("tasting_note"):
@@ -42,14 +45,55 @@ def _format_wine_text(wine: Dict) -> str:
     return "\n".join(lines)
 
 
-def build_body(restaurant_name: str, wines: List[Dict]) -> str:
-    bottles = "\n\n".join(_format_wine_text(w) for w in wines)
-    return (
-        f"From Jarvis, your sommelier.\n\n"
-        f"{bottles}\n\n"
-        "Ask your server when you would like to order.\n"
-        "— Jarvis · Agenthaus\n"
+TEMPLATE = Path(__file__).resolve().parent / "email_template.txt"
+
+
+def load_template() -> Tuple[str, str]:
+    """Read the guest email each send, so an edit is what the next message says."""
+    subject = "Your wines from Jarvis"
+    fallback = (
+        "{{wines}}\n\n"
+        "Thank you for using our digital Sommelier,\n\n"
+        "· Built by Agenthaus"
     )
+    try:
+        raw = TEMPLATE.read_text(encoding="utf-8")
+    except OSError:
+        return subject, fallback
+    kept = []
+    for line in raw.splitlines():
+        if line.startswith("#"):
+            continue
+        if line.lower().startswith("subject:"):
+            found = line.split(":", 1)[1].strip()
+            if found:
+                subject = found
+            continue
+        kept.append(line)
+    body = "\n".join(kept).strip()
+    if "{{wines}}" not in body:
+        return subject, fallback
+    return subject, body
+
+
+def build_body(restaurant_name: str, wines: List[Dict]) -> str:
+    _subject, body = load_template()
+    bottles = "\n\n".join(_format_wine_text(w) for w in wines)
+    return body.replace("{{wines}}", bottles)
+
+
+def _copy_html(chunk: str) -> str:
+    blocks = []
+    for block in re.split(r"\n\s*\n", (chunk or "").strip()):
+        text = block.strip()
+        if not text:
+            continue
+        blocks.append(
+            '<p style="font-size:15px;line-height:1.55;color:#6B645C;margin:0 0 16px;">'
+            + html.escape(text).replace("\n", "<br>")
+            + "</p>"
+        )
+    return "".join(blocks)
 
 
 def build_html(restaurant_name: str, wines: List[Dict]) -> str:
@@ -67,16 +111,7 @@ def build_html(restaurant_name: str, wines: List[Dict]) -> str:
             ).strip()
             or "Wine from the list"
         )
-        meta = html.escape(
-            " · ".join(
-                p
-                for p in (
-                    str(wine.get("region") or ""),
-                    f"${wine['price']}" if wine.get("price") else "",
-                )
-                if p
-            )
-        )
+        meta = html.escape(str(wine.get("region") or ""))
         why = html.escape(str(wine.get("why") or ""))
         note = html.escape(str(wine.get("tasting_note") or ""))
         pair = html.escape(str(wine.get("food_pairing") or ""))
@@ -90,7 +125,7 @@ def build_html(restaurant_name: str, wines: List[Dict]) -> str:
             f"""
             <div style="border-top:1px solid #DDD4C8;padding:20px 0;">
               <p style="font-family:Georgia,serif;font-size:22px;margin:0 0 6px;color:#1C1A16;">{title}</p>
-              <p style="font-size:13px;color:#6B645C;margin:0 0 12px;">{meta}</p>
+              {f'<p style="font-size:13px;color:#6B645C;margin:0 0 12px;">{meta}</p>' if meta else ""}
               {"<p style='font-size:15px;line-height:1.5;margin:0 0 8px;color:#1C1A16;'>" + why + "</p>" if why else ""}
               {"<p style='font-size:14px;line-height:1.55;margin:0;color:#3A3530;'>" + note + "</p>" if note else ""}
               {pair_html}
@@ -98,15 +133,15 @@ def build_html(restaurant_name: str, wines: List[Dict]) -> str:
             """
         )
     inner = "".join(cards)
+    _subject, body = load_template()
+    before, after = (body.split("{{wines}}", 1) + [""])[:2]
     return f"""<!DOCTYPE html>
 <html><body style="margin:0;background:#F3EEE6;color:#1C1A16;">
   <div style="max-width:520px;margin:0 auto;padding:32px 20px;font-family:Georgia,serif;">
-    <p style="letter-spacing:.2em;text-transform:uppercase;font-size:11px;color:#7A8A78;margin:0 0 8px;">Agenthaus</p>
-    <h1 style="font-size:28px;font-weight:600;margin:0 0 8px;">Jarvis</h1>
-    <p style="font-size:15px;color:#6B645C;margin:0 0 24px;">Two bottles from the list, for you.</p>
+    <h1 style="font-size:28px;font-weight:600;margin:0 0 18px;">Jarvis</h1>
+    {_copy_html(before)}
     {inner}
-    <p style="font-size:13px;color:#6B645C;margin:28px 0 0;">Ask your server when you would like to order.</p>
-    <p style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#7A8A78;margin:24px 0 0;">Jarvis · Agenthaus</p>
+    {_copy_html(after)}
   </div>
 </body></html>"""
 
@@ -122,18 +157,21 @@ def _smtp_value(name: str, default: str = "") -> str:
         return default
 
 
-def _send_via_gmail_connect(msg: EmailMessage) -> bool:
-    connector = (os.getenv("CONNECT_GOOGLE") or "").strip()
+def _send_via_gmail_connect(msg: EmailMessage, oidc: str = "") -> str:
+    """Return an empty string when Gmail accepted the message, otherwise why it did not."""
+    connector = (os.getenv("JARVIS_GMAIL_CONNECTOR") or GMAIL_CONNECTOR).strip()
     if not connector:
-        return False
-    from data.vercel_connect import get_token
+        return "gmail: no connector"
+    from data.vercel_connect import get_token_detail
 
-    user = _smtp_value("SMTP_USER") or "jonathan@agenthaus.io"
-    token = get_token(connector, subject={"type": "user", "id": user})
+    token, reason = get_token_detail(
+        connector,
+        subject={"type": "user", "id": GMAIL_SUBJECT},
+        bearer=oidc,
+        scopes=GMAIL_SCOPES,
+    )
     if not token:
-        token = get_token(connector, subject={"type": "app"})
-    if not token:
-        return False
+        return f"gmail: {reason}"
     raw = base64.urlsafe_b64encode(bytes(msg)).decode("ascii").rstrip("=")
     req = urllib.request.Request(
         "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
@@ -148,24 +186,37 @@ def _send_via_gmail_connect(msg: EmailMessage) -> bool:
         with urllib.request.urlopen(req, timeout=20) as resp:
             if 200 <= resp.status < 300:
                 logger.info("Sent wine email via Vercel Connect Gmail")
-                return True
+                return ""
+        return f"gmail: HTTP {resp.status}"
     except urllib.error.HTTPError as exc:
-        logger.warning("Gmail Connect send failed (%s): %s", exc.code, exc.read()[:300])
+        detail = exc.read()[:180].decode("utf-8", errors="replace")
+        logger.warning("Gmail Connect send failed (%s): %s", exc.code, detail)
+        return f"gmail: HTTP {exc.code} {detail}"
     except Exception as exc:
         logger.warning("Gmail Connect send error: %s", exc)
-    return False
+        return f"gmail: {_public_error(exc)}"
+
+
+def _public_error(exc: Exception) -> str:
+    text = str(exc)
+    for name in ("SMTP_PASSWORD", "SMTP_USER", "SMTP_FROM"):
+        secret = _smtp_value(name)
+        if secret:
+            text = text.replace(secret, "[redacted]")
+    return text[:240]
 
 
 def send_wine_email(
     to_email: str,
     restaurant_name: str,
     wines: List[Dict],
+    oidc: str = "",
 ) -> Tuple[bool, str]:
-    subject = "Your wines from Jarvis"
+    subject, _body = load_template()
     text = build_body(restaurant_name, wines)
     html_body = build_html(restaurant_name, wines)
 
-    from_addr = _smtp_value("SMTP_FROM") or "Jarvis <jonathan@agenthaus.io>"
+    from_addr = f"Jarvis <{SENDER}>"
     msg = EmailMessage()
     msg["Subject"] = subject
     msg["From"] = from_addr
@@ -173,7 +224,8 @@ def send_wine_email(
     msg.set_content(text)
     msg.add_alternative(html_body, subtype="html")
 
-    if _send_via_gmail_connect(msg):
+    gmail_reason = _send_via_gmail_connect(msg, oidc)
+    if not gmail_reason:
         return True, "sent"
 
     host = _smtp_value("SMTP_HOST")
@@ -209,4 +261,4 @@ def send_wine_email(
             )
         except OSError:
             pass
-        return False, str(exc)
+        return False, f"{gmail_reason}; smtp: {_public_error(exc)}"

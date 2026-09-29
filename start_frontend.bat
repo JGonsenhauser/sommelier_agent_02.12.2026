@@ -1,13 +1,13 @@
 @echo off
 echo.
 echo ============================================================
-echo Optional STAFF kiosk (Streamlit). Guests should use the PWA on :8000
+echo Starting Jarvis Wine Sommelier FRONTEND (Streamlit UI)
 echo ============================================================
 echo.
-echo Guest phone app: run start_api.bat and open / or /showcase
-echo This Streamlit UI is not the QR target.
+echo IMPORTANT: Make sure the API is running first!
+echo   (Run start_api.bat in another terminal)
 echo.
-echo Kiosk (optional): http://localhost:8501
+echo Frontend will be available at: http://localhost:8501
 echo.
 echo Press CTRL+C to stop
 echo.
