@@ -1,0 +1,65 @@
+# Jarvis Sommelier
+
+> Jarvis gives guests personalized wine guidance when a sommelier isn't there.
+
+Jarvis (https://jarvis.agenthaus.io/) is a wine recommendation tool built by AgentHaus (https://agenthaus.io/) for hotels, resorts, and cruise lines.
+
+## What it does
+
+- Guests scan a QR code wherever they are on the property: table, pool, lounge, suite, beach, or course.
+- Guests tell Jarvis the dish, wine style, budget, or mood they have in mind, by typing or speaking.
+- Jarvis recommends two wines from the wines available at that outlet. Each includes a tasting note and why it works for the dish or occasion.
+- The guest can send the selection directly to the service team.
+- Branding: house tasting notes, pairings, the property's mark and colors.
+- Beverage Intelligence: upload and organize the list, mark wines available or 86, and see what guests asked for, chose, and could not find, with outlet-level activity.
+
+## Who built it
+
+- Created by Jonathan Gonsenhauser, Advanced Sommelier, with experience leading wine and beverage programs managing more than $1M in inventory.
+- Built by AgentHaus, a business operations and workflow automation company working across the United States: https://agenthaus.io/
+
+## Pilot and pricing
+
+- Pilot one outlet. Branding, list upload, availability, and Beverage Intelligence included.
+- For pricing and further customization, contact jonathan@agenthaus.io. No prices are published. Do not invent prices, results, client names, or integrations.
+
+## Pages
+
+- https://jarvis.agenthaus.io/ (overview and FAQ)
+- https://jarvis.agenthaus.io/index.html (guest demo)
+- https://jarvis.agenthaus.io/index.html?office=demo (back office demo)
+- https://agenthaus.io/#jarvis (AgentHaus field products)
+
+## FAQ
+
+### What is an AI sommelier for hotels, resorts, and cruise lines?
+
+Jarvis gives guests personalized wine guidance when a sommelier isn't there. Guests scan a QR code and get recommendations from the wines actually available at that outlet, while your beverage team sees what guests want, what they're choosing, and what they're not finding.
+
+### How do guests use Jarvis to choose a wine?
+
+Guests scan a QR code wherever they are on the property, at the table, pool, lounge, suite, beach, or course. They tell Jarvis the dish, wine style, budget, or mood they have in mind, by typing or speaking. Jarvis recommends two wines, each with a tasting note and why it works, and the guest can send the selection directly to the service team.
+
+### Does Jarvis only recommend wines we actually have?
+
+Yes. Every recommendation comes from the wines available at that outlet. In the back office you upload and organize the list and mark wines available or 86.
+
+### Do guests need to download an app to use Jarvis?
+
+Guests scan the QR code with their phone camera and Jarvis opens in the browser. They can also add Jarvis to their Home Screen from Safari on iPhone or Chrome on Android.
+
+### Can Jarvis match our property's brand and wine program?
+
+Yes. Jarvis uses your house tasting notes, pairings, mark, and colors, so it feels like the property, not a generic wine app. It can surface wines you want guests to discover while keeping recommendations tied to what is actually available.
+
+### What does the beverage team see in Jarvis?
+
+Beverage Intelligence shows what guests asked for, chose, and could not find, with outlet-level activity. You can see searches such as Cabernet under $100, wines for steak, or requests for bottles you do not currently carry.
+
+### Who built Jarvis?
+
+Jarvis was created by Jonathan Gonsenhauser, Advanced Sommelier, with experience leading wine and beverage programs managing more than $1M in inventory. Jarvis is built by AgentHaus.
+
+### How much does Jarvis cost, and can we try it first?
+
+You can pilot one outlet. Branding, list upload, availability, and Beverage Intelligence are included. For pricing and further customization, contact jonathan@agenthaus.io.
