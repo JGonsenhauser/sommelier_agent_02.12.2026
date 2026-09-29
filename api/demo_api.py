@@ -358,7 +358,22 @@ def _guest_wine(wine: dict, query: str, menu: list, rank: int) -> dict:
 
 @app.get("/", include_in_schema=False)
 async def index():
-    return FileResponse(MOBILE / "index.html")
+    return FileResponse(MOBILE / "landing.html")
+
+
+@app.get("/robots.txt", include_in_schema=False)
+async def robots_txt():
+    return FileResponse(MOBILE / "robots.txt", media_type="text/plain; charset=utf-8")
+
+
+@app.get("/sitemap.xml", include_in_schema=False)
+async def sitemap_xml():
+    return FileResponse(MOBILE / "sitemap.xml", media_type="application/xml")
+
+
+@app.get("/llms.txt", include_in_schema=False)
+async def llms_txt():
+    return FileResponse(MOBILE / "llms.txt", media_type="text/plain; charset=utf-8")
 
 
 @app.get("/demo", include_in_schema=False)
