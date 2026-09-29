@@ -589,6 +589,11 @@ async def llms_txt():
     return FileResponse(MOBILE / "llms.txt", media_type="text/plain; charset=utf-8")
 
 
+@app.get("/faq", include_in_schema=False)
+async def faq_page():
+    return FileResponse(MOBILE / "faq.html")
+
+
 @app.get("/demo", include_in_schema=False)
 @app.get("/qr", include_in_schema=False)
 @app.get("/showcase", include_in_schema=False)

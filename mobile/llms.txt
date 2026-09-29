@@ -25,7 +25,8 @@ Jarvis (https://jarvis.agenthaus.io/) is a wine recommendation tool built by Age
 
 ## Pages
 
-- https://jarvis.agenthaus.io/ (overview and FAQ)
+- https://jarvis.agenthaus.io/ (overview)
+- https://jarvis.agenthaus.io/faq (frequently asked questions)
 - https://jarvis.agenthaus.io/index.html (guest demo)
 - https://jarvis.agenthaus.io/index.html?office=demo (back office demo)
 - https://agenthaus.io/#jarvis (AgentHaus field products)

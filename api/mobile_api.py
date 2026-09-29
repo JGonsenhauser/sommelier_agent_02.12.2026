@@ -179,6 +179,11 @@ async def showcase_page():
     return FileResponse(MOBILE_DIR / "showcase.html")
 
 
+@app.get("/faq", include_in_schema=False)
+async def faq_page():
+    return FileResponse(MOBILE_DIR / "faq.html")
+
+
 @app.get("/api/restaurants")
 async def list_restaurants():
     """List available restaurants."""
