@@ -3,4 +3,5 @@ Allow: /
 Disallow: /api/
 Disallow: /admin
 
+# Indexing controlled via X-Robots-Tag / meta robots noindex (leave Allow so crawlers can see noindex).
 Sitemap: https://jarvis.agenthaus.io/sitemap.xml
